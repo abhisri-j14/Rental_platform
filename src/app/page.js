@@ -1,65 +1,100 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Star, ShieldCheck, Zap } from "lucide-react";
+import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <div className={styles.container}>
+      {/* Hero Section */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.title}>
+            Tech without the <span className={styles.highlight}>price tag</span>.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className={styles.subtitle}>
+            Rent premium laptops, cameras, drones, and more for a fraction of the cost. 
+            Delivered to your door.
           </p>
+          <div className={styles.ctaGroup}>
+            <Link href="/category/all" className={styles.primaryBtn}>
+              Start Renting
+            </Link>
+            <Link href="/compare" className={styles.secondaryBtn}>
+              Compare Devices
+            </Link>
+            <Link href="/owner" className={styles.secondaryBtn}>
+              List Your Device
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className={styles.heroImageContainer}>
+          <div className={styles.gadgetMockup}>
+            <div className={styles.mockupScreen}>
+              <div className={styles.mockupText}>Use a Macbook for 3 days at Rs 1500!</div>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Promotions */}
+      <section className={styles.promos}>
+        <div className={styles.promoCard}>
+          <h3>📸 DSLR Cameras</h3>
+          <p>Brand new DSLRs with 30% off renting price this weekend.</p>
+        </div>
+        <div className={`${styles.promoCard} ${styles.promoCardAlt}`}>
+          <h3>💻 MacBooks</h3>
+          <p>Ace your college project. Rent from Rs 300/day.</p>
+        </div>
+        <div className={styles.promoCard}>
+          <h3>🚁 Drones</h3>
+          <p>Capture memories. DJI Drones starting at Rs 500/day.</p>
+        </div>
+      </section>
+
+      {/* How it Works */}
+      <section className={styles.howItWorks}>
+        <h2 className={styles.sectionTitle}>How GadgetGo Works</h2>
+        <div className={styles.steps}>
+          <div className={styles.step}>
+            <div className={styles.stepIcon}><Zap size={32} /></div>
+            <h3>1. Choose Device</h3>
+            <p>Browse our catalog of Aadhar-verified devices from top store owners.</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepIcon}><ShieldCheck size={32} /></div>
+            <h3>2. Book & Pay</h3>
+            <p>Select your dates, pay securely online, and leave a refundable deposit.</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepIcon}><ArrowRight size={32} /></div>
+            <h3>3. Get Delivered</h3>
+            <p>We deliver the device to your doorstep. Use it, love it, and return it easily.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className={styles.testimonials}>
+        <h2 className={styles.sectionTitle}>What our users say</h2>
+        <div className={styles.reviews}>
+          <div className={styles.review}>
+            <div className={styles.stars}>
+              <Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" />
+            </div>
+            <p>"Needed a Macbook for a hackathon. GadgetGo saved my life! Super smooth process and the device was brand new."</p>
+            <h4>- Rahul S. (Student)</h4>
+          </div>
+          <div className={styles.review}>
+             <div className={styles.stars}>
+              <Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" />
+            </div>
+            <p>"As a store owner, my unsold inventory was gathering dust. Now I make passive income every week! Highly recommend."</p>
+            <h4>- Amit's Electronics</h4>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

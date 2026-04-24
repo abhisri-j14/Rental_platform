@@ -1,0 +1,369 @@
+.container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 100%; /* Spans full width, no empty left/right space */
+  margin: 0;
+  background-color: #f8f9fa; /* Light grey background to match ecommerce */
+  min-height: 100vh;
+}
+
+/* Left Sidebar */
+.leftSidebar {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterGroup h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 0.2rem;
+  color: var(--black);
+}
+
+.filterGroup a {
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.filterGroup a:hover {
+  color: var(--cornflower-blue);
+  text-decoration: underline;
+}
+
+.filterGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.filterGroup input {
+  accent-color: var(--cornflower-blue);
+  width: 16px;
+  height: 16px;
+}
+
+.seeMore {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--cornflower-blue) !important;
+  font-weight: 600;
+}
+
+.helpText {
+  font-size: 0.8rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultsHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.resultsHeader h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.3rem;
+}
+
+.resultsHeader p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* List View Product Card */
+.productCard {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border: 3px solid var(--black); /* Keeping neo-brutalism */
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px var(--black);
+  transition: all 0.2s;
+}
+
+.productCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--black);
+}
+
+.imageCol {
+  flex: 0 0 250px;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 250px;
+  background-color: #F7F8F8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  border-radius: 8px;
+  border: 2px solid #eee;
+}
+
+.detailsCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  justify-content: flex-start;
+}
+
+.sponsoredTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 0.2rem;
+}
+
+.productName {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--black);
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.productName:hover {
+  color: var(--cornflower-blue);
+  text-decoration: underline;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #FF9900;
+  font-weight: 700;
+}
+
+.reviews {
+  color: #007185;
+}
+
+.rentedCount {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.priceSymbol {
+  font-size: 1rem;
+  font-weight: 500;
+  position: relative;
+  top: -0.5em;
+}
+
+.priceValue {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.mrp {
+  font-size: 0.9rem;
+  color: #565959;
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.discount {
+  font-size: 0.9rem;
+  color: #CC0C39; /* Reddish color for discount */
+}
+
+.fulfillment {
+  margin-bottom: 0.2rem;
+}
+
+.fulfilledBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background-color: var(--black);
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.deliveryInfo {
+  font-size: 0.9rem;
+  color: #0F1111;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  margin-top: auto;
+}
+
+.addToCartBtn {
+  display: inline-block;
+  background-color: var(--lime-cream);
+  color: var(--black);
+  padding: 0.8rem 2rem;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 1rem;
+  text-decoration: none;
+  border: 2px solid var(--black);
+  box-shadow: 2px 2px 0px var(--black);
+  transition: all 0.2s;
+}
+
+.addToCartBtn:hover {
+  background-color: var(--tea-green);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--black);
+}
+
+/* Right Sidebar */
+.rightSidebar {
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cartBox {
+  background: #fff;
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 4px 4px 0px var(--black);
+}
+
+.cartBox h3 {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.subtotalPrice {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #B12704;
+  margin-bottom: 1rem;
+}
+
+.goToCartBtn {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--cornflower-blue);
+  color: #fff;
+  border: 2px solid var(--black);
+  border-radius: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--black);
+  transition: all 0.2s;
+}
+
+.goToCartBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--black);
+}
+
+.adBox {
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.adBox p:first-child {
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.adImage {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.adText {
+  font-size: 0.9rem;
+  color: #0F1111;
+  font-weight: 600;
+}
+
+@media (max-width: 1200px) {
+  .rightSidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .leftSidebar {
+    flex: none;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+  }
+  .productCard {
+    flex-direction: column;
+  }
+  .imageCol {
+    flex: none;
+    width: 100%;
+  }
+  .imagePlaceholder {
+    height: 200px;
+  }
+}

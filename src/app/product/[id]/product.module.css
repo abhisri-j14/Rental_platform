@@ -1,0 +1,438 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  gap: 3rem;
+  background-color: #f8f9fa; /* Light grey bg to make cards pop */
+  min-height: 100vh;
+}
+
+/* Left Column */
+.leftColumn {
+  flex: 0 0 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.imageGalleryWrapper {
+  display: flex;
+  gap: 1rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.thumbnailGallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 0 60px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+.activeThumb {
+  border: 2px solid var(--cornflower-blue);
+}
+
+.mainImage {
+  flex: 1;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #555;
+  min-height: 350px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.addToCartBtn, .bookNowBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.addToCartBtn {
+  background-color: #fff;
+  color: #c2196e; /* Meesho pinkish tone for add to cart */
+  border: 1px solid #c2196e;
+}
+
+.addToCartBtn:hover {
+  background-color: #fef0f5;
+}
+
+.bookNowBtn {
+  background-color: #c2196e; /* Meesho pink */
+  color: #fff;
+  border: 1px solid #c2196e;
+}
+
+.bookNowBtn:hover {
+  opacity: 0.9;
+}
+
+/* Right Column */
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.rupee {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #333;
+}
+
+.perDay {
+  font-size: 1rem;
+  color: #666;
+  margin-right: 0.5rem;
+}
+
+.infoIcon {
+  color: #999;
+  cursor: help;
+}
+
+.ratingBadgeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ratingBadge {
+  background-color: #038d63; /* Meesho green */
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.ratingText {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.durationPills {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d32f2f; /* Pinkish outline */
+  border-radius: 20px;
+  background: transparent;
+  color: #d32f2f;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pill:hover {
+  background-color: #fef0f5;
+}
+
+.activePill {
+  background-color: #fef0f5;
+  border-width: 2px;
+}
+
+.highlightsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.highlightItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.highlightLabel {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.highlightValue {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 1.5rem 0;
+}
+
+.subTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.specList {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.8;
+  list-style: none;
+  padding: 0;
+}
+
+.ownerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ownerAvatar {
+  width: 50px;
+  height: 50px;
+  background-color: #f0f4f8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ownerInfo {
+  flex: 1;
+}
+
+.ownerName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+.verifiedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: #008000;
+}
+
+.viewShopBtn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #c2196e;
+  color: #c2196e;
+  background: transparent;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.viewShopBtn:hover {
+  background-color: #fef0f5;
+}
+
+/* Ratings */
+.reviewSummary {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.reviewLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hugeRating {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #038d63;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ratingTextSmall {
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.4;
+}
+
+.reviewRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.barRow span:first-child {
+  width: 70px;
+  text-align: right;
+}
+
+.barRow span:last-child {
+  width: 40px;
+  text-align: right;
+  color: #888;
+}
+
+.barBg {
+  flex: 1;
+  height: 6px;
+  background-color: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.reviewUser {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.userAvatar {
+  width: 24px;
+  height: 24px;
+  background-color: #e0eaf5;
+  color: #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}
+
+.reviewBadgeDate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.reviewDate {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.reviewText {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .leftColumn {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+  .reviewSummary {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}

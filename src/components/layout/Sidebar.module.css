@@ -1,0 +1,125 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 80vw;
+  height: 100vh;
+  background-color: var(--background);
+  border-right: 2px solid var(--black);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--black);
+  background-color: var(--lime-cream);
+  color: var(--black);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.closeButton {
+  color: var(--black);
+  transition: transform 0.2s;
+}
+
+.closeButton:hover {
+  transform: rotate(90deg);
+}
+
+.nav {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.link:hover {
+  background-color: var(--lavender-veil);
+  border-color: var(--black);
+  transform: translateX(5px);
+  color: var(--black);
+}
+
+.icon {
+  color: var(--cornflower-blue);
+}
+
+.divider {
+  height: 2px;
+  background-color: var(--black);
+  margin: 1rem 0;
+  opacity: 0.1;
+}
+
+.linkSpecial {
+  display: block;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  background-color: var(--tea-green);
+  border: 2px solid var(--black);
+  border-radius: 12px;
+  transition: all 0.2s;
+  color: var(--black);
+}
+
+.linkSpecial:hover {
+  background-color: var(--lime-cream);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px var(--black);
+}
+
+.linkSpecialOutline {
+  display: block;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  background-color: transparent;
+  border: 2px solid var(--black);
+  border-radius: 12px;
+  transition: all 0.2s;
+  color: var(--foreground);
+}
+
+.linkSpecialOutline:hover {
+  background-color: var(--black);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px var(--cornflower-blue);
+}

@@ -1,0 +1,140 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 4rem 2rem;
+  background-color: var(--lime-cream);
+}
+
+.authCard {
+  background-color: #fff;
+  padding: 3rem;
+  border-radius: 16px;
+  border: 3px solid var(--black);
+  box-shadow: 10px 10px 0px var(--black);
+  width: 100%;
+  max-width: 500px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.toggleGroup {
+  display: flex;
+  border: 2px solid var(--black);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.toggleBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  background-color: #f3f4f6;
+  border: none;
+  transition: all 0.2s;
+  color: #666;
+}
+
+.toggleBtn.active {
+  background-color: var(--cornflower-blue);
+  color: #fff;
+}
+
+.toggleBtn:not(.active):hover {
+  background-color: var(--lavender-veil);
+  color: var(--black);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.inputGroup label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.inputGroup input {
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--black);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: var(--cornflower-blue);
+  box-shadow: 3px 3px 0px var(--cornflower-blue);
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  background-color: var(--black);
+  color: var(--lime-cream);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px var(--cornflower-blue);
+  transition: all 0.2s;
+}
+
+.primaryBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--cornflower-blue);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.footer a {
+  color: var(--cornflower-blue);
+  text-decoration: underline;
+}
