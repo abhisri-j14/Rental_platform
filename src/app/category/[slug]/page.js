@@ -1,145 +1,237 @@
 "use client";
 import Link from 'next/link';
-import { Star, ShieldCheck, ChevronDown, CheckSquare, ShoppingCart, Check } from 'lucide-react';
-import { use } from 'react';
+import { Star, ShieldCheck, Check, ArrowUpDown, ShoppingCart, ChevronsRight, Tag } from 'lucide-react';
+import { use, useState, useEffect, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './category.module.css';
+import { useCart } from '@/context/CartContext';
 
-export default function CategoryPage({ params }) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+function CategoryContent({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
-  const categoryName = slug === 'all' ? 'All Devices' : slug.charAt(0).toUpperCase() + slug.slice(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+  const { addToCart, cartItems } = useCart();
 
-  const allProducts = [
-    { id: 1, name: "MacBook Pro M2 14-inch [2023 Edition] 16GB Unified RAM | 512GB SSD | Liquid Retina XDR", brand: "Apple", price: 1500, mrp: 2500, rating: 4.8, reviews: 463, rented: "2K+ rented in past month", image: "💻", category: "laptops", delivery: "Tomorrow 8 am - 12 pm", sponsored: true },
-    { id: 2, name: "Dell XPS 15 OLED Touchscreen | Intel Core i7 13th Gen | Content Creator Laptop", brand: "Dell", price: 1200, mrp: 1800, rating: 4.2, reviews: 120, rented: "500+ rented in past month", image: "💻", category: "laptops", delivery: "Sunday, 26 Apr", sponsored: false },
-    { id: 3, name: "Lenovo Legion Pro 5 Gaming Laptop | RTX 4070 | 165Hz Display | Great for eSports", brand: "Lenovo", price: 1100, mrp: 1500, rating: 4.9, reviews: 89, rented: "1K+ rented in past month", image: "💻", category: "laptops", delivery: "Tomorrow", sponsored: true },
-    { id: 4, name: "HP Spectre x360 2-in-1 Touch | Intel Core i5 | Pen Included", brand: "HP", price: 900, mrp: 1200, rating: 4.5, reviews: 56, rented: "200+ rented in past month", image: "💻", category: "laptops", delivery: "Sunday, 26 Apr", sponsored: false },
-    { id: 5, name: "iPhone 15 Pro Max 256GB | Natural Titanium | Best Camera Phone", brand: "Apple", price: 800, mrp: 1200, rating: 4.9, reviews: 1024, rented: "5K+ rented in past month", image: "📱", category: "phones", delivery: "Tomorrow 8 am - 12 pm", sponsored: true },
-    { id: 6, name: "Samsung Galaxy S24 Ultra AI Smartphone | S-Pen | 512GB", brand: "Samsung", price: 750, mrp: 1100, rating: 4.8, reviews: 850, rented: "3K+ rented in past month", image: "📱", category: "phones", delivery: "Tomorrow", sponsored: false },
-    { id: 7, name: "Sony A7IV Mirrorless Camera Body | 33MP Full-Frame | 4K 60p Video", brand: "Sony", price: 1200, mrp: 1800, rating: 4.9, reviews: 320, rented: "1K+ rented in past month", image: "📸", category: "cameras", delivery: "Monday, 27 Apr", sponsored: true },
-    { id: 8, name: "Canon EOS R5 Mirrorless Camera | 8K Video | 45MP", brand: "Canon", price: 1500, mrp: 2200, rating: 4.8, reviews: 210, rented: "800+ rented in past month", image: "📸", category: "cameras", delivery: "Tuesday, 28 Apr", sponsored: false },
-    { id: 9, name: "DJI Mini 3 Pro Drone with Smart Controller | 4K HDR Video", brand: "DJI", price: 800, mrp: 1200, rating: 4.6, reviews: 450, rented: "2K+ rented in past month", image: "🚁", category: "drones", delivery: "Tomorrow", sponsored: true },
-    { id: 10, name: "DJI Mavic 3 Classic Drone | Hasselblad Camera | 46 Min Flight Time", brand: "DJI", price: 1400, mrp: 2000, rating: 4.9, reviews: 150, rented: "500+ rented in past month", image: "🚁", category: "drones", delivery: "Sunday, 26 Apr", sponsored: false }
-  ];
+  const categoryName = slug === 'all'
+    ? 'All Devices'
+    : slug.charAt(0).toUpperCase() + slug.slice(1);
 
-  const products = slug === 'all' ? allProducts : allProducts.filter(p => p.category === slug);
-  const brands = [...new Set(products.map(p => p.brand))];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState('popular');
+  const [addedIds, setAddedIds] = useState({});
+
+  useEffect(() => {
+    setLoading(true);
+    let url = slug === 'all'
+      ? `${API_URL}/api/products`
+      : `${API_URL}/api/products?category=${slug}`;
+    
+    if (searchQuery) {
+      url += (url.includes('?') ? '&' : '?') + `search=${encodeURIComponent(searchQuery)}`;
+    }
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug]);
+
+  // Sort products in-memory based on selected sort option
+  const sortedProducts = useMemo(() => {
+    const arr = [...products];
+    switch (sort) {
+      case 'popular':
+        return arr.sort((a, b) => (b.rentedCount || 0) - (a.rentedCount || 0));
+      case 'price_asc':
+        return arr.sort((a, b) => a.pricePerDay - b.pricePerDay);
+      case 'price_desc':
+        return arr.sort((a, b) => b.pricePerDay - a.pricePerDay);
+      case 'rating':
+        return arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      case 'newest':
+        return arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      default:
+        return arr;
+    }
+  }, [products, sort]);
+
+  const emojiMap = {
+    laptops: '💻', cameras: '📸', phones: '📱', drones: '🚁',
+    tablets: '📱', gaming: '🎮', vr: '🥽', audio: '🎧', accessories: '🔌',
+  };
+
+  const handleAddToCart = (product) => {
+    addToCart({
+      _id: product._id,
+      title: product.title,
+      brand: product.brand,
+      category: product.category,
+      pricePerDay: product.pricePerDay,
+      actualPrice: product.actualPrice || 0,
+      damageDeposit: product.damageDeposit,
+      days: 1,
+    });
+    setAddedIds(prev => ({ ...prev, [product._id]: true }));
+    setTimeout(() => setAddedIds(prev => ({ ...prev, [product._id]: false })), 2000);
+  };
+
+  const handleRentNow = (product) => {
+    const token = localStorage.getItem('gadgetgo_token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    sessionStorage.setItem('checkout_product', JSON.stringify({
+      _id: product._id,
+      title: product.title,
+      brand: product.brand,
+      pricePerDay: product.pricePerDay,
+      damageDeposit: product.damageDeposit,
+      days: 1,
+      owner: product.owner,
+    }));
+    router.push('/checkout');
+  };
+
+  const isInCart = (id) => cartItems.some(i => i._id === id);
 
   return (
     <div className={styles.container}>
-      
-      {/* Left Sidebar Filters */}
-      <aside className={styles.leftSidebar}>
-        <div className={styles.filterGroup}>
-          <h3>Popular Categories</h3>
-          <Link href="/category/laptops">Laptops</Link>
-          <Link href="/category/phones">Phones</Link>
-          <Link href="/category/cameras">Cameras</Link>
-          <Link href="/category/drones">Drones</Link>
-          <Link href="/category/all" className={styles.seeMore}><ChevronDown size={14}/> See more</Link>
-        </div>
-
-        <div className={styles.filterGroup}>
-          <h3>Delivery Day</h3>
-          <label><input type="checkbox"/> Get It by Tomorrow</label>
-          <label><input type="checkbox"/> Get It in 2 Days</label>
-        </div>
-
-        <div className={styles.filterGroup}>
-          <h3>Eligible for Free Delivery</h3>
-          <label><input type="checkbox"/> Free Delivery</label>
-          <p className={styles.helpText}>Get FREE Delivery on eligible orders fulfilled by GadgetGo.</p>
-        </div>
-
-        <div className={styles.filterGroup}>
-          <h3>Price per day</h3>
-          <Link href="#">Under Rs 500</Link>
-          <Link href="#">Rs 500 - Rs 1000</Link>
-          <Link href="#">Rs 1000 - Rs 2000</Link>
-          <Link href="#">Over Rs 2000</Link>
-        </div>
-
-        <div className={styles.filterGroup}>
-          <h3>Brands</h3>
-          {brands.map(brand => (
-            <label key={brand}><input type="checkbox"/> {brand}</label>
-          ))}
-          {brands.length === 0 && <p className={styles.helpText}>No brands available.</p>}
-        </div>
-      </aside>
 
       {/* Main Content Area */}
       <main className={styles.mainContent}>
+
+        {/* Results Header with Sort */}
         <div className={styles.resultsHeader}>
-          <h2>Results</h2>
-          <p>Check each product page for other renting options and damage deposit details.</p>
+          <div className={styles.titleArea}>
+            <h1>
+              {searchQuery 
+                ? `Search Results for "${searchQuery}"` 
+                : `${categoryName} Rentals`}
+            </h1>
+            <span className={styles.itemCount}>{sortedProducts.length} devices available</span>
+          </div>
+          <div className={styles.sortRow}>
+            <ArrowUpDown size={16} className={styles.sortIcon} />
+            <select
+              className={styles.sortSelect}
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+            >
+              <option value="popular">Most Popular</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="rating">Best Rating</option>
+              <option value="newest">Newest First</option>
+            </select>
+          </div>
         </div>
 
-        <div className={styles.productList}>
-          {products.map(product => (
-            <div key={product.id} className={styles.productCard}>
-              
-              <div className={styles.imageCol}>
-                <div className={styles.imagePlaceholder}>{product.image}</div>
-              </div>
+        {loading ? (
+          <div className={styles.loadingText}>Loading products...</div>
+        ) : sortedProducts.length === 0 ? (
+          <div className={styles.loadingText}>No products found in this category.</div>
+        ) : (
+          <div className={styles.productList}>
+            {sortedProducts.map(product => (
+              <div key={product._id} className={styles.productCard}>
 
-              <div className={styles.detailsCol}>
-                {product.sponsored && (
-                  <span className={styles.sponsoredTag}>Sponsored <ShieldCheck size={12}/></span>
-                )}
-                
-                <Link href={`/product/${product.id}`} className={styles.productName}>
-                  {product.name}
-                </Link>
-                
-                <div className={styles.ratingRow}>
-                  <span className={styles.rating}>{product.rating} <Star size={14} fill="#FF9900" color="#FF9900"/></span>
-                  <span className={styles.reviews}>({product.reviews})</span>
-                </div>
-                <div className={styles.rentedCount}>{product.rented}</div>
-
-                <div className={styles.priceRow}>
-                  <span className={styles.priceSymbol}>₹</span>
-                  <span className={styles.priceValue}>{product.price}</span>
-                  <span className={styles.mrp}>M.R.P: ₹{product.mrp}</span>
-                  <span className={styles.discount}>({Math.round(((product.mrp - product.price) / product.mrp) * 100)}% off)</span>
+                <div className={styles.imageCol}>
+                  <div className={styles.imagePlaceholder}>
+                    {product.images?.[0] || emojiMap[product.category] || '📦'}
+                  </div>
                 </div>
 
-                <div className={styles.fulfillment}>
-                  <span className={styles.fulfilledBadge}><Check size={12}/> GadgetGo Fulfilled</span>
-                </div>
+                <div className={styles.detailsCol}>
+                  {product.sponsored && (
+                    <span className={styles.sponsoredTag}>Sponsored <ShieldCheck size={12}/></span>
+                  )}
 
-                <div className={styles.deliveryInfo}>
-                  FREE delivery <strong>{product.delivery}</strong>
-                </div>
-
-                <div className={styles.actions}>
-                  <Link href={`/product/${product.id}`} className={styles.addToCartBtn}>
-                    Rent Now
+                  <Link href={`/product/${product._id}`} className={styles.productName}>
+                    {product.title}
                   </Link>
-                </div>
-              </div>
 
-            </div>
-          ))}
-        </div>
+                  <div className={styles.ratingRow}>
+                    <span className={styles.rating}>{product.rating} <Star size={14} fill="#FF9900" color="#FF9900"/></span>
+                    <span className={styles.reviews}>({product.totalRatings?.toLocaleString() || 0})</span>
+                  </div>
+
+                  <div className={styles.rentedCount}>
+                    {product.rentedCount > 0
+                      ? `${product.rentedCount >= 1000 ? (product.rentedCount / 1000).toFixed(0) + 'K' : product.rentedCount}+ rented`
+                      : 'New listing'}
+                  </div>
+
+                  {/* Rental Price */}
+                  <div className={styles.priceRow}>
+                    <span className={styles.priceSymbol}>₹</span>
+                    <span className={styles.priceValue}>{product.pricePerDay.toLocaleString('en-IN')}</span>
+                    <span className={styles.perDay}>/day</span>
+                  </div>
+
+                  {/* Actual Market Price (MRP) */}
+                  {product.actualPrice > 0 && (
+                    <div className={styles.actualPriceRow}>
+                      <Tag size={12} className={styles.tagIcon} />
+                      <span className={styles.actualPriceLabel}>Market Price:</span>
+                      <span className={styles.actualPriceValue}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  <div className={styles.fulfillment}>
+                    <span className={styles.fulfilledBadge}><Check size={12}/> GadgetGo Fulfilled</span>
+                  </div>
+
+                  <div className={styles.deliveryInfo}>
+                    FREE delivery <strong>{product.delivery || 'Tomorrow'}</strong>
+                  </div>
+
+                  {/* Both action buttons */}
+                  <div className={styles.actions}>
+                    <button
+                      className={`${styles.addToCartBtn} ${isInCart(product._id) ? styles.inCart : ''}`}
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      {addedIds[product._id] ? (
+                        <><Check size={15}/> Added!</>
+                      ) : isInCart(product._id) ? (
+                        <><ShoppingCart size={15}/> In Cart</>
+                      ) : (
+                        <><ShoppingCart size={15}/> Add to Cart</>
+                      )}
+                    </button>
+
+                    <button
+                      className={styles.rentNowBtn}
+                      onClick={() => handleRentNow(product)}
+                    >
+                      <ChevronsRight size={15}/> Rent Now
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      {/* Right Sidebar */}
-      <aside className={styles.rightSidebar}>
-        <div className={styles.cartBox}>
-          <h3>Subtotal</h3>
-          <p className={styles.subtotalPrice}>₹0.00</p>
-          <button className={styles.goToCartBtn}>Go to Cart</button>
-        </div>
-
-        <div className={styles.adBox}>
-          <p>Sponsored</p>
-          <div className={styles.adImage}>📸</div>
-          <p className={styles.adText}>Upgrade your gear with 20% off DSLR rentals this week!</p>
-        </div>
-      </aside>
-
     </div>
+  );
+}
+
+export default function CategoryPage({ params }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CategoryContent params={params} />
+    </Suspense>
   );
 }

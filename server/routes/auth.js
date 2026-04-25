@@ -78,11 +78,15 @@ async function sendVerificationEmail(user) {
 //  SIGNUP
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.post('/signup', async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phone, role } = req.body;
 
   if (!name || !email || !password || !phone) {
     return res.status(400).json({ error: 'All fields are required' });
   }
+
+  // Validate role
+  const validRoles = ['user', 'owner'];
+  const assignedRole = validRoles.includes(role) ? role : 'user';
 
   // Check if user already exists
   const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
@@ -98,6 +102,7 @@ router.post('/signup', async (req, res) => {
     email,
     password: hashedPassword,
     phone,
+    role: assignedRole,
   });
 
   // Send verification email

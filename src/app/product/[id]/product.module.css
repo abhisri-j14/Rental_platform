@@ -4,8 +4,33 @@
   padding: 2rem;
   display: flex;
   gap: 3rem;
-  background-color: #f8f9fa; /* Light grey bg to make cards pop */
+  background-color: #f8f9fa;
   min-height: 100vh;
+  position: relative;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #038d63;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Left Column */
@@ -132,7 +157,46 @@
   display: flex;
   align-items: baseline;
   gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* MRP / Actual Price row */
+.mrpRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
   margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff8f0;
+  border-left: 3px solid #f5a623;
+  border-radius: 4px;
+}
+
+.mrpIcon {
+  color: #f5a623;
+  flex-shrink: 0;
+}
+
+.mrpLabel {
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.mrpValue {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #555;
+  text-decoration: line-through;
+}
+
+.mrpSave {
+  font-size: 0.8rem;
+  color: #cc7700;
+  font-weight: 600;
+  background: #fff3cd;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
 }
 
 .rupee {
@@ -212,6 +276,65 @@
 .activePill {
   background-color: #fef0f5;
   border-width: 2px;
+}
+
+/* Custom days input */
+.customDaysRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.customDaysLabel {
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.customDaysInput {
+  width: 90px;
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid #c2196e;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  color: #333;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.customDaysInput:focus {
+  border-color: #9b0f57;
+  box-shadow: 0 0 0 3px rgba(194, 25, 110, 0.12);
+}
+
+.customDaysUnit {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.estimateRow {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.estimateAmount {
+  color: #c2196e;
+  font-size: 1.05rem;
+}
+
+.estimateDeposit {
+  font-size: 0.82rem;
+  color: #999;
 }
 
 .highlightsGrid {

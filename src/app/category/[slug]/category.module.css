@@ -1,111 +1,92 @@
 .container {
   display: flex;
-  gap: 2rem;
   padding: 2rem;
-  max-width: 100%; /* Spans full width, no empty left/right space */
-  margin: 0;
-  background-color: #f8f9fa; /* Light grey background to match ecommerce */
+  max-width: 1100px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
   min-height: 100vh;
 }
 
-/* Left Sidebar */
-.leftSidebar {
-  flex: 0 0 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filterGroup h3 {
-  font-size: 1rem;
-  font-weight: 800;
-  margin-bottom: 0.2rem;
-  color: var(--black);
-}
-
-.filterGroup a {
-  font-size: 0.9rem;
-  color: #333;
-  text-decoration: none;
-}
-
-.filterGroup a:hover {
-  color: var(--cornflower-blue);
-  text-decoration: underline;
-}
-
-.filterGroup label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #333;
-  cursor: pointer;
-}
-
-.filterGroup input {
-  accent-color: var(--cornflower-blue);
-  width: 16px;
-  height: 16px;
-}
-
-.seeMore {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  color: var(--cornflower-blue) !important;
-  font-weight: 600;
-}
-
-.helpText {
-  font-size: 0.8rem;
-  color: #555;
-  line-height: 1.4;
-}
-
-/* Main Content */
+/* ── Main Content ── */
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* Results Header */
 .resultsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #ddd;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.resultsHeader h2 {
+.resultsInfo h2 {
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 0.3rem;
+  color: #111;
 }
 
-.resultsHeader p {
-  font-size: 0.95rem;
+.resultsInfo p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Sort Row */
+.sortRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  box-shadow: 2px 2px 0 #111;
+}
+
+.sortIcon {
+  color: #555;
+  flex-shrink: 0;
+}
+
+.sortSelect {
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.loadingText {
+  padding: 3rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
   color: #555;
 }
 
+/* ── Product List ── */
 .productList {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* List View Product Card */
 .productCard {
   display: flex;
   gap: 2rem;
   padding: 1.5rem;
   background-color: #fff;
-  border: 3px solid var(--black); /* Keeping neo-brutalism */
+  border: 3px solid var(--black);
   border-radius: 12px;
   box-shadow: 4px 4px 0px var(--black);
   transition: all 0.2s;
@@ -117,17 +98,17 @@
 }
 
 .imageCol {
-  flex: 0 0 250px;
+  flex: 0 0 220px;
 }
 
 .imagePlaceholder {
   width: 100%;
-  height: 250px;
+  height: 220px;
   background-color: #F7F8F8;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 6rem;
+  font-size: 5rem;
   border-radius: 8px;
   border: 2px solid #eee;
 }
@@ -136,7 +117,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
   justify-content: flex-start;
 }
 
@@ -150,7 +131,7 @@
 }
 
 .productName {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--black);
   text-decoration: none;
@@ -182,16 +163,17 @@
 }
 
 .rentedCount {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #555;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
+/* Rental Price */
 .priceRow {
   display: flex;
   align-items: baseline;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
 }
 
 .priceSymbol {
@@ -204,22 +186,41 @@
 .priceValue {
   font-size: 2rem;
   font-weight: 800;
+  color: #111;
 }
 
-.mrp {
+.perDay {
   font-size: 0.9rem;
-  color: #565959;
+  color: #666;
+}
+
+/* Actual Market Price */
+.actualPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.tagIcon {
+  color: #f5a623;
+  flex-shrink: 0;
+}
+
+.actualPriceLabel {
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.actualPriceValue {
+  font-size: 0.88rem;
+  color: #666;
+  font-weight: 600;
   text-decoration: line-through;
-  margin-left: 0.5rem;
-}
-
-.discount {
-  font-size: 0.9rem;
-  color: #CC0C39; /* Reddish color for discount */
 }
 
 .fulfillment {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.1rem;
 }
 
 .fulfilledBadge {
@@ -230,131 +231,80 @@
   color: #fff;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .deliveryInfo {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #0F1111;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
+/* ── Action Buttons ── */
 .actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-top: auto;
 }
 
 .addToCartBtn {
-  display: inline-block;
-  background-color: var(--lime-cream);
-  color: var(--black);
-  padding: 0.8rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #fff;
+  color: #c2196e;
+  padding: 0.6rem 1.2rem;
   border-radius: 20px;
-  font-weight: 800;
-  font-size: 1rem;
-  text-decoration: none;
-  border: 2px solid var(--black);
-  box-shadow: 2px 2px 0px var(--black);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 2px solid #c2196e;
+  cursor: pointer;
   transition: all 0.2s;
+  font-family: inherit;
 }
 
 .addToCartBtn:hover {
-  background-color: var(--tea-green);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--black);
+  background-color: #fef0f5;
+  transform: translateY(-1px);
 }
 
-/* Right Sidebar */
-.rightSidebar {
-  flex: 0 0 250px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.addToCartBtn.inCart {
+  background-color: #fef0f5;
+  border-color: #038d63;
+  color: #038d63;
 }
 
-.cartBox {
-  background: #fff;
-  border: 3px solid var(--black);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 4px 4px 0px var(--black);
-}
-
-.cartBox h3 {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 0.5rem;
-}
-
-.subtotalPrice {
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: #B12704;
-  margin-bottom: 1rem;
-}
-
-.goToCartBtn {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: var(--cornflower-blue);
+.rentNowBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #c2196e;
   color: #fff;
-  border: 2px solid var(--black);
+  padding: 0.6rem 1.2rem;
   border-radius: 20px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 2px 2px 0px var(--black);
-  transition: all 0.2s;
-}
-
-.goToCartBtn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--black);
-}
-
-.adBox {
-  background: #fff;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.adBox p:first-child {
-  font-size: 0.8rem;
-  color: #555;
-  margin-bottom: 1rem;
-  text-align: right;
-}
-
-.adImage {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.adText {
+  font-weight: 700;
   font-size: 0.9rem;
-  color: #0F1111;
-  font-weight: 600;
+  border: 2px solid #c2196e;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
 }
 
-@media (max-width: 1200px) {
-  .rightSidebar {
-    display: none;
-  }
+.rentNowBtn:hover {
+  background-color: #9b0f57;
+  transform: translateY(-1px);
 }
 
+/* ── Responsive ── */
 @media (max-width: 900px) {
   .container {
-    flex-direction: column;
+    padding: 1rem;
   }
-  .leftSidebar {
-    flex: none;
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    border-right: none;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 1rem;
+  .resultsHeader {
+    flex-direction: column;
+    align-items: stretch;
   }
   .productCard {
     flex-direction: column;
@@ -364,6 +314,9 @@
     width: 100%;
   }
   .imagePlaceholder {
-    height: 200px;
+    height: 180px;
+  }
+  .actions {
+    flex-direction: row;
   }
 }

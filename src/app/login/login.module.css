@@ -329,3 +329,200 @@
     font-size: 1.5rem;
   }
 }
+
+/* ─── Role picker ────────────────────────────────────────── */
+.roleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.4rem 0 1.6rem;
+}
+
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.4rem 1rem;
+  background: #fff;
+  border: 2.5px solid var(--black);
+  border-radius: 14px;
+  box-shadow: 5px 5px 0px var(--black);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.roleCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.roleCard:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0px var(--black);
+}
+
+.roleCard:hover::before {
+  opacity: 1;
+}
+
+/* Renter card hover tint */
+.roleCard:nth-child(1)::before {
+  background: linear-gradient(135deg, #eef2ff 0%, #c7d2fe 100%);
+}
+
+/* Owner card hover tint */
+.roleCard:nth-child(2)::before {
+  background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+}
+
+.roleCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.roleCardActive {
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0px var(--black);
+}
+
+.roleCardActive:nth-child(1) {
+  border-color: #648DE5;
+  background: linear-gradient(135deg, #eef2ff 0%, #c7d2fe 100%);
+}
+
+.roleCardActive:nth-child(2) {
+  border-color: #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+}
+
+.roleIconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--black);
+  margin-bottom: 0.2rem;
+}
+
+.roleIconWrap[data-type="user"] {
+  background-color: #c7d2fe;
+  color: #3730a3;
+}
+
+.roleIconWrap[data-type="owner"] {
+  background-color: #fde68a;
+  color: #92400e;
+}
+
+.roleTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--black);
+}
+
+.roleDesc {
+  font-size: 0.72rem;
+  color: #555;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.roleTag {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #c7d2fe;
+  color: #3730a3;
+  border: 1.5px solid #818cf8;
+  margin-top: 0.2rem;
+}
+
+.roleTag[data-owner] {
+  background: #fde68a;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+
+/* ─── Role badge on signup form ──────────────────────────── */
+.roleBadgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: #c7d2fe;
+  color: #3730a3;
+  border: 2px solid #818cf8;
+}
+
+.roleBadgeOwner {
+  background: #fde68a;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+
+.roleBadgeBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #888;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.roleBadgeBack:hover {
+  color: var(--black);
+}
+
+/* ─── Role picker mobile ─────────────────────────────────── */
+@media (max-width: 440px) {
+  .roleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .roleCard {
+    flex-direction: row;
+    text-align: left;
+    padding: 1rem;
+  }
+
+  .roleIconWrap {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .roleDesc {
+    display: none;
+  }
+}

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowRight, Eye, EyeOff, Mail, Phone, Lock, User } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Mail, Phone, Lock, User, ShoppingBag, Store, ChevronLeft } from 'lucide-react';
 import styles from './login.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -10,7 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState('login'); // 'login' or 'signup'
-  const [step, setStep] = useState('form'); // 'form', 'otp', 'success'
+  const [step, setStep] = useState('form'); // 'form', 'role', 'otp', 'success'
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [role, setRole] = useState(''); // 'user' or 'owner'
 
   // Handle Google OAuth callback & email verification
   useEffect(() => {
@@ -38,6 +39,25 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
+  // Switch to signup and show role picker first
+  const goToSignup = () => {
+    setTab('signup');
+    setStep('role');
+    setError('');
+    setRole('');
+  };
+
+  const goToLogin = () => {
+    setTab('login');
+    setStep('form');
+    setError('');
+  };
+
+  const selectRole = (selectedRole) => {
+    setRole(selectedRole);
+    setStep('form');
+  };
+
   // ─── Signup ───────────────────────────────────────────────
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -48,7 +68,7 @@ export default function LoginPage() {
       const res = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone: `+91${phone}` }),
+        body: JSON.stringify({ name, email, password, phone: `+91${phone}`, role }),
       });
       const data = await res.json();
 
@@ -59,7 +79,7 @@ export default function LoginPage() {
 
       localStorage.setItem('gadgetgo_token', data.token);
       setSuccess('Account created! Sending OTP to verify your phone...');
-      
+
       // Auto-send OTP for phone verification
       await fetch(`${API_URL}/api/auth/send-otp`, {
         method: 'POST',
@@ -158,19 +178,70 @@ export default function LoginPage() {
         {error && <div className={styles.errorMsg}>{error}</div>}
         {success && <div className={styles.successMsg}>{success}</div>}
 
-        {step === 'form' ? (
+        {/* ─── ROLE PICKER ──────────────────────────────────── */}
+        {step === 'role' && (
+          <>
+            <h1 className={styles.title}>Join GadgetGo 🚀</h1>
+            <p className={styles.subtitle}>How would you like to use GadgetGo?</p>
+
+            <div className={styles.roleGrid}>
+              {/* Renter Card */}
+              <button
+                id="role-renter"
+                className={`${styles.roleCard} ${role === 'user' ? styles.roleCardActive : ''}`}
+                onClick={() => selectRole('user')}
+              >
+                <div className={styles.roleIconWrap} data-type="user">
+                  <ShoppingBag size={36} />
+                </div>
+                <div className={styles.roleTitle}>I&apos;m a Renter</div>
+                <div className={styles.roleDesc}>
+                  Browse and rent the latest electronics — laptops, cameras, consoles & more.
+                </div>
+                <div className={styles.roleTag}>Customer</div>
+              </button>
+
+              {/* Store Owner Card */}
+              <button
+                id="role-owner"
+                className={`${styles.roleCard} ${role === 'owner' ? styles.roleCardActive : ''}`}
+                onClick={() => selectRole('owner')}
+              >
+                <div className={styles.roleIconWrap} data-type="owner">
+                  <Store size={36} />
+                </div>
+                <div className={styles.roleTitle}>I&apos;m a Store Owner</div>
+                <div className={styles.roleDesc}>
+                  List your devices and earn by renting them out to customers near you.
+                </div>
+                <div className={styles.roleTag} data-owner>Store</div>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className={styles.linkBtn}
+              onClick={goToLogin}
+            >
+              Already have an account? Sign In
+            </button>
+          </>
+        )}
+
+        {/* ─── FORM STEP ────────────────────────────────────── */}
+        {step === 'form' && (
           <>
             {/* Tab switcher */}
             <div className={styles.tabs}>
               <button
                 className={`${styles.tab} ${tab === 'login' ? styles.activeTab : ''}`}
-                onClick={() => { setTab('login'); setError(''); }}
+                onClick={goToLogin}
               >
                 Sign In
               </button>
               <button
                 className={`${styles.tab} ${tab === 'signup' ? styles.activeTab : ''}`}
-                onClick={() => { setTab('signup'); setError(''); }}
+                onClick={goToSignup}
               >
                 Create Account
               </button>
@@ -178,73 +249,91 @@ export default function LoginPage() {
 
             {tab === 'signup' ? (
               /* ─── SIGNUP FORM ──────────────────────────── */
-              <form onSubmit={handleSignup} className={styles.form}>
-                <div className={styles.inputGroup}>
-                  <label><User size={14} /> Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="John Doe"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={styles.input}
-                  />
+              <>
+                {/* Role badge */}
+                <div className={styles.roleBadgeRow}>
+                  <button
+                    type="button"
+                    className={styles.roleBadgeBack}
+                    onClick={() => setStep('role')}
+                    title="Change account type"
+                  >
+                    <ChevronLeft size={15} />
+                    Change
+                  </button>
+                  <span className={`${styles.roleBadge} ${role === 'owner' ? styles.roleBadgeOwner : ''}`}>
+                    {role === 'owner' ? <><Store size={14} /> Store Owner</> : <><ShoppingBag size={14} /> Renter</>}
+                  </span>
                 </div>
 
-                <div className={styles.inputGroup}>
-                  <label><Mail size={14} /> Email</label>
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.inputGroup}>
-                  <label><Lock size={14} /> Password</label>
-                  <div className={styles.passwordContainer}>
+                <form onSubmit={handleSignup} className={styles.form}>
+                  <div className={styles.inputGroup}>
+                    <label><User size={14} /> Full Name</label>
                     <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Min 6 characters"
+                      type="text"
+                      placeholder="John Doe"
                       required
-                      minLength={6}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={styles.input}
-                    />
-                    <button
-                      type="button"
-                      className={styles.eyeBtn}
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className={styles.inputGroup}>
-                  <label><Phone size={14} /> Phone Number</label>
-                  <div className={styles.phoneInputContainer}>
-                    <span className={styles.countryCode}>+91</span>
-                    <input
-                      type="tel"
-                      placeholder="Enter 10-digit number"
-                      required
-                      pattern="[0-9]{10}"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className={styles.input}
                     />
                   </div>
-                </div>
 
-                <button type="submit" className={styles.primaryBtn} disabled={loading}>
-                  {loading ? 'Creating Account...' : 'Create Account'} <ArrowRight size={20} />
-                </button>
-              </form>
+                  <div className={styles.inputGroup}>
+                    <label><Mail size={14} /> Email</label>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label><Lock size={14} /> Password</label>
+                    <div className={styles.passwordContainer}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Min 6 characters"
+                        required
+                        minLength={6}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={styles.input}
+                      />
+                      <button
+                        type="button"
+                        className={styles.eyeBtn}
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label><Phone size={14} /> Phone Number</label>
+                    <div className={styles.phoneInputContainer}>
+                      <span className={styles.countryCode}>+91</span>
+                      <input
+                        type="tel"
+                        placeholder="Enter 10-digit number"
+                        required
+                        pattern="[0-9]{10}"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className={styles.input}
+                      />
+                    </div>
+                  </div>
+
+                  <button type="submit" className={styles.primaryBtn} disabled={loading}>
+                    {loading ? 'Creating Account...' : 'Create Account'} <ArrowRight size={20} />
+                  </button>
+                </form>
+              </>
             ) : (
               /* ─── LOGIN FORM ───────────────────────────── */
               <form onSubmit={handleLogin} className={styles.form}>
@@ -301,11 +390,13 @@ export default function LoginPage() {
               Continue with Google
             </a>
           </>
-        ) : step === 'otp' ? (
-          /* ─── OTP VERIFICATION ──────────────────────── */
+        )}
+
+        {/* ─── OTP VERIFICATION ──────────────────────────── */}
+        {step === 'otp' && (
           <>
             <h1 className={styles.title}>Verify Your Phone 📱</h1>
-            <p className={styles.subtitle}>We've sent a 6-digit OTP to +91 {phone}</p>
+            <p className={styles.subtitle}>We&apos;ve sent a 6-digit OTP to +91 {phone}</p>
 
             <form onSubmit={handleVerifyOtp} className={styles.form}>
               <div className={styles.inputGroup}>
@@ -333,7 +424,7 @@ export default function LoginPage() {
               </div>
             </form>
           </>
-        ) : null}
+        )}
 
         <div className={styles.footer}>
           <p>By continuing, you agree to our <Link href="#">Terms of Service</Link> and <Link href="#">Privacy Policy</Link>.</p>

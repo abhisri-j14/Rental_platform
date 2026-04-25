@@ -1,122 +1,198 @@
 "use client";
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Check, X, Trophy, Sparkles } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './compare.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+const CATEGORIES = [
+  { id: 'laptops', name: 'Laptops' },
+  { id: 'phones', name: 'Smartphones' },
+  { id: 'cameras', name: 'Cameras' },
+  { id: 'tablets', name: 'Tablets' },
+  { id: 'drones', name: 'Drones' },
+  { id: 'gaming', name: 'Gaming Consoles' },
+  { id: 'vr', name: 'VR Headsets' },
+  { id: 'audio', name: 'Audio' },
+];
+
+const emojiMap = {
+  laptops: '💻', cameras: '📸', phones: '📱', drones: '🚁',
+  tablets: '📱', gaming: '🎮', vr: '🥽', audio: '🎧', accessories: '🔌',
+};
+
 export default function ComparePage() {
-  const devices = [
-    {
-      id: 1,
-      name: "Dell XPS 15",
-      image: "💻",
-      price: 500,
-      rating: 4.8,
-      specs: {
-        Processor: "Intel Core i7 13th Gen",
-        RAM: "16GB DDR5",
-        Display: "15.6\" OLED Touch",
-        Battery: "Up to 14 hours"
-      },
-      vibe: "The Professional's Choice 👔",
-      sponsorTier: "gold",
-      tagline: "Sleek, powerful, and ready for business."
-    },
-    {
-      id: 2,
-      name: "Lenovo Legion Pro 5",
-      image: "🎮",
-      price: 450,
-      rating: 4.7,
-      specs: {
-        Processor: "AMD Ryzen 7 7745HX",
-        RAM: "16GB DDR5",
-        Display: "16\" WQXGA 165Hz",
-        Battery: "Up to 6 hours"
-      },
-      vibe: "The Gamer's Beast 🐉",
-      sponsorTier: "silver",
-      tagline: "Destroy your enemies, not your wallet."
-    },
-    {
-      id: 3,
-      name: "HP Envy x360",
-      image: "🎨",
-      price: 350,
-      rating: 4.5,
-      specs: {
-        Processor: "Intel Core i5 13th Gen",
-        RAM: "8GB DDR4",
-        Display: "15.6\" FHD Touch (2-in-1)",
-        Battery: "Up to 11 hours"
-      },
-      vibe: "The Creative Flexer 🤸",
-      sponsorTier: "none",
-      tagline: "Bend it like Beckham, create like Picasso."
+  const [category, setCategory] = useState('laptops');
+  const [products, setProducts] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
-  ];
+  };
+
+  // Fetch products when category changes
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_URL}/api/products?category=${category}`)
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.products || []);
+        setLoading(false);
+        // Reset selections when changing category
+        setSelectedIds([]);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, [category]);
+
+  const toggleSelection = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(prev => prev.filter(pid => pid !== id));
+    } else {
+      if (selectedIds.length >= 3) {
+        alert("You can compare a maximum of 3 devices at a time.");
+        return;
+      }
+      setSelectedIds(prev => [...prev, id]);
+    }
+  };
+
+  const selectedProducts = products.filter(p => selectedIds.includes(p._id));
+
+  // Collect all unique spec keys from selected products
+  const allSpecKeys = new Set();
+  selectedProducts.forEach(p => {
+    if (p.specs) {
+      Object.keys(p.specs).forEach(key => allSpecKeys.add(key));
+    }
+  });
+  const specKeysArray = Array.from(allSpecKeys);
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>The Ultimate Showdown 🥊</h1>
-        <p>Compare devices side-by-side. No rivalries here, just pure facts (and maybe a little fun).</p>
+        <p>Select a category, pick up to 3 devices, and compare the raw facts!</p>
       </div>
 
-      <div className={styles.compareGrid}>
-        {/* Empty top-left corner */}
-        <div className={styles.cornerCell}></div>
+      <div className={styles.controls}>
+        <div className={styles.categorySelect}>
+          <label>Step 1: Choose Category</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            {CATEGORIES.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
 
-        {/* Device Headers */}
-        {devices.map(device => (
-          <div key={`header-${device.id}`} className={`${styles.deviceHeader} ${styles[device.sponsorTier]}`}>
-            {device.sponsorTier === 'gold' && <div className={styles.sponsorBadge}><Sparkles size={14}/> Top Pick</div>}
-            <div className={styles.imagePlaceholder}>{device.image}</div>
-            <h2>{device.name}</h2>
-            <p className={styles.tagline}>{device.tagline}</p>
-            <div className={styles.vibe}>{device.vibe}</div>
-            <Link href={`/product/${device.id}`} className={styles.bookBtn}>Rent from Rs {device.price}/day</Link>
-          </div>
-        ))}
+        <div className={styles.picker}>
+          <div className={styles.pickerTitle}>Step 2: Pick up to 3 devices to compare ({selectedIds.length}/3)</div>
+          {loading ? (
+            <div className={styles.loading}>Loading devices...</div>
+          ) : (
+            <div className={styles.scrollContainer}>
+              <button className={`${styles.scrollBtn} ${styles.scrollLeft}`} onClick={() => scroll('left')}>
+                <ChevronLeft size={24} />
+              </button>
+              
+              <div className={styles.productGrid} ref={scrollRef}>
+                {products.map(product => (
+                  <div 
+                    key={product._id} 
+                    className={`${styles.productCard} ${selectedIds.includes(product._id) ? styles.selected : ''}`}
+                    onClick={() => toggleSelection(product._id)}
+                  >
+                    <div className={styles.productCardImage}>{emojiMap[product.category] || '📦'}</div>
+                    <div className={styles.productCardTitle} title={product.title}>{product.title}</div>
+                    <div className={styles.productCardPrice}>₹{product.pricePerDay}/day</div>
+                  </div>
+                ))}
+              </div>
 
-        {/* Rows */}
-        <div className={styles.rowLabel}>Rating</div>
-        {devices.map(device => (
-          <div key={`rating-${device.id}`} className={styles.cell}>
-            <span className={styles.ratingText}>⭐ {device.rating}/5.0</span>
-          </div>
-        ))}
-
-        <div className={styles.rowLabel}>Processor</div>
-        {devices.map(device => (
-          <div key={`cpu-${device.id}`} className={styles.cell}>{device.specs.Processor}</div>
-        ))}
-
-        <div className={styles.rowLabel}>RAM</div>
-        {devices.map(device => (
-          <div key={`ram-${device.id}`} className={styles.cell}>{device.specs.RAM}</div>
-        ))}
-
-        <div className={styles.rowLabel}>Display</div>
-        {devices.map(device => (
-          <div key={`disp-${device.id}`} className={styles.cell}>{device.specs.Display}</div>
-        ))}
-
-        <div className={styles.rowLabel}>Battery Life</div>
-        {devices.map(device => (
-          <div key={`batt-${device.id}`} className={styles.cell}>{device.specs.Battery}</div>
-        ))}
-
-        <div className={styles.rowLabel}>Can run Crysis?</div>
-        {devices.map(device => (
-          <div key={`crysis-${device.id}`} className={styles.cell}>
-            {device.id === 2 ? <Check color="green" size={28}/> : (device.id === 1 ? "Maybe? 🤷‍♂️" : <X color="red" size={28}/>)}
-          </div>
-        ))}
+              <button className={`${styles.scrollBtn} ${styles.scrollRight}`} onClick={() => scroll('right')}>
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className={styles.disclaimer}>
-        * Comparison is for entertainment and educational purposes. GadgetGo loves all brands equally (but we love the ones that sponsor us a tiny bit more 😉).
-      </div>
+      {selectedProducts.length === 0 ? (
+        <div className={styles.emptyState}>
+          👆 Select at least one device from above to start comparing.
+        </div>
+      ) : (
+        <div className={styles.compareTableWrapper}>
+          <table className={styles.compareTable}>
+            <thead>
+              <tr>
+                <th className={styles.rowLabel}>Features</th>
+                {selectedProducts.map(p => (
+                  <th key={p._id}>
+                    <div className={styles.headerCell}>
+                      <button className={styles.removeBtn} onClick={() => toggleSelection(p._id)} title="Remove"><X size={16}/></button>
+                      <div className={styles.headerEmoji}>{emojiMap[p.category] || '📦'}</div>
+                      <div className={styles.headerTitle}>{p.title}</div>
+                      <div className={styles.headerBrand}>{p.brand}</div>
+                      <Link href={`/product/${p._id}`} className={styles.rentBtn}>
+                        View Device
+                      </Link>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Pricing Row */}
+              <tr>
+                <td className={styles.rowLabel}>Price</td>
+                {selectedProducts.map(p => (
+                  <td key={`price-${p._id}`}>
+                    {p.actualPrice > 0 && <div className={styles.actualPrice}>MRP: ₹{p.actualPrice.toLocaleString('en-IN')}</div>}
+                    <div className={styles.rentPrice}>₹{p.pricePerDay}/day</div>
+                  </td>
+                ))}
+              </tr>
+
+              {/* Rating Row */}
+              <tr>
+                <td className={styles.rowLabel}>Rating</td>
+                {selectedProducts.map(p => (
+                  <td key={`rating-${p._id}`}>⭐ {p.rating?.toFixed(1) || 'New'} ({p.totalRatings || 0} reviews)</td>
+                ))}
+              </tr>
+
+              {/* Rented Count Row */}
+              <tr>
+                <td className={styles.rowLabel}>Popularity</td>
+                {selectedProducts.map(p => (
+                  <td key={`pop-${p._id}`}>Rented {p.rentedCount || 0} times</td>
+                ))}
+              </tr>
+
+              {/* Dynamic Specs Rows */}
+              {specKeysArray.map(key => (
+                <tr key={key}>
+                  <td className={styles.rowLabel}>{key}</td>
+                  {selectedProducts.map(p => (
+                    <td key={`${p._id}-${key}`}>
+                      {p.specs && p.specs[key] ? p.specs[key] : '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

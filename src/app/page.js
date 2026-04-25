@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, ShieldCheck, Zap } from "lucide-react";
 import styles from "./page.module.css";
