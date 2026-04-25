@@ -1,9 +1,39 @@
 "use client";
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, Search, ShoppingCart, User } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, LogIn } from 'lucide-react';
 import styles from './Navbar.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function Navbar({ toggleSidebar }) {
+  const [user, setUser] = useState(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('gadgetgo_token');
+    if (!token) {
+      setChecked(true);
+      return;
+    }
+
+    fetch(`${API_URL}/api/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        setUser(data.user);
+        setChecked(true);
+      })
+      .catch(() => {
+        localStorage.removeItem('gadgetgo_token');
+        setChecked(true);
+      });
+  }, []);
+
   return (
     <header className={styles.navbar}>
       
@@ -30,10 +60,27 @@ export default function Navbar({ toggleSidebar }) {
           <div className={styles.divider}></div>
           <Link href="/compare" className={styles.actionText}>Compare</Link>
           <div className={styles.divider}></div>
-          <Link href="/login" className={styles.iconAction}>
-            <User size={22} />
-            <span>Profile</span>
-          </Link>
+
+          {checked && user ? (
+            /* ── Logged In ── */
+            <Link href="/profile" className={styles.iconAction}>
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className={styles.userAvatar} />
+              ) : (
+                <div className={styles.userAvatarPlaceholder}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span>{user.name.split(' ')[0]}</span>
+            </Link>
+          ) : (
+            /* ── Not Logged In ── */
+            <Link href="/login" className={styles.iconAction}>
+              <User size={22} />
+              <span>Login</span>
+            </Link>
+          )}
+
           <Link href="/checkout" className={styles.iconAction}>
             <ShoppingCart size={22} />
             <span>Cart</span>
