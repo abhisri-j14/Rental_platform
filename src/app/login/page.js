@@ -181,8 +181,8 @@ export default function LoginPage() {
         {/* ─── ROLE PICKER ──────────────────────────────────── */}
         {step === 'role' && (
           <>
-            <h1 className={styles.title}>Join GadgetGo 🚀</h1>
-            <p className={styles.subtitle}>How would you like to use GadgetGo?</p>
+            <h1 className={styles.title}>Join Gizzmo 🚀</h1>
+            <p className={styles.subtitle}>How would you like to use Gizzmo?</p>
 
             <div className={styles.roleGrid}>
               {/* Renter Card */}

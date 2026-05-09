@@ -187,7 +187,7 @@ function CategoryContent({ params }) {
                   )}
 
                   <div className={styles.fulfillment}>
-                    <span className={styles.fulfilledBadge}><Check size={12}/> GadgetGo Fulfilled</span>
+                    <span className={styles.fulfilledBadge}><Check size={12}/> Gizzmo Fulfilled</span>
                   </div>
 
                   <div className={styles.deliveryInfo}>

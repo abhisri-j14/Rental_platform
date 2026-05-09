@@ -1,42 +1,65 @@
+"use client";
 import Link from 'next/link';
 import styles from './Footer.module.css';
 
 export default function Footer() {
   return (
     <footer className={styles.footer}>
-      <div className={styles.container}>
-        <div className={styles.section}>
-          <h3 className={styles.brand}>Gadget<span className={styles.accent}>Go</span></h3>
-          <p className={styles.tagline}>Rent the best tech, for less.</p>
-          <div className={styles.socials}>
-            <Link href="#" className={styles.socialIcon}>Facebook</Link>
-            <Link href="#" className={styles.socialIcon}>Twitter</Link>
-            <Link href="#" className={styles.socialIcon}>Instagram</Link>
-          </div>
-
+      {/* Top Row: Socials + Nav Links */}
+      <div className={styles.topBar}>
+        <div className={styles.socials}>
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" className={styles.socialBtn} aria-label="X (Twitter)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className={styles.socialBtn} aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
         </div>
-        <div className={styles.section}>
-          <h4 className={styles.heading}>Rent</h4>
-          <Link href="/category/laptops" className={styles.link}>Laptops</Link>
-          <Link href="/category/cameras" className={styles.link}>Cameras</Link>
-          <Link href="/category/drones" className={styles.link}>Drones</Link>
-          <Link href="/category/phones" className={styles.link}>Phones</Link>
-        </div>
-        <div className={styles.section}>
-          <h4 className={styles.heading}>Company</h4>
-          <Link href="/about" className={styles.link}>About Us</Link>
-          <Link href="/owner" className={styles.link}>List Your Device</Link>
-          <Link href="/contact" className={styles.link}>Contact</Link>
-        </div>
-        <div className={styles.section}>
-          <h4 className={styles.heading}>Support</h4>
-          <Link href="/faq" className={styles.link}>FAQ</Link>
-          <Link href="/terms" className={styles.link}>Terms of Service</Link>
-          <Link href="/privacy" className={styles.link}>Privacy Policy</Link>
-        </div>
+        <nav className={styles.navLinks}>
+          <Link href="/category/all">Overview</Link>
+          <Link href="/category/laptops">Laptops</Link>
+          <Link href="/category/cameras">Cameras</Link>
+          <Link href="/category/phones">Phones</Link>
+          <Link href="/owner">List Device</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/faq">FAQ</Link>
+        </nav>
       </div>
-      <div className={styles.bottom}>
-        <p>&copy; {new Date().getFullYear()} GadgetGo. All rights reserved.</p>
+
+      {/* Subscribe Banner */}
+      <div className={styles.subscribeBanner}>
+        <div className={styles.subscribeLeft}>
+          <h2 className={styles.subscribeTitle}>
+            Subscribe, get tips to grow<br />the way you deserve.
+          </h2>
+          <form className={styles.subscribeForm} onSubmit={(e) => e.preventDefault()}>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className={styles.subscribeInput}
+            />
+            <button type="submit" className={styles.subscribeBtn}>
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <nav className={styles.subscribeLinks}>
+          <a href="/category/all">Overview</a>
+          <a href="/category/laptops">Laptops</a>
+          <a href="/category/cameras">Cameras</a>
+          <a href="/category/phones">Phones</a>
+          <a href="/owner">List Device</a>
+        </nav>
+      </div>
+
+      {/* Giant Brand Name */}
+      <div className={styles.giantBrand}>
+        <span className={styles.giantText}>Gi<span className={styles.tiltedZ}>z</span>zmo</span>
+      </div>
+
+      {/* Copyright */}
+      <div className={styles.copyright}>
+        <p>&copy; {new Date().getFullYear()} Gizzmo. All rights reserved.</p>
       </div>
     </footer>
   );

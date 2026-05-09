@@ -1,6 +1,6 @@
 .navbar {
-  background-color: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  background-color: #000;
+  border-bottom: 0.5rem solid #000;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 3rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 0.5rem solid #000;
 }
 
 .logoContainer {
@@ -28,18 +28,20 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--black);
+  color: #fff;
 }
 
 .brand {
   font-size: 2.2rem;
   font-weight: 900;
-  color: var(--black);
+  color: #fff;
   text-decoration: none;
   letter-spacing: -1px;
 }
 
-.accent {
+.tiltedZ {
+  display: inline-block;
+  transform: rotate(12deg);
   color: var(--cornflower-blue);
 }
 
@@ -55,22 +57,27 @@
 .searchIcon {
   position: absolute;
   left: 1rem;
-  color: #888;
+  color: #999;
 }
 
 .searchInput {
   width: 100%;
   padding: 0.8rem 1rem 0.8rem 3rem;
-  border: 1px solid #ccc;
+  border: 1px solid #444;
   border-radius: 4px;
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;
-  color: #333;
+  color: #fff;
+  background: #111;
+}
+
+.searchInput::placeholder {
+  color: #777;
 }
 
 .searchInput:focus {
-  border-color: var(--cornflower-blue);
+  border-color: #fff;
 }
 
 /* Right Actions */
@@ -83,19 +90,19 @@
 .actionText {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #ddd;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .actionText:hover {
-  color: var(--cornflower-blue);
+  color: #fff;
 }
 
 .divider {
   width: 1px;
   height: 30px;
-  background-color: #ddd;
+  background-color: #444;
 }
 
 .iconAction {
@@ -103,7 +110,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: #ddd;
   text-decoration: none;
   gap: 0.2rem;
   transition: color 0.2s;
@@ -116,7 +123,7 @@
 }
 
 .iconAction:hover {
-  color: var(--cornflower-blue);
+  color: #fff;
 }
 
 .userAvatar {
@@ -147,7 +154,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: #ddd;
   background: none;
   border: none;
   gap: 0.2rem;
@@ -157,7 +164,7 @@
 }
 
 .cartBtn:hover {
-  color: var(--cornflower-blue);
+  color: #fff;
 }
 
 .cartBtn span {
@@ -187,7 +194,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 3px;
-  border: 2px solid #fff;
+  border: 2px solid #000;
   line-height: 1;
 }
 
@@ -197,6 +204,8 @@
   background-color: #fff;
   overflow-x: auto;
   scrollbar-width: none;
+  border-top: 0.5rem solid #000;
+  border-radius: 1rem;
 }
 
 .bottomRow::-webkit-scrollbar {

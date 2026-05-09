@@ -119,7 +119,7 @@ export default function OwnerPage() {
       {/* Left Side - Policies & Vibe */}
       <section className={styles.policiesSection}>
         <h1>Start Earning Today 💸</h1>
-        <p>Turn your idle gadgets into a passive income stream. List your devices, set your price, and let GadgetGo connect you with verified renters.</p>
+        <p>Turn your idle gadgets into a passive income stream. List your devices, set your price, and let Gizzmo connect you with verified renters.</p>
         
         <div className={styles.policyGrid}>
           <div className={styles.policyCard}>

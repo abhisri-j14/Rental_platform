@@ -21,7 +21,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  border-right: 1px solid #e5e7eb;
+  border-right: 0.5rem solid #000;
 }
 
 .policiesSection h1 {

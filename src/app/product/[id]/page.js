@@ -272,7 +272,7 @@ export default function ProductPage({ params }) {
               <Store size={24} color="#555" />
             </div>
             <div className={styles.ownerInfo}>
-              <h3 className={styles.ownerName}>{product.owner?.name || 'GadgetGo Partner'}</h3>
+              <h3 className={styles.ownerName}>{product.owner?.name || 'Gizzmo Partner'}</h3>
               <span className={styles.verifiedTag}>
                 <CheckCircle size={14} color="#008000" /> Verified Partner
               </span>

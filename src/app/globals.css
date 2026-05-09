@@ -25,6 +25,11 @@
   padding: 0;
 }
 
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -34,6 +39,8 @@ body {
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  border-left: 0.5rem solid #000;
+  border-right: 0.5rem solid #000;
 }
 
 a {

@@ -55,7 +55,7 @@ export default function Navbar({ onMenuClick }) {
             <button className={styles.hamburger} onClick={onMenuClick}>
               <Menu size={24} />
             </button>
-            <Link href="/" className={styles.brand}>Gadget<span className={styles.accent}>Go</span></Link>
+            <Link href="/" className={styles.brand}>Gi<span className={styles.tiltedZ}>z</span>zmo</Link>
           </div>
 
           <div className={styles.searchContainer}>

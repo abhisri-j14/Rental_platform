@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "GadgetGo | Electronics Rental Platform",
+  title: "Gizzmo | Electronics Rental Platform",
   description: "Rent expensive devices like laptops, cameras, and drones for a temporary period.",
 };
 

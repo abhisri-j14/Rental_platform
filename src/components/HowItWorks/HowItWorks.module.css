@@ -1,0 +1,255 @@
+/* ===== Section ===== */
+.section {
+  padding: 4rem 2rem;
+  border-bottom: 0.5rem solid var(--black);
+  border-radius: 1rem;
+  background: #000;
+}
+
+.sectionTitle {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 3rem;
+  text-align: center;
+  color: #fff;
+}
+
+.tiltedZ {
+  display: inline-block;
+  transform: rotate(12deg);
+  color: #e07a42;
+}
+
+/* ===== Bars stack vertically ===== */
+.barsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.bar {
+  background: #fff;
+  border: 3px solid var(--black);
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  height: 520px;
+}
+
+/* ===== Video (left side of each bar) ===== */
+.videoContainer {
+  position: relative;
+  flex: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-right: 3px solid var(--black);
+  background: #000;
+}
+
+/* Reversed bar: video on right side */
+.barReversed {
+  flex-direction: row-reverse;
+}
+
+.barReversed .videoContainer {
+  border-right: none;
+  border-left: 3px solid var(--black);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay CTA button on video */
+.overlayBtn {
+  position: absolute;
+  bottom: 1rem;
+  padding: 0.7rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 800;
+  border: 3px solid var(--black);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 4px 4px 0px var(--black);
+}
+
+.btnGreen {
+  left: 1rem;
+  background: #22c55e;
+}
+
+.btnBlue {
+  right: 1rem;
+  background: var(--cornflower-blue);
+}
+
+.overlayBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--black);
+}
+
+/* ===== Process text (right side of each bar) ===== */
+.processArea {
+  flex: 1;
+  padding: 1.8rem 2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+/* Bar label block */
+.labelBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: -0.5rem;
+}
+
+.barLabel {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--black);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.barSubtitle {
+  font-size: 0.85rem;
+  color: #777;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.stepTextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 110px;
+}
+
+.stepNumber {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  font-family: var(--font-mono);
+}
+
+.stepTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--black);
+  font-family: var(--font-mono);
+  white-space: pre;
+}
+
+.stepDesc {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.55;
+  margin: 0;
+  font-family: var(--font-mono);
+}
+
+/* ===== Timer bar (CSS animation) ===== */
+.timerTrack {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.timerFill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--fill-color);
+  animation: fillBar linear forwards;
+}
+
+@keyframes fillBar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* ===== Nav row ===== */
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.navBtn {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--black) !important;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black);
+  cursor: pointer;
+  background: #f5f5f5;
+  transition: background 0.15s, transform 0.1s;
+  line-height: 1;
+}
+
+.navBtn:hover {
+  background: var(--lime-cream);
+  transform: scale(1.08);
+}
+
+.stepIndicator {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .bar {
+    flex-direction: column;
+  }
+
+  .videoContainer {
+    width: 100%;
+    min-height: 200px;
+    border-right: none;
+    border-bottom: 3px solid var(--black);
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  .stepTextBlock {
+    min-height: 90px;
+  }
+}
