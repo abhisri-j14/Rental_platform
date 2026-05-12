@@ -178,6 +178,9 @@
 .features {
   display: flex;
   flex-direction: column;
+  gap: 4rem;
+  padding: 4rem 2rem;
+  background-color: var(--black);
   border-bottom: 0.5rem solid var(--black);
   border-radius: 1rem;
 }
@@ -186,9 +189,11 @@
   display: flex;
   flex-direction: row;
   height: 520px;
-  border-bottom: 3px solid var(--black);
-  border-radius: 1rem;
+  border: 4px solid var(--black);
+  border-radius: 2rem;
   overflow: hidden;
+  box-shadow: 12px 12px 0px var(--lavender-veil);
+  background: #fff;
 }
 
 .featureBlock:last-child {
@@ -258,6 +263,14 @@
 
 .featureImgLavender {
   background: #b8c5e2;
+}
+
+.featureImgLime {
+  background: var(--lime-cream);
+}
+
+.featureImgBlue {
+  background: var(--cornflower-blue);
 }
 
 .featureImg {

@@ -108,29 +108,40 @@ export default function ProductPage({ params }) {
       {/* Toast Notification */}
       {toast && (
         <div className={styles.toast}>
-          <Check size={16} /> Added to cart!
+          <Check size={20} strokeWidth={3} /> Added to cart!
         </div>
       )}
 
       {/* Left Column (Images & Actions) */}
       <div className={styles.leftColumn}>
         <div className={styles.imageGalleryWrapper}>
+          <div className={styles.mainImage}>
+            {product.images?.[0] ? (
+              <img src={product.images[0]} alt={product.title} />
+            ) : (
+              <span className={styles.emojiBig}>{emojiMap[product.category] || '📦'}</span>
+            )}
+          </div>
           <div className={styles.thumbnailGallery}>
             <div className={`${styles.thumbnail} ${styles.activeThumb}`}>
               {emojiMap[product.category] || '📦'}
             </div>
-          </div>
-          <div className={styles.mainImage}>
-            {emojiMap[product.category] || '📦'} {product.brand}
+            {/* If there were more images, we'd map them here */}
+            <div className={styles.thumbnail}>
+              <Store size={24} />
+            </div>
+            <div className={styles.thumbnail}>
+              <Info size={24} />
+            </div>
           </div>
         </div>
 
         <div className={styles.actionButtons}>
           <button className={styles.addToCartBtn} onClick={handleAddToCart}>
-            <ShoppingCart size={20} /> Add to Cart
+            <ShoppingCart size={24} strokeWidth={3} /> Add to Cart
           </button>
           <button className={styles.bookNowBtn} onClick={handleBookNow}>
-            <ChevronsRight size={20} /> Rent Now
+            <ChevronsRight size={24} strokeWidth={3} /> Rent Now
           </button>
         </div>
       </div>
@@ -140,41 +151,45 @@ export default function ProductPage({ params }) {
 
         {/* Card 1: Title & Price */}
         <div className={styles.card}>
-          <h1 className={styles.title}>{product.title}</h1>
+          <div className={styles.cardHeader}>
+            <span className={styles.brandName}>{product.brand}</span>
+            <h1 className={styles.title}>{product.title}</h1>
+          </div>
+
+          <div className={styles.ratingBadgeWrapper}>
+            <div className={styles.ratingBadge}>
+              {product.rating} <Star size={16} fill="#fff" />
+            </div>
+            <span className={styles.ratingText}>
+              {(product.totalRatings || 0).toLocaleString()} Reviews &bull; {product.rentedCount}+ Rentals
+            </span>
+          </div>
+
+          <div className={styles.divider}></div>
 
           {/* Rental Price */}
           <div className={styles.priceRow}>
             <span className={styles.rupee}>₹</span>
             <span className={styles.price}>{product.pricePerDay.toLocaleString('en-IN')}</span>
-            <span className={styles.perDay}>/ day</span>
-            <Info size={16} className={styles.infoIcon} title="Plus refundable damage deposit"/>
+            <span className={styles.perDay}>per day</span>
           </div>
 
           {/* Actual / MRP Price */}
           {product.actualPrice > 0 && (
             <div className={styles.mrpRow}>
-              <Tag size={13} className={styles.mrpIcon} />
-              <span className={styles.mrpLabel}>Market Price (if you buy):</span>
+              <Tag size={18} className={styles.mrpIcon} strokeWidth={3} />
+              <span className={styles.mrpLabel}>Buy New Price:</span>
               <span className={styles.mrpValue}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
               <span className={styles.mrpSave}>
-                Save ₹{(product.actualPrice - product.pricePerDay * 30).toLocaleString('en-IN')} over a month!
+                Rent & Save ₹{(product.actualPrice - product.pricePerDay * effectiveDays).toLocaleString('en-IN')}!
               </span>
             </div>
           )}
-
-          <div className={styles.ratingBadgeWrapper}>
-            <div className={styles.ratingBadge}>
-              {product.rating} <Star size={12} fill="#fff" />
-            </div>
-            <span className={styles.ratingText}>
-              {(product.totalRatings || 0).toLocaleString()} Ratings
-            </span>
-          </div>
         </div>
 
         {/* Card 2: Select Duration */}
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Select Rental Duration</h2>
+          <h2 className={styles.cardTitle}>Choose Rental Duration</h2>
 
           {/* Preset Pills */}
           <div className={styles.durationPills}>
@@ -192,14 +207,14 @@ export default function ProductPage({ params }) {
           {/* Custom Days Input */}
           <div className={styles.customDaysRow}>
             <label className={styles.customDaysLabel} htmlFor="customDays">
-              Or enter custom days:
+              Need it for more or less?
             </label>
             <input
               id="customDays"
               type="number"
               min="1"
               max="365"
-              placeholder="e.g. 21"
+              placeholder="Qty"
               className={styles.customDaysInput}
               value={customDays}
               onChange={handleDaysChange}
@@ -209,52 +224,46 @@ export default function ProductPage({ params }) {
 
           <div className={styles.estimateRow}>
             <span>
-              Rental for <strong>{effectiveDays} day{effectiveDays !== 1 ? 's' : ''}</strong>:{' '}
-              <strong className={styles.estimateAmount}>₹{estimatedRent.toLocaleString('en-IN')}</strong>
+              Total Rental for <strong>{effectiveDays} days</strong>:
             </span>
+            <strong className={styles.estimateAmount}>₹{estimatedRent.toLocaleString('en-IN')}</strong>
             <span className={styles.estimateDeposit}>
-              + ₹{product.damageDeposit.toLocaleString('en-IN')} refundable deposit
+              + ₹{product.damageDeposit.toLocaleString('en-IN')} refundable security deposit
             </span>
           </div>
         </div>
 
         {/* Card 3: Product Highlights */}
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Device Highlights</h2>
+          <h2 className={styles.cardTitle}>Tech Specs & Info</h2>
           <div className={styles.highlightsGrid}>
             <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Brand</span>
-              <span className={styles.highlightValue}>{product.brand}</span>
+              <span className={styles.highlightLabel}>Condition</span>
+              <span className={styles.highlightValue}>Excellent / Like New</span>
             </div>
-            {product.actualPrice > 0 && (
-              <div className={styles.highlightItem}>
-                <span className={styles.highlightLabel}>Device Market Value</span>
-                <span className={styles.highlightValue}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
-              </div>
-            )}
+            <div className={styles.highlightItem}>
+              <span className={styles.highlightLabel}>Delivery</span>
+              <span className={styles.highlightValue}>{product.delivery || 'Tomorrow'}</span>
+            </div>
             {product.manufactureDate && (
               <div className={styles.highlightItem}>
-                <span className={styles.highlightLabel}>Mfg Date</span>
+                <span className={styles.highlightLabel}>Release Year</span>
                 <span className={styles.highlightValue}>{product.manufactureDate}</span>
               </div>
             )}
             <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Damage Deposit</span>
-              <span className={styles.highlightValue}>₹{product.damageDeposit.toLocaleString('en-IN')} (Refundable)</span>
-            </div>
-            <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Times Rented</span>
-              <span className={styles.highlightValue}>{product.rentedCount} successful rentals</span>
+              <span className={styles.highlightLabel}>Security</span>
+              <span className={styles.highlightValue}>Aadhaar Verified</span>
             </div>
           </div>
 
           <div className={styles.divider}></div>
-          <h3 className={styles.subTitle}>Description</h3>
+          <h3 className={styles.subTitle}>About this device</h3>
           <p className={styles.description}>{product.description}</p>
 
           {product.specs && Object.keys(product.specs).length > 0 && (
             <>
-              <h3 className={styles.subTitle}>Specifications</h3>
+              <h3 className={styles.subTitle}>Technical Details</h3>
               <ul className={styles.specList}>
                 {Object.entries(product.specs).map(([k, v]) => (
                   <li key={k}><strong>{k}:</strong> {v}</li>
@@ -266,53 +275,53 @@ export default function ProductPage({ params }) {
 
         {/* Card 4: Owned By */}
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Owned By</h2>
+          <h2 className={styles.cardTitle}>Listed By</h2>
           <div className={styles.ownerRow}>
             <div className={styles.ownerAvatar}>
-              <Store size={24} color="#555" />
+              <Store size={40} color="#000" strokeWidth={2.5} />
             </div>
             <div className={styles.ownerInfo}>
-              <h3 className={styles.ownerName}>{product.owner?.name || 'Gizzmo Partner'}</h3>
-              <span className={styles.verifiedTag}>
-                <CheckCircle size={14} color="#008000" /> Verified Partner
-              </span>
+              <h3 className={styles.ownerName}>{product.owner?.name || 'Gizzmo Certified Store'}</h3>
+              <div className={styles.verifiedTag}>
+                <CheckCircle size={16} strokeWidth={3} /> Gizzmo Verified Partner
+              </div>
             </div>
-            <button className={styles.viewShopBtn}>View Shop</button>
+            <button className={styles.viewShopBtn}>Explore Shop</button>
           </div>
         </div>
 
         {/* Card 5: Ratings & Reviews */}
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Device Ratings & Reviews</h2>
+          <h2 className={styles.cardTitle}>Customer Feedback</h2>
           <div className={styles.reviewSummary}>
             <div className={styles.reviewLeft}>
               <div className={styles.hugeRating}>
-                {product.rating} <Star size={24} fill="#038d63" color="#038d63"/>
+                {product.rating} <Star size={40} fill="#000" strokeWidth={3}/>
               </div>
               <p className={styles.ratingTextSmall}>
-                {(product.totalRatings || 0).toLocaleString()} Ratings
+                Based on {(product.totalRatings || 0).toLocaleString()} rentals
               </p>
             </div>
             <div className={styles.reviewRight}>
               <div className={styles.barRow}>
-                <span>Excellent</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '60%', backgroundColor: '#038d63'}}></div></div>
+                <span>5 Star</span>
+                <div className={styles.barBg}><div className={styles.barFill} style={{width: '75%', backgroundColor: 'var(--tea-green)'}}></div></div>
               </div>
               <div className={styles.barRow}>
-                <span>Very Good</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '25%', backgroundColor: '#038d63'}}></div></div>
+                <span>4 Star</span>
+                <div className={styles.barBg}><div className={styles.barFill} style={{width: '15%', backgroundColor: 'var(--lavender-veil)'}}></div></div>
               </div>
               <div className={styles.barRow}>
-                <span>Good</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '10%', backgroundColor: '#f5a623'}}></div></div>
+                <span>3 Star</span>
+                <div className={styles.barBg}><div className={styles.barFill} style={{width: '7%', backgroundColor: 'var(--lime-cream)'}}></div></div>
               </div>
               <div className={styles.barRow}>
-                <span>Average</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '3%', backgroundColor: '#f5a623'}}></div></div>
+                <span>2 Star</span>
+                <div className={styles.barBg}><div className={styles.barFill} style={{width: '2%', backgroundColor: '#eee'}}></div></div>
               </div>
               <div className={styles.barRow}>
-                <span>Poor</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '2%', backgroundColor: '#d32f2f'}}></div></div>
+                <span>1 Star</span>
+                <div className={styles.barBg}><div className={styles.barFill} style={{width: '1%', backgroundColor: '#eee'}}></div></div>
               </div>
             </div>
           </div>

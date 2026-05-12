@@ -24,6 +24,11 @@ function CategoryContent({ params }) {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('popular');
   const [addedIds, setAddedIds] = useState({});
+  
+  // Filters
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [minRating, setMinRating] = useState(0);
 
   useEffect(() => {
     setLoading(true);
@@ -42,11 +47,24 @@ function CategoryContent({ params }) {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [slug]);
+  }, [slug, searchQuery]);
 
-  // Sort products in-memory based on selected sort option
-  const sortedProducts = useMemo(() => {
-    const arr = [...products];
+  // Derived data for filters
+  const brands = useMemo(() => {
+    const b = new Set();
+    products.forEach(p => b.add(p.brand));
+    return Array.from(b).sort();
+  }, [products]);
+
+  // Filter and Sort products
+  const processedProducts = useMemo(() => {
+    let arr = products.filter(p => {
+      const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
+      const matchesPrice = p.pricePerDay >= priceRange[0] && p.pricePerDay <= priceRange[1];
+      const matchesRating = (p.rating || 0) >= minRating;
+      return matchesBrand && matchesPrice && matchesRating;
+    });
+
     switch (sort) {
       case 'popular':
         return arr.sort((a, b) => (b.rentedCount || 0) - (a.rentedCount || 0));
@@ -61,7 +79,7 @@ function CategoryContent({ params }) {
       default:
         return arr;
     }
-  }, [products, sort]);
+  }, [products, sort, selectedBrands, priceRange, minRating]);
 
   const emojiMap = {
     laptops: '💻', cameras: '📸', phones: '📱', drones: '🚁',
@@ -103,8 +121,84 @@ function CategoryContent({ params }) {
 
   const isInCart = (id) => cartItems.some(i => i._id === id);
 
+  const toggleBrand = (brand) => {
+    setSelectedBrands(prev => 
+      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+    );
+  };
+
   return (
     <div className={styles.container}>
+      
+      {/* Sidebar Filters */}
+      <aside className={styles.sidebar}>
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Brand</h3>
+          <div className={styles.filterList}>
+            {brands.map(brand => (
+              <label key={brand} className={styles.filterItem}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedBrands.includes(brand)}
+                  onChange={() => toggleBrand(brand)}
+                />
+                <span>{brand}</span>
+              </label>
+            ))}
+            {brands.length === 0 && <span className={styles.emptyFilter}>No brands found</span>}
+          </div>
+        </div>
+
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Price Per Day</h3>
+          <div className={styles.priceInputs}>
+            <input 
+              type="number" 
+              placeholder="Min" 
+              value={priceRange[0]} 
+              onChange={e => setPriceRange([Number(e.target.value), priceRange[1]])}
+              className={styles.priceInput}
+            />
+            <span>-</span>
+            <input 
+              type="number" 
+              placeholder="Max" 
+              value={priceRange[1]} 
+              onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
+              className={styles.priceInput}
+            />
+          </div>
+        </div>
+
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Avg. Customer Review</h3>
+          <div className={styles.ratingFilters}>
+            {[4, 3, 2, 1].map(r => (
+              <button 
+                key={r} 
+                className={`${styles.ratingFilterBtn} ${minRating === r ? styles.activeRating : ''}`}
+                onClick={() => setMinRating(minRating === r ? 0 : r)}
+              >
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={14} fill={i < r ? "#FF9900" : "none"} color={i < r ? "#FF9900" : "#ccc"} />
+                ))}
+                <span>& Up</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button 
+          className={styles.clearFilters}
+          onClick={() => {
+            setSelectedBrands([]);
+            setPriceRange([0, 10000]);
+            setMinRating(0);
+          }}
+        >
+          Clear All Filters
+        </button>
+      </aside>
 
       {/* Main Content Area */}
       <main className={styles.mainContent}>
@@ -117,7 +211,7 @@ function CategoryContent({ params }) {
                 ? `Search Results for "${searchQuery}"` 
                 : `${categoryName} Rentals`}
             </h1>
-            <span className={styles.itemCount}>{sortedProducts.length} devices available</span>
+            <span className={styles.itemCount}>{processedProducts.length} devices found</span>
           </div>
           <div className={styles.sortRow}>
             <ArrowUpDown size={16} className={styles.sortIcon} />
@@ -126,7 +220,7 @@ function CategoryContent({ params }) {
               value={sort}
               onChange={e => setSort(e.target.value)}
             >
-              <option value="popular">Most Popular</option>
+              <option value="popular">Featured</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
               <option value="rating">Best Rating</option>
@@ -137,64 +231,83 @@ function CategoryContent({ params }) {
 
         {loading ? (
           <div className={styles.loadingText}>Loading products...</div>
-        ) : sortedProducts.length === 0 ? (
-          <div className={styles.loadingText}>No products found in this category.</div>
+        ) : processedProducts.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>No products match your criteria.</p>
+            <button onClick={() => {
+              setSelectedBrands([]);
+              setPriceRange([0, 10000]);
+              setMinRating(0);
+            }} className={styles.secondaryBtn}>Reset Filters</button>
+          </div>
         ) : (
           <div className={styles.productList}>
-            {sortedProducts.map(product => (
+            {processedProducts.map(product => (
               <div key={product._id} className={styles.productCard}>
 
                 <div className={styles.imageCol}>
                   <div className={styles.imagePlaceholder}>
-                    {product.images?.[0] || emojiMap[product.category] || '📦'}
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt={product.title} className={styles.productImg} />
+                    ) : (
+                      <span className={styles.emojiIcon}>{emojiMap[product.category] || '📦'}</span>
+                    )}
                   </div>
+                  {product.sponsored && (
+                    <span className={styles.sponsoredBadge}>Sponsored</span>
+                  )}
                 </div>
 
                 <div className={styles.detailsCol}>
-                  {product.sponsored && (
-                    <span className={styles.sponsoredTag}>Sponsored <ShieldCheck size={12}/></span>
-                  )}
-
-                  <Link href={`/product/${product._id}`} className={styles.productName}>
-                    {product.title}
-                  </Link>
+                  <div className={styles.cardHeader}>
+                    <Link href={`/product/${product._id}`} className={styles.productName}>
+                      {product.title}
+                    </Link>
+                    <span className={styles.brandName}>{product.brand}</span>
+                  </div>
 
                   <div className={styles.ratingRow}>
-                    <span className={styles.rating}>{product.rating} <Star size={14} fill="#FF9900" color="#FF9900"/></span>
-                    <span className={styles.reviews}>({product.totalRatings?.toLocaleString() || 0})</span>
-                  </div>
-
-                  <div className={styles.rentedCount}>
-                    {product.rentedCount > 0
-                      ? `${product.rentedCount >= 1000 ? (product.rentedCount / 1000).toFixed(0) + 'K' : product.rentedCount}+ rented`
-                      : 'New listing'}
-                  </div>
-
-                  {/* Rental Price */}
-                  <div className={styles.priceRow}>
-                    <span className={styles.priceSymbol}>₹</span>
-                    <span className={styles.priceValue}>{product.pricePerDay.toLocaleString('en-IN')}</span>
-                    <span className={styles.perDay}>/day</span>
-                  </div>
-
-                  {/* Actual Market Price (MRP) */}
-                  {product.actualPrice > 0 && (
-                    <div className={styles.actualPriceRow}>
-                      <Tag size={12} className={styles.tagIcon} />
-                      <span className={styles.actualPriceLabel}>Market Price:</span>
-                      <span className={styles.actualPriceValue}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
+                    <div className={styles.starsContainer}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          size={14} 
+                          fill={i < Math.floor(product.rating || 0) ? "#FF9900" : "none"} 
+                          color={i < Math.floor(product.rating || 0) ? "#FF9900" : "#ccc"} 
+                        />
+                      ))}
                     </div>
-                  )}
-
-                  <div className={styles.fulfillment}>
-                    <span className={styles.fulfilledBadge}><Check size={12}/> Gizzmo Fulfilled</span>
+                    <span className={styles.reviews}>{(product.totalRatings || 0).toLocaleString()}</span>
+                    <span className={styles.rentedBadge}>
+                      {product.rentedCount > 0 ? `${product.rentedCount}+ rented` : 'New'}
+                    </span>
                   </div>
 
-                  <div className={styles.deliveryInfo}>
-                    FREE delivery <strong>{product.delivery || 'Tomorrow'}</strong>
+                  <div className={styles.priceSection}>
+                    <div className={styles.mainPrice}>
+                      <span className={styles.currency}>₹</span>
+                      <span className={styles.amount}>{product.pricePerDay.toLocaleString('en-IN')}</span>
+                      <span className={styles.period}>/day</span>
+                    </div>
+                    {product.actualPrice > 0 && (
+                      <div className={styles.mrpPrice}>
+                        MRP: <span className={styles.strike}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Both action buttons */}
+                  <div className={styles.perks}>
+                    <div className={styles.perk}>
+                      <Check size={14} className={styles.checkIcon} />
+                      <span>Free Delivery <strong>{product.delivery || 'Tomorrow'}</strong></span>
+                    </div>
+                    <div className={styles.perk}>
+                      <ShieldCheck size={14} className={styles.checkIcon} />
+                      <span>Gizzmo Verified</span>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
                   <div className={styles.actions}>
                     <button
                       className={`${styles.addToCartBtn} ${isInCart(product._id) ? styles.inCart : ''}`}
@@ -213,7 +326,7 @@ function CategoryContent({ params }) {
                       className={styles.rentNowBtn}
                       onClick={() => handleRentNow(product)}
                     >
-                      <ChevronsRight size={15}/> Rent Now
+                      Rent Now
                     </button>
                   </div>
                 </div>
@@ -235,3 +348,4 @@ export default function CategoryPage({ params }) {
     </Suspense>
   );
 }
+

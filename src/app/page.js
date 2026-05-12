@@ -214,6 +214,46 @@ export default function Home() {
             <img src="/flowers.jpeg" alt="Easy process" className={styles.featureImg} />
           </div>
         </div>
+
+        {/* Feature 3: Text left, Image right */}
+        <div className={styles.featureBlock}>
+          <div className={styles.featureText}>
+            <h2 className={styles.featureTitle}>Sustainable choice</h2>
+            <p className={styles.featureDesc}>
+              Renting instead of buying reduces electronic waste and promotes a circular economy. 
+              Join thousands of others in making a smarter choice for the planet.
+            </p>
+            <ul className={styles.featureList}>
+              <li>→ 80% lower carbon footprint per use</li>
+              <li>→ Certified refurbishing partners</li>
+              <li>→ Zero-waste packaging initiative</li>
+              <li>→ Recycling rewards for active renters</li>
+            </ul>
+          </div>
+          <div className={`${styles.featureImgWrap} ${styles.featureImgLime}`}>
+            <img src="/building.jpeg" alt="Sustainability" className={styles.featureImg} />
+          </div>
+        </div>
+
+        {/* Feature 4: Image left, Text right */}
+        <div className={`${styles.featureBlock} ${styles.featureBlockReversed}`}>
+          <div className={styles.featureText}>
+            <h2 className={styles.featureTitle}>Community driven</h2>
+            <p className={styles.featureDesc}>
+              Gizzmo is built on trust. Our peer-to-peer network connects tech enthusiasts 
+              who care about their gear and the people who use it.
+            </p>
+            <ul className={styles.featureList}>
+              <li>→ 24/7 localized support team</li>
+              <li>→ In-person handovers available</li>
+              <li>→ Community events and workshops</li>
+              <li>→ Damage protection on every rental</li>
+            </ul>
+          </div>
+          <div className={`${styles.featureImgWrap} ${styles.featureImgBlue}`}>
+            <img src="/run.jpg" alt="Community" className={styles.featureImg} />
+          </div>
+        </div>
       </section>
 
       {/* Trusted Community Section */}
