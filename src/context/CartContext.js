@@ -1,10 +1,5 @@
 "use client";
-<<<<<<< HEAD
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from './AuthContext';
-=======
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
 const CartContext = createContext(null);
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -35,7 +30,6 @@ function normalizeItems(serverItems) {
 }
 
 export function CartProvider({ children }) {
-  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [hydrated, setHydrated] = useState(false);
   const fetchingRef = useRef(false);
@@ -53,60 +47,28 @@ export function CartProvider({ children }) {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
 
-<<<<<<< HEAD
-  // Storage key depends on user ID
-  const storageKey = useMemo(() => {
-    return user ? `gadgetgo_cart_${user.id || user._id}` : 'gadgetgo_cart_guest';
-  }, [user]);
-
-  // Load from localStorage when storageKey changes
-  useEffect(() => {
-    setHydrated(false); // Reset hydration to prevent accidental overwrite
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        setCartItems(JSON.parse(stored));
-      } else {
-        setCartItems([]);
-      }
-    } catch {
-      setCartItems([]);
-    }
-    setHydrated(true);
-  }, [storageKey]);
-=======
     try {
       const res = await fetch(`${API_URL}/api/cart`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) {
-        // Token might be invalid — clear cart
         setCartItems([]);
       } else {
         const data = await res.json();
         setCartItems(normalizeItems(data.items));
       }
     } catch {
-      // Network error — leave cart empty
       setCartItems([]);
     } finally {
       fetchingRef.current = false;
       setHydrated(true);
     }
   }, []);
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
   // Load cart on mount
   useEffect(() => {
-<<<<<<< HEAD
-    if (hydrated) {
-      localStorage.setItem(storageKey, JSON.stringify(cartItems));
-    }
-  }, [cartItems, hydrated, storageKey]);
-=======
     fetchCart();
   }, [fetchCart]);
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
   /**
    * refreshCart — call this after login / signup to reload the user's cart.
@@ -119,7 +81,6 @@ export function CartProvider({ children }) {
    * addToCart — requires auth.
    * Returns { requiresLogin: true } if the user is not logged in,
    * so callers can redirect to /login.
-   * Otherwise adds the item to the server cart and updates local state.
    */
   const addToCart = useCallback(async (item) => {
     const token = getToken();
@@ -160,21 +121,15 @@ export function CartProvider({ children }) {
         setCartItems(normalizeItems(data.items));
       }
     } catch {
-      // If server fails, local state still shows the item (best effort)
+      // best effort
     }
 
     return { requiresLogin: false };
   }, []);
 
-  /**
-   * removeFromCart — removes an item from server and local state.
-   */
   const removeFromCart = useCallback(async (id) => {
     const token = getToken();
-
-    // Optimistically update local
     setCartItems(prev => prev.filter(i => i._id !== id));
-
     if (!token) return;
 
     try {
@@ -186,18 +141,12 @@ export function CartProvider({ children }) {
         const data = await res.json();
         setCartItems(normalizeItems(data.items));
       }
-    } catch {
-      // best effort
-    }
+    } catch {}
   }, []);
 
-  /**
-   * clearCart — clears all items from the server cart.
-   */
   const clearCart = useCallback(async () => {
     const token = getToken();
     setCartItems([]);
-
     if (!token) return;
 
     try {
@@ -205,9 +154,7 @@ export function CartProvider({ children }) {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
-    } catch {
-      // best effort
-    }
+    } catch {}
   }, []);
 
   /**
@@ -219,7 +166,6 @@ export function CartProvider({ children }) {
   }, []);
 
   const cartCount = cartItems.length;
-
   const cartSubtotal = cartItems.reduce(
     (sum, item) => sum + item.pricePerDay * item.days,
     0

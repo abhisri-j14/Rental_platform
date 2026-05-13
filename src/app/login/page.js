@@ -4,11 +4,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, Mail, Phone, Lock, User, ShoppingBag, Store, ChevronLeft } from 'lucide-react';
 import styles from './login.module.css';
-<<<<<<< HEAD
 import { useAuth } from '@/context/AuthContext';
-=======
 import { useCart } from '@/context/CartContext';
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -38,12 +35,8 @@ export default function LoginPage() {
     const emailVerified = searchParams.get('emailVerified');
 
     if (token) {
-<<<<<<< HEAD
       login(token);
-=======
-      localStorage.setItem('gadgetgo_token', token);
       await refreshCart();
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
       setSuccess('Logged in with Google!');
       setTimeout(() => { window.location.href = '/'; }, 1500);
     }
@@ -123,18 +116,13 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || 'Login failed');
         return;
       }
 
-<<<<<<< HEAD
       login(data.token);
-=======
-      localStorage.setItem('gadgetgo_token', data.token);
       await refreshCart();
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
       setSuccess('Login successful! Redirecting...');
       setTimeout(() => { window.location.href = '/'; }, 1000);
     } catch {
@@ -157,18 +145,13 @@ export default function LoginPage() {
         body: JSON.stringify({ phone: `+91${phone}`, code: otp }),
       });
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || 'Verification failed');
         return;
       }
 
-<<<<<<< HEAD
       login(data.token);
-=======
-      localStorage.setItem('gadgetgo_token', data.token);
       await refreshCart();
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
       setSuccess('Phone verified! Check your email for email verification. Redirecting...');
       setTimeout(() => { window.location.href = '/'; }, 2000);
     } catch {

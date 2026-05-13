@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isKycVerified: {
+    type: Boolean,
+    default: false,
+  },
+  aadhaarNumber: {
+    type: String,
+    default: null,
+  },
   googleId: {
     type: String,
     default: null,
@@ -216,6 +224,7 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 150,
   },
+  protectionFee: Number,
   damageDeposit: Number,
   totalAmount: Number,
   paymentStatus: {

@@ -139,6 +139,8 @@ router.post('/signup', async (req, res) => {
         phone: user.phone,
         isPhoneVerified: user.isPhoneVerified,
         isEmailVerified: user.isEmailVerified,
+        isKycVerified: user.isKycVerified,
+        aadhaarNumber: user.aadhaarNumber,
         role: user.role,
       },
     });
@@ -180,6 +182,8 @@ router.post('/login', async (req, res) => {
         phone: user.phone,
         isPhoneVerified: user.isPhoneVerified,
         isEmailVerified: user.isEmailVerified,
+        isKycVerified: user.isKycVerified,
+        aadhaarNumber: user.aadhaarNumber,
         avatar: user.avatar,
         role: user.role,
       },
@@ -267,6 +271,8 @@ router.post('/verify-otp', async (req, res) => {
       phone: user.phone,
       isPhoneVerified: user.isPhoneVerified,
       isEmailVerified: user.isEmailVerified,
+      isKycVerified: user.isKycVerified,
+      aadhaarNumber: user.aadhaarNumber,
       role: user.role,
     },
   });
@@ -418,6 +424,42 @@ router.put('/become-owner', async (req, res) => {
     }
 
     res.json({ message: 'Congratulations! You are now a Store Owner.', user });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  SIMULATED AADHAAR KYC VERIFICATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/kyc/verify-aadhaar', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { aadhaarNumber } = req.body;
+  if (!aadhaarNumber || aadhaarNumber.length !== 12) {
+    return res.status(400).json({ error: 'Valid 12-digit Aadhaar number required' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
+    
+    // Mask the Aadhaar number for privacy (only keep last 4 digits)
+    const maskedAadhaar = `XXXX-XXXX-${aadhaarNumber.slice(-4)}`;
+
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { isKycVerified: true, aadhaarNumber: maskedAadhaar },
+      { new: true }
+    ).select('-password -emailVerifyToken');
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ message: 'Aadhaar verified successfully (Simulated)', user });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }

@@ -58,7 +58,7 @@ async function sendSMS(to, body) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.post('/', auth, async (req, res) => {
   try {
-    const { productId, days, paymentMethod, deliveryAddress } = req.body;
+    const { productId, days, paymentMethod, deliveryAddress, deliveryFee: frontendDeliveryFee } = req.body;
 
     if (!productId || !days || !deliveryAddress) {
       return res.status(400).json({ error: 'Product, days, and delivery address are required' });
@@ -69,10 +69,32 @@ router.post('/', auth, async (req, res) => {
     if (!product.isAvailable) return res.status(400).json({ error: 'Product is not available' });
 
     // Calculate pricing
-    const totalRent = product.pricePerDay * days;
-    const platformFee = Math.round(totalRent * 0.10);
-    const deliveryFee = 150;
-    const totalAmount = totalRent + platformFee + deliveryFee + product.damageDeposit;
+    let totalRent = product.pricePerDay * days;
+    // Apply duration discounts (same as frontend)
+    if (days >= 30) totalRent *= 0.5;
+    else if (days >= 7) totalRent *= 0.75;
+    else if (days >= 3) totalRent *= 0.9;
+    
+    // Platform keeps 20% internally
+    const platformFee = Math.round(totalRent * 0.20); 
+
+    // Dynamic Delivery Fee
+    let deliveryFee = frontendDeliveryFee !== undefined ? frontendDeliveryFee : 0;
+    if (frontendDeliveryFee === undefined) {
+      if (totalRent < 500) deliveryFee = 20;
+      else if (totalRent <= 1500) deliveryFee = 12;
+      else deliveryFee = 0;
+    }
+
+    // Protection Fee (Insurance) based on MRP
+    let protectionFee = 59;
+    const mrp = product.actualPrice || 0;
+    if (mrp >= 150000) protectionFee = 299;
+    else if (mrp >= 90000) protectionFee = 199;
+    else if (mrp >= 50000) protectionFee = 129;
+    else if (mrp >= 25000) protectionFee = 99;
+
+    const totalAmount = Math.round(totalRent + deliveryFee + protectionFee + (product.damageDeposit || 0));
 
     const startDate = new Date();
     const endDate = new Date(startDate.getTime() + days * 24 * 60 * 60 * 1000);
@@ -85,10 +107,11 @@ router.post('/', auth, async (req, res) => {
       days,
       startDate,
       endDate,
-      totalRent,
+      totalRent: Math.round(totalRent),
       platformFee,
       deliveryFee,
-      damageDeposit: product.damageDeposit,
+      protectionFee,
+      damageDeposit: product.damageDeposit || 0,
       totalAmount,
       paymentStatus: 'pending',
       trackingStatus: 'Order Placed',

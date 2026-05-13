@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Package, CheckCircle2, Truck, Home, MapPin, Phone, 
-  ChevronRight, ArrowLeft, ShieldCheck, Clock, Navigation 
+  ChevronRight, ArrowLeft, ShieldCheck, Clock, Navigation, BadgeCheck, AlertCircle
 } from 'lucide-react';
 import styles from './tracking.module.css';
 
@@ -14,8 +14,31 @@ export default function TrackingPage({ params }) {
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPaymentReturn = searchParams.get('payment_success') === 'true';
+  const paymentId = searchParams.get('payment_id');
+  const paymentRequestId = searchParams.get('payment_request_id');
+  const paymentStatus = searchParams.get('payment_status'); // 'Credit' on success
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [paymentFailed, setPaymentFailed] = useState(false);
+
+  // Verify payment with backend when redirected from Instamojo
+  useEffect(() => {
+    if (!isPaymentReturn || !paymentRequestId) return;
+    fetch(`${API_URL}/api/payments/verify?payment_id=${paymentId || ''}&payment_request_id=${paymentRequestId}&payment_status=${paymentStatus || ''}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.paymentStatus === 'paid') {
+          setPaymentVerified(true);
+        } else {
+          setPaymentFailed(true);
+        }
+      })
+      .catch(() => setPaymentFailed(true));
+  }, [isPaymentReturn, paymentRequestId, paymentId, paymentStatus]);
 
   useEffect(() => {
     const token = localStorage.getItem('gadgetgo_token');
@@ -50,6 +73,20 @@ export default function TrackingPage({ params }) {
 
   return (
     <div className={styles.container}>
+
+      {/* ── Payment return banners ── */}
+      {paymentVerified && (
+        <div className={styles.paymentSuccessBanner}>
+          <BadgeCheck size={22} />
+          <span>Payment confirmed! Your order is now being processed.</span>
+        </div>
+      )}
+      {paymentFailed && (
+        <div className={styles.paymentFailBanner}>
+          <AlertCircle size={22} />
+          <span>Payment could not be verified automatically. Contact support with Order ID #{order._id.slice(-8).toUpperCase()}.</span>
+        </div>
+      )}
       <header className={styles.header}>
         <button onClick={() => router.back()} className={styles.backBtn}>
           <ArrowLeft size={20} />

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, Search, ShoppingCart, User, X, Trash2, ChevronsRight } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, X, Trash2, ChevronsRight, ShieldCheck } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -165,41 +165,29 @@ export default function Navbar({ onMenuClick }) {
             <Link href="/compare" className={styles.actionText}>Compare</Link>
             <div className={styles.divider}></div>
 
-<<<<<<< HEAD
             {!authLoading && user ? (
-              <div className={styles.userActionWrapper}>
-                <Link href="/profile" className={styles.iconAction}>
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className={styles.userAvatar} />
-                  ) : (
-                    <div className={styles.userAvatarPlaceholder}>
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span>{user.name.split(' ')[0]}</span>
-                </Link>
-                <button onClick={logout} className={styles.logoutBtn}>Logout</button>
-              </div>
-=======
-            {checked && user ? (
               <Link href="/profile" className={styles.iconAction}>
-                {user.avatar && user.avatar.startsWith('http') ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className={styles.userAvatar}
-                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-                  />
-                ) : null}
-                <div
-                  className={styles.userAvatarPlaceholder}
-                  style={user.avatar && user.avatar.startsWith('http') ? { display: 'none' } : {}}
-                >
-                  {user.name.charAt(0).toUpperCase()}
+                <div className={styles.userActionWrapper}>
+                  {user.avatar && user.avatar.startsWith('http') ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className={styles.userAvatar}
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                    />
+                  ) : null}
+                  <div
+                    className={styles.userAvatarPlaceholder}
+                    style={user.avatar && user.avatar.startsWith('http') ? { display: 'none' } : {}}
+                  >
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    {user.name.split(' ')[0]}
+                    {user.isKycVerified && <ShieldCheck size={12} color="#16a34a" title="Verified User" />}
+                  </span>
                 </div>
-                <span>{user.name.split(' ')[0]}</span>
               </Link>
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
             ) : (
               <Link href="/login" className={styles.iconAction}>
                 <User size={22} />

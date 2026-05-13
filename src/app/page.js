@@ -38,140 +38,179 @@ export default function Home() {
       <section className={styles.conveyor}>
         <div className={styles.conveyorTrack}>
           {/* Original set */}
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
+            <span className={styles.adTag}>🔥 Top Rated</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Amit&apos;s Electronics</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardPink}`}>
+            <span className={styles.adTag}>🎧 Music Lovers</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>SkyView Rentals</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardBlue}`}>
+            <span className={styles.adTag}>✈️ Travel Ready</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Rahul S.</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardGreen}`}>
+            <span className={styles.adTag}>⌚ Steal Deal</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Priya&apos;s Gadget Hub</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardLavender}`}>
+            <span className={styles.adTag}>🎮 Pro Gear</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>GameZone Store</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
+            <span className={styles.adTag}>🎙️ Creators</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>TechBuddy Rentals</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
           {/* Duplicate set for seamless loop */}
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
+            <span className={styles.adTag}>🔥 Top Rated</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Amit&apos;s Electronics</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardPink}`}>
+            <span className={styles.adTag}>🎧 Music Lovers</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>SkyView Rentals</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardBlue}`}>
+            <span className={styles.adTag}>✈️ Travel Ready</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Rahul S.</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardGreen}`}>
+            <span className={styles.adTag}>⌚ Steal Deal</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>Priya&apos;s Gadget Hub</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardLavender}`}>
+            <span className={styles.adTag}>🎮 Pro Gear</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>GameZone Store</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
 
-          <div className={styles.listingCard}>
-            <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
+          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
+            <span className={styles.adTag}>🎙️ Creators</span>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
               <span className={styles.listingAuthor}>TechBuddy Rentals</span>
             </div>
+            <div className={styles.listingContent}>
+              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
+            </div>
             <div className={styles.stars}>
-              <Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" />
+              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
             </div>
           </div>
         </div>
       </section>
+
+      {/* How it Works */}
+      <HowItWorks />
 
       {/* Features Section */}
       <section className={styles.features}>
@@ -277,8 +316,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How it Works */}
-      <HowItWorks />
+
 
       {/* Testimonials */}
       <section className={styles.testimonials}>

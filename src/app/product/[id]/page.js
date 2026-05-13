@@ -285,8 +285,13 @@ export default function ProductPage({ params }) {
                 <span>Gizzmo</span>
               </div>
               <div className={styles.amazonTableRow}>
-                <span>Sold by</span>
-                <span>{product.brand} Authorized</span>
+                <span>Owner</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  {product.owner?.name || 'Gizzmo Store'}
+                  {product.owner?.isKycVerified && (
+                    <ShieldCheck size={14} color="#16a34a" title="Aadhaar KYC Verified" />
+                  )}
+                </span>
               </div>
             </div>
 
@@ -319,12 +324,6 @@ export default function ProductPage({ params }) {
           </div>
         </section>
       )}
-    </div>
-  );
-}
-div>
-
-      </div>
     </div>
   );
 }

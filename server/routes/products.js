@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate('owner', 'name avatar role isPhoneVerified');
+      .populate('owner', 'name avatar role isPhoneVerified isKycVerified');
 
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });

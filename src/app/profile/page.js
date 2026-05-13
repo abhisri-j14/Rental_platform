@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, Shield, ShieldCheck, CheckCircle, XCircle, Edit3, Save, LogOut, ChevronRight, ShoppingCart, Store } from 'lucide-react';
+import { User, Mail, Phone, Shield, ShieldCheck, CheckCircle, XCircle, Edit3, Save, LogOut, ChevronRight, ShoppingCart, Store, CreditCard } from 'lucide-react';
 import styles from './profile.module.css';
 import { useCart } from '@/context/CartContext';
 
@@ -20,6 +20,11 @@ export default function ProfilePage() {
   // Editable fields
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+
+  // Aadhaar Modal
+  const [showAadhaarModal, setShowAadhaarModal] = useState(false);
+  const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [aadhaarLoading, setAadhaarLoading] = useState(false);
 
   // Data
   const [orders, setOrders] = useState([]);
@@ -151,7 +156,45 @@ export default function ProfilePage() {
     }
   };
 
-<<<<<<< HEAD
+  // Verify Aadhaar
+  const handleVerifyAadhaar = async () => {
+    if (aadhaarNumber.length !== 12) {
+      setMessage({ type: 'error', text: 'Please enter a valid 12-digit Aadhaar number' });
+      return;
+    }
+    setAadhaarLoading(true);
+    setMessage({ type: 'success', text: 'Sending OTP via UIDAI (Simulated)...' });
+    
+    // Simulate network delay for OTP
+    setTimeout(async () => {
+      const token = localStorage.getItem('gadgetgo_token');
+      try {
+        const res = await fetch(`${API_URL}/api/auth/kyc/verify-aadhaar`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ aadhaarNumber }),
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+          setUser(data.user);
+          setShowAadhaarModal(false);
+          setMessage({ type: 'success', text: 'Identity Verified Successfully!' });
+          setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+        } else {
+          setMessage({ type: 'error', text: data.error });
+        }
+      } catch {
+        setMessage({ type: 'error', text: 'Verification failed. Try again.' });
+      } finally {
+        setAadhaarLoading(false);
+      }
+    }, 2000);
+  };
+
   // Become owner
   const handleBecomeOwner = async () => {
     setSaving(true);
@@ -175,10 +218,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Logout
-=======
   // Logout — clear local cart view but keep server-side data
->>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
   const handleLogout = () => {
     localStorage.removeItem('gadgetgo_token');
     clearLocalCart();
@@ -216,15 +256,15 @@ export default function ProfilePage() {
           <div key={order._id} className={styles.orderCard}>
             <div className={styles.orderTop}>
               <div className={styles.orderImg}>
-                {order.product.images?.[0] ? (
+                {order.product?.images?.[0] ? (
                   <img src={order.product.images[0]} alt={order.product.title} />
                 ) : (
                   <span className={styles.orderEmoji}>📦</span>
                 )}
               </div>
               <div className={styles.orderInfo}>
-                <h3>{order.product.title}</h3>
-                <p>{order.product.brand}</p>
+                <h3>{order.product?.title || 'Unknown Product'}</h3>
+                <p>{order.product?.brand || 'Deleted Product'}</p>
                 <div className={styles.orderBadge}>{order.trackingStatus}</div>
               </div>
             </div>
@@ -259,7 +299,12 @@ export default function ProfilePage() {
               </div>
             )}
             <div className={styles.headerInfo}>
-              <h1 className={styles.userName}>{user.name}</h1>
+              <h1 className={styles.userName}>
+                {user.name}
+                {user.isKycVerified && (
+                  <ShieldCheck size={28} color="#16a34a" style={{ marginLeft: '10px', verticalAlign: 'middle' }} title="Verified User" />
+                )}
+              </h1>
               <span className={styles.roleBadge}>{user.role === 'owner' ? '🏪 Store Owner' : '👤 User'}</span>
               <p className={styles.memberSince}>Member since {memberSince}</p>
             </div>
@@ -321,6 +366,21 @@ export default function ProfilePage() {
                     Add Phone <ChevronRight size={14} />
                   </button>
                 )
+              )}
+            </div>
+
+            <div className={`${styles.verifyCard} ${user.isKycVerified ? styles.verified : styles.unverified}`}>
+              <div className={styles.verifyIcon}>
+                {user.isKycVerified ? <CheckCircle size={24} /> : <CreditCard size={24} />}
+              </div>
+              <div className={styles.verifyInfo}>
+                <h3>Identity (Aadhaar)</h3>
+                <p>{user.isKycVerified ? 'Verified' : 'Not verified'}</p>
+              </div>
+              {!user.isKycVerified && (
+                <button className={styles.verifyBtn} onClick={() => setShowAadhaarModal(true)}>
+                  Verify KYC <ChevronRight size={14} />
+                </button>
               )}
             </div>
 
@@ -521,6 +581,41 @@ export default function ProfilePage() {
         </div>
 
       </div>
+
+      {/* Aadhaar Modal */}
+      {showAadhaarModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2><CreditCard size={24} /> Aadhaar eKYC</h2>
+            <p>Enter your 12-digit Aadhaar number to verify your identity.</p>
+            <input 
+              type="text" 
+              className={styles.modalInput} 
+              placeholder="XXXX XXXX XXXX" 
+              maxLength="12"
+              value={aadhaarNumber}
+              onChange={(e) => setAadhaarNumber(e.target.value.replace(/[^0-9]/g, ''))}
+            />
+            <div className={styles.modalActions}>
+              <button 
+                className={styles.modalCancelBtn} 
+                onClick={() => setShowAadhaarModal(false)}
+                disabled={aadhaarLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                className={styles.modalBtn} 
+                onClick={handleVerifyAadhaar}
+                disabled={aadhaarLoading || aadhaarNumber.length !== 12}
+              >
+                {aadhaarLoading ? 'Verifying...' : 'Verify Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

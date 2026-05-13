@@ -1,107 +1,55 @@
 "use client";
 
 import styles from "./HowItWorks.module.css";
-import { useRef } from "react";
+import { ArrowRight, ArrowDown, ArrowLeft } from "lucide-react";
 
-const LISTER_STEPS = [
-  {
-    title: "Snap & List",
-    desc: "Take high-quality photos of your gadget, set your daily price, and list it in under 2 minutes. Our platform handles the discovery.",
-    colorClass: styles.bgGreen
-  },
-  {
-    title: "Verify & Trust",
-    desc: "Complete our seamless Aadhaar verification to unlock the 'Verified Owner' badge and build instant trust with potential renters.",
-    colorClass: styles.bgLavender
-  },
-  {
-    title: "Handoff & Earn",
-    desc: "Approve booking requests, meet the renter (or ship it), and start earning passive income immediately into your wallet.",
-    colorClass: styles.bgLime
-  }
-];
-
-const BUYER_STEPS = [
-  {
-    title: "Find Your Tech",
-    desc: "Browse through hundreds of verified gadgets from local owners. Use filters to find exactly what you need for your project.",
-    colorClass: styles.bgBlue
-  },
-  {
-    title: "Book Instantly",
-    desc: "Select your dates, pay the rental fee and a small refundable deposit securely. No hidden charges, just transparent pricing.",
-    colorClass: styles.bgOrange
-  },
-  {
-    title: "Return & Repeat",
-    desc: "Enjoy the tech! When you're done, return it to the owner and get your deposit back instantly. Renting is the new owning.",
-    colorClass: styles.bgTea
-  }
+const FLOW_STEPS = [
+  { id: 1, emoji: "🏪", title: "1. Retailer Lists", desc: "Owners list idle tech in minutes to start earning.", colorClass: styles.step1 },
+  { id: 2, emoji: "🕵️‍♂️", title: "2. We Verify", desc: "Platform checks quality to ensure 100% trust.", colorClass: styles.step2 },
+  { id: 3, emoji: "👨‍🎓", title: "3. You Browse", desc: "Students find affordable tech for urgent needs.", colorClass: styles.step3 },
+  
+  { id: 4, emoji: "💳", title: "4. KYC & Pay", desc: "Secure ID check. Pay Rent + Protection + Deposit.", colorClass: styles.step4 },
+  { id: 5, emoji: "🤝", title: "5. Revenue Split", desc: "Owner keeps 80%. Platform takes 20%. Fair play.", colorClass: styles.step5 },
+  { id: 6, emoji: "🛵", title: "6. Delivered", desc: "Instant, safe doorstep delivery with OTP.", colorClass: styles.step6 },
+  
+  { id: 7, emoji: "💻", title: "7. Usage Period", desc: "Crush your project without buying expensive gear.", colorClass: styles.step7 },
+  { id: 8, emoji: "🔍", title: "8. Pickup Check", desc: "Hassle-free return pickup and quick safety inspection.", colorClass: styles.step8 },
+  { id: 9, emoji: "💸", title: "9. Refunded", desc: "Device returned clean? Instant deposit refund!", colorClass: styles.step9 }
 ];
 
 export default function HowItWorks() {
   return (
     <section className={styles.section}>
-      {/* Conveyor Header */}
-      <div className={styles.conveyorWrapper}>
-        <div className={styles.conveyorTrack}>
-          {[...Array(6)].map((_, i) => (
-            <h2 key={i} className={styles.conveyorText}>
-              Get started with a simple <span className={styles.numberGreen}>2</span> way approach
-            </h2>
-          ))}
-        </div>
+      <div className={styles.headerBox}>
+        <h2>How Gizzmo Works ♻️</h2>
+        <p>A simple, secure, and profitable cycle for both renters and retailers.</p>
       </div>
 
-      <div className={styles.mainContainer}>
-        {/* Lister Row: Video Left, Text Right */}
-        <div className={styles.row}>
-          <div className={styles.videoCol}>
-            <div className={styles.videoWrapper}>
-              <video 
-                src="/lister.mp4" 
-                autoPlay 
-                muted 
-                loop 
-                playsInline 
-                className={styles.video}
-              />
-              <div className={styles.videoLabel}>LISTER</div>
-            </div>
-          </div>
-          <div className={styles.textCol}>
-            {LISTER_STEPS.map((step, idx) => (
-              <div key={idx} className={`${styles.stepBlock} ${step.colorClass}`}>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepDesc}>{step.desc}</p>
+      <div className={styles.boardContainer}>
+        <div className={styles.gridBoard}>
+          {FLOW_STEPS.map((step, idx) => {
+            return (
+              <div key={step.id} className={`${styles.gridCell} ${styles['cell'+step.id]}`}>
+                <div className={`${styles.stepCard} ${step.colorClass}`}>
+                  <div className={styles.emojiBox}>{step.emoji}</div>
+                  <div className={styles.stepText}>
+                    <h3>{step.title}</h3>
+                    <p>{step.desc}</p>
+                  </div>
+                </div>
+                
+                {/* Desktop Arrows */}
+                {step.id === 1 && <ArrowRight className={`${styles.arrow} ${styles.arrowRight}`} size={40} />}
+                {step.id === 2 && <ArrowRight className={`${styles.arrow} ${styles.arrowRight}`} size={40} />}
+                {step.id === 3 && <ArrowDown className={`${styles.arrow} ${styles.arrowDownRight}`} size={40} />}
+                {step.id === 4 && <ArrowLeft className={`${styles.arrow} ${styles.arrowLeft}`} size={40} />}
+                {step.id === 5 && <ArrowLeft className={`${styles.arrow} ${styles.arrowLeft}`} size={40} />}
+                {step.id === 6 && <ArrowDown className={`${styles.arrow} ${styles.arrowDownLeft}`} size={40} />}
+                {step.id === 7 && <ArrowRight className={`${styles.arrow} ${styles.arrowRight}`} size={40} />}
+                {step.id === 8 && <ArrowRight className={`${styles.arrow} ${styles.arrowRight}`} size={40} />}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Buyer Row: Text Left, Video Right */}
-        <div className={`${styles.row} ${styles.rowReversed}`}>
-          <div className={styles.videoCol}>
-            <div className={styles.videoWrapper}>
-              <video 
-                src="/buyer.mp4" 
-                autoPlay 
-                muted 
-                loop 
-                playsInline 
-                className={styles.video}
-              />
-              <div className={styles.videoLabel}>RENTER</div>
-            </div>
-          </div>
-          <div className={styles.textCol}>
-            {BUYER_STEPS.map((step, idx) => (
-              <div key={idx} className={`${styles.stepBlock} ${step.colorClass}`}>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepDesc}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>
