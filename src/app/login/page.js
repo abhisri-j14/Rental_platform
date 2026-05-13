@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, Mail, Phone, Lock, User, ShoppingBag, Store, ChevronLeft } from 'lucide-react';
 import styles from './login.module.css';
+import { useAuth } from '@/context/AuthContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState('login'); // 'login' or 'signup'
   const [step, setStep] = useState('form'); // 'form', 'role', 'otp', 'success'
@@ -30,7 +32,7 @@ export default function LoginPage() {
     const emailVerified = searchParams.get('emailVerified');
 
     if (token) {
-      localStorage.setItem('gadgetgo_token', token);
+      login(token);
       setSuccess('Logged in with Google!');
       setTimeout(() => { window.location.href = '/'; }, 1500);
     }
@@ -77,7 +79,7 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('gadgetgo_token', data.token);
+      login(data.token);
       setSuccess('Account created! Sending OTP to verify your phone...');
 
       // Auto-send OTP for phone verification
@@ -114,7 +116,7 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('gadgetgo_token', data.token);
+      login(data.token);
       setSuccess('Login successful! Redirecting...');
       setTimeout(() => { window.location.href = '/'; }, 1000);
     } catch {
@@ -143,7 +145,7 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('gadgetgo_token', data.token);
+      login(data.token);
       setSuccess('Phone verified! Check your email for email verification. Redirecting...');
       setTimeout(() => { window.location.href = '/'; }, 2000);
     } catch {
@@ -172,7 +174,7 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.authCard}>
-        <div className={styles.brand}>Gadget<span className={styles.accent}>Go</span></div>
+        <div className={styles.brand}>Gizzmo</div>
 
         {/* Status messages */}
         {error && <div className={styles.errorMsg}>{error}</div>}

@@ -28,9 +28,10 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_USER !
 
 // ─── Helper: generate JWT ──────────────────────────────────
 function generateToken(user) {
+  const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: '7d' }
   );
 }
@@ -42,35 +43,39 @@ function generateOTP() {
 
 // ─── Helper: send verification email ──────────────────────
 async function sendVerificationEmail(user) {
-  const token = crypto.randomBytes(32).toString('hex');
-  user.emailVerifyToken = token;
-  await user.save();
+  try {
+    const token = crypto.randomBytes(32).toString('hex');
+    user.emailVerifyToken = token;
+    await user.save();
 
-  const verifyUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+    const verifyUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
 
-  if (emailTransporter) {
-    await emailTransporter.sendMail({
-      from: `"GadgetGo" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: 'Verify your GadgetGo email',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">
-          <h2>Welcome to GadgetGo! 🎉</h2>
-          <p>Hi ${user.name},</p>
-          <p>Click the button below to verify your email address:</p>
-          <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; background: #648DE5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold;">
-            Verify Email
-          </a>
-          <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
-            Or copy this link: ${verifyUrl}
-          </p>
-        </div>
-      `,
-    });
-    console.log(`📧 Verification email sent to ${user.email}`);
-  } else {
-    // No email configured — log the link for development
-    console.log(`📧 [DEV] Email verify link for ${user.email}: ${verifyUrl}`);
+    if (emailTransporter) {
+      await emailTransporter.sendMail({
+        from: `"Gizzmo" <${process.env.EMAIL_USER}>`,
+        to: user.email,
+        subject: 'Verify your Gizzmo email',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">
+            <h2>Welcome to Gizzmo! 🎉</h2>
+            <p>Hi ${user.name},</p>
+            <p>Click the button below to verify your email address:</p>
+            <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; background: #648DE5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              Verify Email
+            </a>
+            <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+              Or copy this link: ${verifyUrl}
+            </p>
+          </div>
+        `,
+      });
+      console.log(`📧 Verification email sent to ${user.email}`);
+    } else {
+      console.log(`📧 [DEV] Email verify link for ${user.email}: ${verifyUrl}`);
+    }
+  } catch (err) {
+    console.error('❌ Failed to send verification email:', err.message);
+    // Don't throw here, we want the user to still be created
   }
 }
 
@@ -78,50 +83,69 @@ async function sendVerificationEmail(user) {
 //  SIGNUP
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.post('/signup', async (req, res) => {
-  const { name, email, password, phone, role } = req.body;
+  console.log('👤 Signup request received:', req.body.email);
+  try {
+    const { name, email, password, phone, role } = req.body;
 
-  if (!name || !email || !password || !phone) {
-    return res.status(400).json({ error: 'All fields are required' });
+    if (!name || !email || !password || !phone) {
+      console.log('⚠️ Signup failed: Missing fields');
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Validate role
+    const validRoles = ['user', 'owner'];
+    const assignedRole = validRoles.includes(role) ? role : 'user';
+    console.log(`📝 Assigning role: ${assignedRole} (Requested: ${role})`);
+
+    // Check if user already exists
+    console.log('🔍 Checking for existing user...');
+    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    if (existingUser) {
+      console.log('⚠️ Signup failed: User already exists');
+      const field = existingUser.email === email ? 'email' : 'phone number';
+      return res.status(400).json({ error: `An account with this ${field} already exists` });
+    }
+
+    // Hash password and create user
+    console.log('🔐 Hashing password...');
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    console.log('💾 Creating user in database...');
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      role: assignedRole,
+    });
+
+    console.log(`✅ User created successfully: ${user._id} as ${user.role}`);
+
+    // Send verification email (non-blocking catch inside helper)
+    console.log('📧 Triggering verification email...');
+    await sendVerificationEmail(user);
+
+    console.log('🎫 Generating token...');
+    const token = generateToken(user);
+    
+    console.log('🚀 Signup complete!');
+    res.status(201).json({
+      message: 'Account created! Please verify your email and phone number.',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        isPhoneVerified: user.isPhoneVerified,
+        isEmailVerified: user.isEmailVerified,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error('❌ Signup error stack:', err);
+    res.status(500).json({ error: 'Signup failed. ' + err.message });
   }
-
-  // Validate role
-  const validRoles = ['user', 'owner'];
-  const assignedRole = validRoles.includes(role) ? role : 'user';
-
-  // Check if user already exists
-  const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
-  if (existingUser) {
-    const field = existingUser.email === email ? 'email' : 'phone number';
-    return res.status(400).json({ error: `An account with this ${field} already exists` });
-  }
-
-  // Hash password and create user
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    phone,
-    role: assignedRole,
-  });
-
-  // Send verification email
-  await sendVerificationEmail(user);
-
-  const token = generateToken(user);
-  res.status(201).json({
-    message: 'Account created! Please verify your email and phone number.',
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      isPhoneVerified: user.isPhoneVerified,
-      isEmailVerified: user.isEmailVerified,
-      role: user.role,
-    },
-  });
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -162,7 +186,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('❌ Login error:', err);
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: 'Login failed. ' + err.message });
   }
 });
 
@@ -294,7 +318,8 @@ router.get('/me', async (req, res) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
     const user = await User.findById(decoded.id).select('-password -emailVerifyToken');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -316,7 +341,8 @@ router.put('/profile', async (req, res) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
     const { name, phone } = req.body;
 
     const updateData = {};
@@ -350,7 +376,7 @@ router.post('/resend-verify-email', async (req, res) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-jwt-secret-key-12345');
     const user = await User.findById(decoded.id);
 
     if (!user) {
@@ -362,6 +388,36 @@ router.post('/resend-verify-email', async (req, res) => {
 
     await sendVerificationEmail(user);
     res.json({ message: 'Verification email sent' });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  BECOME OWNER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.put('/become-owner', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
+    
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { role: 'owner' },
+      { new: true }
+    ).select('-password -emailVerifyToken');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'Congratulations! You are now a Store Owner.', user });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }

@@ -14,6 +14,7 @@ function CategoryContent({ params }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const brandQuery = searchParams.get('brand') || '';
   const { addToCart, cartItems } = useCart();
 
   const categoryName = slug === 'all'
@@ -27,14 +28,21 @@ function CategoryContent({ params }) {
   
   // Filters
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [minRating, setMinRating] = useState(0);
+  const [deliveryFilter, setDeliveryFilter] = useState([]);
+  const [conditionFilter, setConditionFilter] = useState([]);
+  const [discountFilter, setDiscountFilter] = useState(0);
 
   useEffect(() => {
     setLoading(true);
     let url = slug === 'all'
       ? `${API_URL}/api/products`
       : `${API_URL}/api/products?category=${slug}`;
+
+    if (brandQuery) {
+      url += (url.includes('?') ? '&' : '?') + `brand=${encodeURIComponent(brandQuery)}`;
+    }
     
     if (searchQuery) {
       url += (url.includes('?') ? '&' : '?') + `search=${encodeURIComponent(searchQuery)}`;
@@ -47,14 +55,10 @@ function CategoryContent({ params }) {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [slug, searchQuery]);
+  }, [slug, searchQuery, brandQuery]);
 
   // Derived data for filters
-  const brands = useMemo(() => {
-    const b = new Set();
-    products.forEach(p => b.add(p.brand));
-    return Array.from(b).sort();
-  }, [products]);
+  const brands = ['Apple', 'Samsung', 'OnePlus', 'Sony', 'Canon', 'DJI', 'Dell', 'iQOO', 'Redmi', 'realme', 'vivo', 'Motorola', 'Nokia', 'OPPO'];
 
   // Filter and Sort products
   const processedProducts = useMemo(() => {
@@ -62,7 +66,14 @@ function CategoryContent({ params }) {
       const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
       const matchesPrice = p.pricePerDay >= priceRange[0] && p.pricePerDay <= priceRange[1];
       const matchesRating = (p.rating || 0) >= minRating;
-      return matchesBrand && matchesPrice && matchesRating;
+      const matchesDelivery = deliveryFilter.length === 0 || deliveryFilter.includes(p.delivery);
+      const matchesCondition = conditionFilter.length === 0 || conditionFilter.includes('New');
+      
+      // Calculate discount % (approximate for UI)
+      const discountPercent = p.actualPrice > 0 ? ((p.actualPrice - (p.pricePerDay * 30)) / p.actualPrice) * 100 : 0;
+      const matchesDiscount = discountFilter === 0 || discountPercent >= discountFilter;
+
+      return matchesBrand && matchesPrice && matchesRating && matchesDelivery && matchesCondition && matchesDiscount;
     });
 
     switch (sort) {
@@ -121,10 +132,8 @@ function CategoryContent({ params }) {
 
   const isInCart = (id) => cartItems.some(i => i._id === id);
 
-  const toggleBrand = (brand) => {
-    setSelectedBrands(prev => 
-      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-    );
+  const toggleFilter = (list, setList, value) => {
+    setList(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
   };
 
   return (
@@ -132,46 +141,44 @@ function CategoryContent({ params }) {
       
       {/* Sidebar Filters */}
       <aside className={styles.sidebar}>
+        
+        {/* Delivery Day */}
         <div className={styles.filterSection}>
-          <h3 className={styles.filterTitle}>Brand</h3>
+          <h3 className={styles.filterTitle}>Delivery Day</h3>
+          <div className={styles.filterList}>
+            {['Get It Today', 'Get It by Tomorrow'].map(d => (
+              <label key={d} className={styles.filterItem}>
+                <input 
+                  type="checkbox" 
+                  checked={deliveryFilter.includes(d)}
+                  onChange={() => toggleFilter(deliveryFilter, setDeliveryFilter, d)}
+                />
+                <span>{d}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Brands */}
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Brands</h3>
           <div className={styles.filterList}>
             {brands.map(brand => (
               <label key={brand} className={styles.filterItem}>
                 <input 
                   type="checkbox" 
                   checked={selectedBrands.includes(brand)}
-                  onChange={() => toggleBrand(brand)}
+                  onChange={() => toggleFilter(selectedBrands, setSelectedBrands, brand)}
                 />
                 <span>{brand}</span>
               </label>
             ))}
-            {brands.length === 0 && <span className={styles.emptyFilter}>No brands found</span>}
           </div>
         </div>
 
+        {/* Customer Reviews */}
         <div className={styles.filterSection}>
-          <h3 className={styles.filterTitle}>Price Per Day</h3>
-          <div className={styles.priceInputs}>
-            <input 
-              type="number" 
-              placeholder="Min" 
-              value={priceRange[0]} 
-              onChange={e => setPriceRange([Number(e.target.value), priceRange[1]])}
-              className={styles.priceInput}
-            />
-            <span>-</span>
-            <input 
-              type="number" 
-              placeholder="Max" 
-              value={priceRange[1]} 
-              onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
-              className={styles.priceInput}
-            />
-          </div>
-        </div>
-
-        <div className={styles.filterSection}>
-          <h3 className={styles.filterTitle}>Avg. Customer Review</h3>
+          <h3 className={styles.filterTitle}>Customer Reviews</h3>
           <div className={styles.ratingFilters}>
             {[4, 3, 2, 1].map(r => (
               <button 
@@ -179,10 +186,65 @@ function CategoryContent({ params }) {
                 className={`${styles.ratingFilterBtn} ${minRating === r ? styles.activeRating : ''}`}
                 onClick={() => setMinRating(minRating === r ? 0 : r)}
               >
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} fill={i < r ? "#FF9900" : "none"} color={i < r ? "#FF9900" : "#ccc"} />
-                ))}
+                <div className={styles.starsContainer}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} fill={i < r ? "#FF9900" : "none"} color={i < r ? "#FF9900" : "#ccc"} />
+                  ))}
+                </div>
                 <span>& Up</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Item Condition */}
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Item Condition</h3>
+          <div className={styles.filterList}>
+            <label className={styles.filterItem}>
+              <input 
+                type="checkbox" 
+                checked={conditionFilter.includes('New')}
+                onChange={() => toggleFilter(conditionFilter, setConditionFilter, 'New')}
+              />
+              <span>New</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Price Ranges */}
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Price</h3>
+          <div className={styles.filterList}>
+            {[
+              { label: 'Under ₹1,000', range: [0, 1000] },
+              { label: '₹1,000 - ₹5,000', range: [1000, 5000] },
+              { label: '₹5,000 - ₹10,000', range: [5000, 10000] },
+              { label: '₹10,000 - ₹20,000', range: [10000, 20000] },
+              { label: 'Over ₹20,000', range: [20000, 1000000] }
+            ].map(p => (
+              <button 
+                key={p.label}
+                className={`${styles.ratingFilterBtn} ${priceRange[0] === p.range[0] && priceRange[1] === p.range[1] ? styles.activeRating : ''}`}
+                onClick={() => setPriceRange(p.range)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Discount */}
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Discount</h3>
+          <div className={styles.filterList}>
+            {[10, 25, 35, 50, 60, 70].map(d => (
+              <button 
+                key={d}
+                className={`${styles.ratingFilterBtn} ${discountFilter === d ? styles.activeRating : ''}`}
+                onClick={() => setDiscountFilter(d)}
+              >
+                {d}% Off or more
               </button>
             ))}
           </div>
@@ -192,8 +254,11 @@ function CategoryContent({ params }) {
           className={styles.clearFilters}
           onClick={() => {
             setSelectedBrands([]);
-            setPriceRange([0, 10000]);
+            setPriceRange([0, 100000]);
             setMinRating(0);
+            setDeliveryFilter([]);
+            setConditionFilter([]);
+            setDiscountFilter(0);
           }}
         >
           Clear All Filters
@@ -207,9 +272,13 @@ function CategoryContent({ params }) {
         <div className={styles.resultsHeader}>
           <div className={styles.titleArea}>
             <h1>
-              {searchQuery 
-                ? `Search Results for "${searchQuery}"` 
-                : `${categoryName} Rentals`}
+              {brandQuery
+                ? slug === 'all'
+                  ? `${brandQuery} Rentals`
+                  : `${brandQuery} ${categoryName}`
+                : searchQuery 
+                  ? `Search Results for "${searchQuery}"` 
+                  : `${categoryName} Rentals`}
             </h1>
             <span className={styles.itemCount}>{processedProducts.length} devices found</span>
           </div>
@@ -252,6 +321,7 @@ function CategoryContent({ params }) {
                     ) : (
                       <span className={styles.emojiIcon}>{emojiMap[product.category] || '📦'}</span>
                     )}
+                    <div className={styles.discountBadge}>UP TO 50% OFF</div>
                   </div>
                   {product.sponsored && (
                     <span className={styles.sponsoredBadge}>Sponsored</span>

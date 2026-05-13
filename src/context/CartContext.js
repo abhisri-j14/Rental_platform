@@ -1,31 +1,41 @@
 "use client";
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  // Storage key depends on user ID
+  const storageKey = useMemo(() => {
+    return user ? `gadgetgo_cart_${user.id || user._id}` : 'gadgetgo_cart_guest';
+  }, [user]);
+
+  // Load from localStorage when storageKey changes
   useEffect(() => {
+    setHydrated(false); // Reset hydration to prevent accidental overwrite
     try {
-      const stored = localStorage.getItem('gadgetgo_cart');
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         setCartItems(JSON.parse(stored));
+      } else {
+        setCartItems([]);
       }
     } catch {
-      // ignore parse errors
+      setCartItems([]);
     }
     setHydrated(true);
-  }, []);
+  }, [storageKey]);
 
   // Persist to localStorage whenever cartItems changes (after hydration)
   useEffect(() => {
     if (hydrated) {
-      localStorage.setItem('gadgetgo_cart', JSON.stringify(cartItems));
+      localStorage.setItem(storageKey, JSON.stringify(cartItems));
     }
-  }, [cartItems, hydrated]);
+  }, [cartItems, hydrated, storageKey]);
 
   /**
    * addToCart — merges if same _id already exists (updates days).

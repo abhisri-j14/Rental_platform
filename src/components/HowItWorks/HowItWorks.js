@@ -1,11 +1,7 @@
 "use client";
 
 import styles from "./HowItWorks.module.css";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useRef } from "react";
 
 const LISTER_STEPS = [
   {
@@ -44,35 +40,17 @@ const BUYER_STEPS = [
 ];
 
 export default function HowItWorks() {
-  const introHeaderRef = useRef(null);
-
-  useEffect(() => {
-    if (!introHeaderRef.current) return;
-
-    const title = introHeaderRef.current.querySelector(`.${styles.mainTitle}`);
-
-    if (title) {
-      gsap.from(title, {
-        scrollTrigger: {
-          trigger: introHeaderRef.current,
-          start: "top 80%",
-          end: "top 20%",
-          scrub: 1,
-        },
-        opacity: 0,
-        y: 50,
-        duration: 1,
-      });
-    }
-  }, []);
-
   return (
     <section className={styles.section}>
-      {/* Intro Header */}
-      <div className={styles.introHeader} ref={introHeaderRef}>
-        <h2 className={styles.mainTitle}>
-          Get started with a simple <span className={styles.numberGreen}>2</span> <span className={styles.underlineStyled}>way approach</span>
-        </h2>
+      {/* Conveyor Header */}
+      <div className={styles.conveyorWrapper}>
+        <div className={styles.conveyorTrack}>
+          {[...Array(6)].map((_, i) => (
+            <h2 key={i} className={styles.conveyorText}>
+              Get started with a simple <span className={styles.numberGreen}>2</span> way approach
+            </h2>
+          ))}
+        </div>
       </div>
 
       <div className={styles.mainContainer}>

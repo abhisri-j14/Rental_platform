@@ -3,11 +3,27 @@ import { useState, useEffect } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star, CheckCircle, Info, ShoppingCart, ChevronsRight, Store, Tag, Check } from 'lucide-react';
+import { 
+  Star, CheckCircle, Info, ShoppingCart, ChevronsRight, 
+  Store, Tag, Check, Truck, ShieldCheck, ArrowLeft,
+  Share2, Heart, Award
+} from 'lucide-react';
 import styles from './product.module.css';
 import { useCart } from '@/context/CartContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+const HD_IMAGES = {
+  laptops: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1500",
+  cameras: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1500",
+  phones: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1500",
+  drones: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1500",
+  gaming: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1500",
+  vr: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1500",
+  audio: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1500",
+  tablets: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=1500",
+  accessories: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=1500"
+};
 
 export default function ProductPage({ params }) {
   const resolvedParams = use(params);
@@ -16,24 +32,30 @@ export default function ProductPage({ params }) {
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(3);
   const [customDays, setCustomDays] = useState('');
   const [toast, setToast] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
 
   useEffect(() => {
+    // Fetch product
     fetch(`${API_URL}/api/products/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Not found');
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         setProduct(data.product);
         setLoading(false);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
+
+    // Fetch suggestions
+    fetch(`${API_URL}/api/products`)
+      .then(res => res.json())
+      .then(data => {
+        setSuggestions(data.products.filter(p => p._id !== id).slice(0, 6));
+      })
+      .catch(err => console.error("Suggestions fetch error:", err));
   }, [id]);
 
   const handleDaysChange = (e) => {
@@ -84,248 +106,219 @@ export default function ProductPage({ params }) {
     setTimeout(() => setToast(false), 2500);
   };
 
-  const durationOptions = [3, 5, 7, 14, 30];
+  if (loading) return <div className={styles.loading}>Loading product details...</div>;
+  if (!product) return <div className={styles.loading}>Product not found.</div>;
 
-  if (loading) {
-    return <div className={styles.container}><p style={{padding: '3rem', fontWeight: 700}}>Loading product...</p></div>;
-  }
-
-  if (!product) {
-    return <div className={styles.container}><p style={{padding: '3rem', fontWeight: 700}}>Product not found.</p></div>;
-  }
-
-  const emojiMap = {
-    laptops: '💻', cameras: '📸', phones: '📱', drones: '🚁',
-    tablets: '📱', gaming: '🎮', vr: '🥽', audio: '🎧', accessories: '🔌',
+  const getProductImg = (p) => {
+    if (p.images?.[0] && !p.images[0].includes('placeholder')) return p.images[0];
+    return HD_IMAGES[p.category] || HD_IMAGES.accessories;
   };
 
   const effectiveDays = customDays !== '' ? (parseInt(customDays, 10) || 1) : days;
   const estimatedRent = product.pricePerDay * effectiveDays;
+  const mrp = product.actualPrice || (product.pricePerDay * 50);
 
   return (
-    <div className={styles.container}>
-
-      {/* Toast Notification */}
+    <div className={styles.fullContainer}>
       {toast && (
         <div className={styles.toast}>
-          <Check size={20} strokeWidth={3} /> Added to cart!
+          <CheckCircle size={20} /> Item added to cart
         </div>
       )}
 
-      {/* Left Column (Images & Actions) */}
-      <div className={styles.leftColumn}>
-        <div className={styles.imageGalleryWrapper}>
-          <div className={styles.mainImage}>
-            {product.images?.[0] ? (
-              <img src={product.images[0]} alt={product.title} />
-            ) : (
-              <span className={styles.emojiBig}>{emojiMap[product.category] || '📦'}</span>
-            )}
-          </div>
-          <div className={styles.thumbnailGallery}>
-            <div className={`${styles.thumbnail} ${styles.activeThumb}`}>
-              {emojiMap[product.category] || '📦'}
+      {/* Breadcrumbs */}
+      <nav className={styles.breadcrumbs}>
+        <Link href="/">Home</Link> / <Link href={`/category/${product.category}`}>{product.category}</Link> / <span>{product.title}</span>
+      </nav>
+
+      <div className={styles.productLayout}>
+        
+        {/* Column 1: Vertical Gallery */}
+        <div className={styles.imageColumn}>
+          <div className={styles.verticalGalleryWrapper}>
+            <div className={styles.thumbnailsVertical}>
+              {[0, 1, 2, 3, 4, 5].map((idx) => (
+                <div key={idx} className={`${styles.thumbItem} ${activeImg === idx ? styles.activeThumb : ''}`} onMouseEnter={() => setActiveImg(idx)}>
+                   <img src={getProductImg(product)} alt="" />
+                </div>
+              ))}
             </div>
-            {/* If there were more images, we'd map them here */}
-            <div className={styles.thumbnail}>
-              <Store size={24} />
-            </div>
-            <div className={styles.thumbnail}>
-              <Info size={24} />
+            <div className={styles.mainImageArea}>
+              <div className={styles.mainImageWrapper}>
+                <img src={getProductImg(product)} alt={product.title} className={styles.mainImage} />
+                <p className={styles.zoomText}>Roll over image to zoom in</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className={styles.actionButtons}>
-          <button className={styles.addToCartBtn} onClick={handleAddToCart}>
-            <ShoppingCart size={24} strokeWidth={3} /> Add to Cart
-          </button>
-          <button className={styles.bookNowBtn} onClick={handleBookNow}>
-            <ChevronsRight size={24} strokeWidth={3} /> Rent Now
-          </button>
+        {/* Column 2: Info */}
+        <div className={styles.infoColumn}>
+          <div className={styles.topMeta}>
+            <Link href="/owner" className={styles.brandLink}>Visit the {product.brand} Store</Link>
+            <div className={styles.gizzmoChoice}>
+              <span className={styles.choiceText}>Gizzmo's</span> <span className={styles.choiceCategory}>Choice</span>
+              <span className={styles.choiceSub}>for "{product.title.split(' ')[0]}"</span>
+            </div>
+          </div>
+          
+          <h1 className={styles.productTitle}>{product.title}</h1>
+          
+          <div className={styles.ratingRow}>
+            <div className={styles.ratingStars}>
+              <span className={styles.ratingValue}>{product.rating}</span>
+              {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} fill={s <= product.rating ? "#FFA41C" : "none"} color="#FFA41C" />)}
+              <ChevronsRight size={14} className={styles.downArrow} />
+            </div>
+            <Link href="#reviews" className={styles.amazonLink}>{(product.totalRatings || 1240).toLocaleString()} ratings</Link>
+            <span className={styles.separator}>|</span>
+            <Link href="#qa" className={styles.amazonLink}>500+ answered questions</Link>
+          </div>
+
+          <div className={styles.divider}></div>
+
+          <div className={styles.priceSection}>
+            <div className={styles.dealBadge}>Limited time deal</div>
+            <div className={styles.priceContainer}>
+              <span className={styles.discountPercent}>-15%</span>
+              <div className={styles.priceBlock}>
+                <span className={styles.currency}>₹</span>
+                <span className={styles.priceLarge}>{product.pricePerDay.toLocaleString('en-IN')}</span>
+                <span className={styles.pricePeriod}>/day</span>
+              </div>
+            </div>
+            <p className={styles.mrpLine}>M.R.P.: <span className={styles.strike}>₹{mrp.toLocaleString('en-IN')}</span></p>
+            <p className={styles.taxesInfo}>Inclusive of all taxes</p>
+          </div>
+
+          <div className={styles.amazonOffers}>
+            <div className={styles.offerItem}>
+              <Tag size={16} color="#B12704" />
+              <strong>Partner Offers</strong>
+              <p>Get GST invoice and save up to 28% on business rentals.</p>
+            </div>
+          </div>
+
+          <div className={styles.divider}></div>
+
+          <div className={styles.iconFeatures}>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}><Truck size={24} /></div>
+              <span>Free Delivery</span>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}><ShieldCheck size={24} /></div>
+              <span>Secure Transaction</span>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}><Award size={24} /></div>
+              <span>6-Hr Return</span>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}><CheckCircle size={24} /></div>
+              <span>100% Cashback</span>
+            </div>
+          </div>
+
+          <div className={styles.divider}></div>
+
+          <div className={styles.detailsTable}>
+            <div className={styles.detailRow}><strong>Brand</strong><span>{product.brand}</span></div>
+            <div className={styles.detailRow}><strong>Category</strong><span>{product.category}</span></div>
+            <div className={styles.detailRow}><strong>Condition</strong><span>Like New</span></div>
+          </div>
+
+          <div className={styles.divider}></div>
+
+          <div className={styles.aboutThisItem}>
+            <h3>About this item</h3>
+            <ul className={styles.amazonBullets}>
+              <li>High-performance {product.category} for professional and personal use.</li>
+              <li>Fully inspected and sanitized by Gizzmo experts before every rental.</li>
+              <li>Includes all standard accessories and original carrying case.</li>
+              <li>Flexible rental durations ranging from 3 to 30+ days.</li>
+              <li>{product.description}</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Column 3: Buy Box */}
+        <div className={styles.buyColumn}>
+          <div className={styles.buyBoxAmazon}>
+            <div className={styles.buyBoxPrice}>
+              <span className={styles.currency}>₹</span>
+              <span className={styles.amount}>{product.pricePerDay.toLocaleString('en-IN')}</span>
+              <span className={styles.unit}>/day</span>
+            </div>
+            
+            <div className={styles.deliveryInfo}>
+              <p>FREE delivery <strong className={styles.black}>Tomorrow</strong>. Order within <span className={styles.time}>6 hrs 2 mins</span>. <Link href="#" className={styles.amazonLink}>Details</Link></p>
+              <p className={styles.location}><Info size={14} /> Deliver to New Delhi 110001</p>
+            </div>
+
+            <div className={styles.stockStatusAmazon}>In Stock</div>
+
+            <div className={styles.selectorRow}>
+              <span>Payment:</span>
+              <strong>Monthly/Daily</strong>
+            </div>
+
+            <div className={styles.durationSelector}>
+              <label>Quantity / Days</label>
+              <select className={styles.amazonSelect} value={days} onChange={(e) => setDays(parseInt(e.target.value))}>
+                {[1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 30].map(v => <option key={v} value={v}>{v} Days</option>)}
+              </select>
+            </div>
+
+            <div className={styles.buyActionsAmazon}>
+              <button className={styles.amazonBtnYellow} onClick={handleAddToCart}>Add to Cart</button>
+              <button className={styles.amazonBtnOrange} onClick={handleBookNow}>Rent Now</button>
+            </div>
+
+            <div className={styles.amazonTableDetails}>
+              <div className={styles.amazonTableRow}>
+                <span>Ships from</span>
+                <span>Gizzmo</span>
+              </div>
+              <div className={styles.amazonTableRow}>
+                <span>Sold by</span>
+                <span>{product.brand} Authorized</span>
+              </div>
+            </div>
+
+            <div className={styles.amazonSecurity}>
+              <ShieldCheck size={16} /> <Link href="#" className={styles.amazonLink}>Secure transaction</Link>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Right Column (Details Cards) */}
-      <div className={styles.rightColumn}>
-
-        {/* Card 1: Title & Price */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <span className={styles.brandName}>{product.brand}</span>
-            <h1 className={styles.title}>{product.title}</h1>
-          </div>
-
-          <div className={styles.ratingBadgeWrapper}>
-            <div className={styles.ratingBadge}>
-              {product.rating} <Star size={16} fill="#fff" />
-            </div>
-            <span className={styles.ratingText}>
-              {(product.totalRatings || 0).toLocaleString()} Reviews &bull; {product.rentedCount}+ Rentals
-            </span>
-          </div>
-
-          <div className={styles.divider}></div>
-
-          {/* Rental Price */}
-          <div className={styles.priceRow}>
-            <span className={styles.rupee}>₹</span>
-            <span className={styles.price}>{product.pricePerDay.toLocaleString('en-IN')}</span>
-            <span className={styles.perDay}>per day</span>
-          </div>
-
-          {/* Actual / MRP Price */}
-          {product.actualPrice > 0 && (
-            <div className={styles.mrpRow}>
-              <Tag size={18} className={styles.mrpIcon} strokeWidth={3} />
-              <span className={styles.mrpLabel}>Buy New Price:</span>
-              <span className={styles.mrpValue}>₹{product.actualPrice.toLocaleString('en-IN')}</span>
-              <span className={styles.mrpSave}>
-                Rent & Save ₹{(product.actualPrice - product.pricePerDay * effectiveDays).toLocaleString('en-IN')}!
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Card 2: Select Duration */}
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Choose Rental Duration</h2>
-
-          {/* Preset Pills */}
-          <div className={styles.durationPills}>
-            {durationOptions.map(opt => (
-              <button
-                key={opt}
-                className={`${styles.pill} ${days === opt && customDays === '' ? styles.activePill : ''}`}
-                onClick={() => handlePillClick(opt)}
-              >
-                {opt} Days
-              </button>
-            ))}
-          </div>
-
-          {/* Custom Days Input */}
-          <div className={styles.customDaysRow}>
-            <label className={styles.customDaysLabel} htmlFor="customDays">
-              Need it for more or less?
-            </label>
-            <input
-              id="customDays"
-              type="number"
-              min="1"
-              max="365"
-              placeholder="Qty"
-              className={styles.customDaysInput}
-              value={customDays}
-              onChange={handleDaysChange}
-            />
-            <span className={styles.customDaysUnit}>days</span>
-          </div>
-
-          <div className={styles.estimateRow}>
-            <span>
-              Total Rental for <strong>{effectiveDays} days</strong>:
-            </span>
-            <strong className={styles.estimateAmount}>₹{estimatedRent.toLocaleString('en-IN')}</strong>
-            <span className={styles.estimateDeposit}>
-              + ₹{product.damageDeposit.toLocaleString('en-IN')} refundable security deposit
-            </span>
-          </div>
-        </div>
-
-        {/* Card 3: Product Highlights */}
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Tech Specs & Info</h2>
-          <div className={styles.highlightsGrid}>
-            <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Condition</span>
-              <span className={styles.highlightValue}>Excellent / Like New</span>
-            </div>
-            <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Delivery</span>
-              <span className={styles.highlightValue}>{product.delivery || 'Tomorrow'}</span>
-            </div>
-            {product.manufactureDate && (
-              <div className={styles.highlightItem}>
-                <span className={styles.highlightLabel}>Release Year</span>
-                <span className={styles.highlightValue}>{product.manufactureDate}</span>
-              </div>
-            )}
-            <div className={styles.highlightItem}>
-              <span className={styles.highlightLabel}>Security</span>
-              <span className={styles.highlightValue}>Aadhaar Verified</span>
+      {/* Suggested Products Section */}
+      {suggestions.length > 0 && (
+        <section className={styles.suggestionsSection}>
+          <div className={styles.sectionHeader}>
+            <h2>Customers also rented these</h2>
+            <div className={styles.suggestedGrid}>
+              {suggestions.map(item => (
+                <Link href={`/product/${item._id}`} key={item._id} className={styles.suggestionCard}>
+                  <div className={styles.suggestionImage}>
+                    <img src={getProductImg(item)} alt={item.title} />
+                  </div>
+                  <p className={styles.suggestionTitle}>{item.title}</p>
+                  <div className={styles.suggestionRating}>
+                    {[1, 2, 3, 4, 5].map(s => <Star key={s} size={12} fill={s <= item.rating ? "#FF9900" : "none"} color="#FF9900" />)}
+                  </div>
+                  <p className={styles.suggestionPrice}>₹{item.pricePerDay}/day</p>
+                </Link>
+              ))}
             </div>
           </div>
-
-          <div className={styles.divider}></div>
-          <h3 className={styles.subTitle}>About this device</h3>
-          <p className={styles.description}>{product.description}</p>
-
-          {product.specs && Object.keys(product.specs).length > 0 && (
-            <>
-              <h3 className={styles.subTitle}>Technical Details</h3>
-              <ul className={styles.specList}>
-                {Object.entries(product.specs).map(([k, v]) => (
-                  <li key={k}><strong>{k}:</strong> {v}</li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-
-        {/* Card 4: Owned By */}
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Listed By</h2>
-          <div className={styles.ownerRow}>
-            <div className={styles.ownerAvatar}>
-              <Store size={40} color="#000" strokeWidth={2.5} />
-            </div>
-            <div className={styles.ownerInfo}>
-              <h3 className={styles.ownerName}>{product.owner?.name || 'Gizzmo Certified Store'}</h3>
-              <div className={styles.verifiedTag}>
-                <CheckCircle size={16} strokeWidth={3} /> Gizzmo Verified Partner
-              </div>
-            </div>
-            <button className={styles.viewShopBtn}>Explore Shop</button>
-          </div>
-        </div>
-
-        {/* Card 5: Ratings & Reviews */}
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Customer Feedback</h2>
-          <div className={styles.reviewSummary}>
-            <div className={styles.reviewLeft}>
-              <div className={styles.hugeRating}>
-                {product.rating} <Star size={40} fill="#000" strokeWidth={3}/>
-              </div>
-              <p className={styles.ratingTextSmall}>
-                Based on {(product.totalRatings || 0).toLocaleString()} rentals
-              </p>
-            </div>
-            <div className={styles.reviewRight}>
-              <div className={styles.barRow}>
-                <span>5 Star</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '75%', backgroundColor: 'var(--tea-green)'}}></div></div>
-              </div>
-              <div className={styles.barRow}>
-                <span>4 Star</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '15%', backgroundColor: 'var(--lavender-veil)'}}></div></div>
-              </div>
-              <div className={styles.barRow}>
-                <span>3 Star</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '7%', backgroundColor: 'var(--lime-cream)'}}></div></div>
-              </div>
-              <div className={styles.barRow}>
-                <span>2 Star</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '2%', backgroundColor: '#eee'}}></div></div>
-              </div>
-              <div className={styles.barRow}>
-                <span>1 Star</span>
-                <div className={styles.barBg}><div className={styles.barFill} style={{width: '1%', backgroundColor: '#eee'}}></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        </section>
+      )}
+    </div>
+  );
+}
+div>
 
       </div>
     </div>

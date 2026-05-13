@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { Product, User } = require('../models');
+const upload = require('../utils/upload');
 
 const router = express.Router();
 
@@ -11,19 +12,25 @@ function auth(req, res, next) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
   try {
-    req.user = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    req.user = jwt.verify(header.split(' ')[1], secret);
     next();
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
 
-// Owner-only middleware
-function ownerOnly(req, res, next) {
-  if (req.user.role !== 'owner') {
-    return res.status(403).json({ error: 'Only store owners can do this' });
+// Owner-only middleware (Verifies from DB to handle role updates without re-login)
+async function ownerOnly(req, res, next) {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'owner') {
+      return res.status(403).json({ error: 'Only store owners can do this' });
+    }
+    next();
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error during authorization' });
   }
-  next();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -95,14 +102,37 @@ router.get('/my/listings', auth, ownerOnly, async (req, res) => {
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  CREATE PRODUCT (owner only)
+//  CREATE PRODUCT (owner only + File Uploads)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-router.post('/', auth, ownerOnly, async (req, res) => {
+router.post('/', auth, ownerOnly, upload.array('images', 10), async (req, res) => {
   try {
-    const { title, brand, description, category, pricePerDay, actualPrice, damageDeposit, specs, images, manufactureDate } = req.body;
+    const { title, brand, description, category, pricePerDay, actualPrice, damageDeposit, specs, manufactureDate } = req.body;
 
     if (!title || !brand || !category || !pricePerDay || !damageDeposit) {
       return res.status(400).json({ error: 'Title, brand, category, price, and damage deposit are required' });
+    }
+
+    // Process uploaded files
+    const imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      req.files.forEach(file => {
+        // Construct public URL
+        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        imageUrls.push(url);
+      });
+    }
+
+    // If no files uploaded, check if URLs were provided (fallback)
+    const finalImages = imageUrls.length > 0 ? imageUrls : (req.body.images || []);
+
+    // Parse specs if it's a string (multipart/form-data sends everything as string)
+    let parsedSpecs = specs;
+    if (typeof specs === 'string') {
+      try {
+        parsedSpecs = JSON.parse(specs);
+      } catch (e) {
+        parsedSpecs = {};
+      }
     }
 
     const product = await Product.create({
@@ -110,11 +140,11 @@ router.post('/', auth, ownerOnly, async (req, res) => {
       brand,
       description: description || '',
       category,
-      pricePerDay,
-      actualPrice: actualPrice || 0,
-      damageDeposit,
-      specs: specs || {},
-      images: images || [],
+      pricePerDay: Number(pricePerDay),
+      actualPrice: Number(actualPrice) || 0,
+      damageDeposit: Number(damageDeposit),
+      specs: parsedSpecs || {},
+      images: finalImages,
       manufactureDate: manufactureDate || '',
       owner: req.user.id,
     });
@@ -127,7 +157,7 @@ router.post('/', auth, ownerOnly, async (req, res) => {
         try {
           const twilio = require('twilio')(twilioSid, process.env.TWILIO_AUTH_TOKEN);
           await twilio.messages.create({
-            body: `✅ Your device "${title}" has been listed on GadgetGo at ₹${pricePerDay}/day! Track it at gadgetgo.com/owner`,
+            body: `✅ Your device "${title}" has been listed on Gizzmo at ₹${pricePerDay}/day! Track it at gizzmo.com/owner`,
             from: process.env.TWILIO_PHONE_NUMBER,
             to: owner.phone,
           });

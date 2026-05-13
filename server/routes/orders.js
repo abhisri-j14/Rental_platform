@@ -12,7 +12,8 @@ function auth(req, res, next) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
   try {
-    req.user = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    req.user = jwt.verify(header.split(' ')[1], secret);
     next();
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
@@ -89,7 +90,9 @@ router.post('/', auth, async (req, res) => {
       deliveryFee,
       damageDeposit: product.damageDeposit,
       totalAmount,
-      status: 'confirmed',
+      paymentStatus: 'pending',
+      trackingStatus: 'Order Placed',
+      estimatedDelivery: '2 Days',
       paymentMethod: paymentMethod || 'online',
       deliveryAddress,
     });
@@ -131,7 +134,9 @@ router.post('/', auth, async (req, res) => {
         deliveryFee,
         damageDeposit: product.damageDeposit,
         totalAmount,
-        status: order.status,
+        paymentStatus: order.paymentStatus,
+        trackingStatus: order.trackingStatus,
+        estimatedDelivery: order.estimatedDelivery,
         txHash,
         startDate,
         endDate,
@@ -200,25 +205,37 @@ router.get('/:id', auth, async (req, res) => {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.patch('/:id/status', auth, async (req, res) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'active', 'returned', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status' });
-    }
-
+    const { trackingStatus, paymentStatus } = req.body;
+    
     const order = await Order.findById(req.params.id).populate('product', 'title');
     if (!order) return res.status(404).json({ error: 'Order not found' });
     if (order.owner.toString() !== req.user.id) {
       return res.status(403).json({ error: 'Only the product owner can update order status' });
     }
 
-    order.status = status;
+    if (trackingStatus) {
+      const validTracking = ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered'];
+      if (!validTracking.includes(trackingStatus)) {
+        return res.status(400).json({ error: 'Invalid tracking status' });
+      }
+      order.trackingStatus = trackingStatus;
+    }
+
+    if (paymentStatus) {
+      const validPayment = ['pending', 'paid', 'failed'];
+      if (!validPayment.includes(paymentStatus)) {
+        return res.status(400).json({ error: 'Invalid payment status' });
+      }
+      order.paymentStatus = paymentStatus;
+    }
+
     await order.save();
 
-    // Notify renter about status change
+    // Notify renter about update
     const renter = await User.findById(order.renter);
     if (renter?.phone) {
-      await sendSMS(renter.phone, `📦 Order update: Your rental of "${order.product.title}" is now "${status}".`);
+      const updateMsg = trackingStatus ? `now "${trackingStatus}"` : `payment is "${paymentStatus}"`;
+      await sendSMS(renter.phone, `📦 Order update: Your rental of "${order.product.title}" ${updateMsg}.`);
     }
 
     res.json({ message: 'Order status updated', order });

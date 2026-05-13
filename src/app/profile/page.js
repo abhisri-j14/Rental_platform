@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, Shield, ShieldCheck, CheckCircle, XCircle, Edit3, Save, LogOut, ChevronRight } from 'lucide-react';
+import { User, Mail, Phone, Shield, ShieldCheck, CheckCircle, XCircle, Edit3, Save, LogOut, ChevronRight, ShoppingCart, Store } from 'lucide-react';
 import styles from './profile.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -17,6 +18,13 @@ export default function ProfilePage() {
   // Editable fields
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+
+  // Data
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [listings, setListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders' or 'listings'
 
   // Fetch user data
   useEffect(() => {
@@ -43,7 +51,32 @@ export default function ProfilePage() {
         localStorage.removeItem('gadgetgo_token');
         router.push('/login');
       });
-  }, [router]);
+
+    // Fetch orders
+    fetch(`${API_URL}/api/orders/my-orders`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        setOrders(data.orders || []);
+        setOrdersLoading(false);
+      })
+      .catch(() => setOrdersLoading(false));
+
+    // Fetch listings (only if owner)
+    const storedUser = JSON.parse(localStorage.getItem('gadgetgo_user') || '{}');
+    if (storedUser.role === 'owner' || user?.role === 'owner') {
+      fetch(`${API_URL}/api/products/my/listings`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => {
+          setListings(data.products || []);
+          setListingsLoading(false);
+        })
+        .catch(() => setListingsLoading(false));
+    }
+  }, [router, user?.role]);
 
   // Save profile
   const handleSave = async () => {
@@ -116,6 +149,29 @@ export default function ProfilePage() {
     }
   };
 
+  // Become owner
+  const handleBecomeOwner = async () => {
+    setSaving(true);
+    const token = localStorage.getItem('gadgetgo_token');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/become-owner`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data.user);
+        setMessage({ type: 'success', text: data.message });
+      } else {
+        setMessage({ type: 'error', text: data.error });
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to update role' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Logout
   const handleLogout = () => {
     localStorage.removeItem('gadgetgo_token');
@@ -135,6 +191,51 @@ export default function ProfilePage() {
   const memberSince = new Date(user.createdAt).toLocaleDateString('en-IN', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
+
+  const latestOrder = orders[0];
+
+  const OrdersList = () => {
+    if (ordersLoading) return <div className={styles.ordersLoading}>Fetching your rentals...</div>;
+    if (orders.length === 0) return (
+      <div className={styles.emptyOrders}>
+        <p>No rentals yet. Ready to try something new?</p>
+        <Link href="/category/all" className={styles.browseLink}>Browse Gadgets</Link>
+      </div>
+    );
+
+    return (
+      <div className={styles.ordersGrid}>
+        {orders.map(order => (
+          <div key={order._id} className={styles.orderCard}>
+            <div className={styles.orderTop}>
+              <div className={styles.orderImg}>
+                {order.product.images?.[0] ? (
+                  <img src={order.product.images[0]} alt={order.product.title} />
+                ) : (
+                  <span className={styles.orderEmoji}>📦</span>
+                )}
+              </div>
+              <div className={styles.orderInfo}>
+                <h3>{order.product.title}</h3>
+                <p>{order.product.brand}</p>
+                <div className={styles.orderBadge}>{order.trackingStatus}</div>
+              </div>
+            </div>
+            <div className={styles.orderBottom}>
+              <div className={styles.orderStats}>
+                <span>₹{order.totalAmount.toLocaleString()}</span>
+                <span>•</span>
+                <span>{order.days} Days</span>
+              </div>
+              <button className={styles.manageBtn} onClick={() => setEditing(true)}>
+                Edit
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -195,18 +296,24 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className={`${styles.verifyCard} ${user.isPhoneVerified ? styles.verified : styles.unverified}`}>
+            <div className={`${styles.verifyCard} ${user.isPhoneVerified ? styles.verified : (user.phone ? styles.unverified : styles.missing)}`}>
               <div className={styles.verifyIcon}>
-                {user.isPhoneVerified ? <CheckCircle size={24} /> : <XCircle size={24} />}
+                {user.isPhoneVerified ? <CheckCircle size={24} /> : (user.phone ? <XCircle size={24} /> : <Phone size={24} />)}
               </div>
               <div className={styles.verifyInfo}>
                 <h3>Phone</h3>
-                <p>{user.isPhoneVerified ? 'Verified' : 'Not verified'}</p>
+                <p>{user.isPhoneVerified ? 'Verified' : (user.phone ? 'Not verified' : 'No phone number')}</p>
               </div>
               {!user.isPhoneVerified && (
-                <button className={styles.verifyBtn} onClick={handleVerifyPhone}>
-                  Verify Now <ChevronRight size={14} />
-                </button>
+                user.phone ? (
+                  <button className={styles.verifyBtn} onClick={handleVerifyPhone}>
+                    Verify Now <ChevronRight size={14} />
+                  </button>
+                ) : (
+                  <button className={styles.verifyBtn} onClick={() => setEditing(true)}>
+                    Add Phone <ChevronRight size={14} />
+                  </button>
+                )
               )}
             </div>
 
@@ -272,11 +379,127 @@ export default function ProfilePage() {
 
             <div className={styles.detailRow}>
               <div className={styles.detailLabel}><ShieldCheck size={16} /> Account Type</div>
-              <div className={styles.detailValue}>{user.role === 'owner' ? 'Store Owner' : 'User'}</div>
+              <div className={styles.detailValue}>
+                {user.role === 'owner' ? 'Store Owner' : (
+                  <div className={styles.promoteBox}>
+                    <span>User</span>
+                    <button onClick={handleBecomeOwner} className={styles.promoteBtn} disabled={saving}>
+                      Switch to Store Owner
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>
         </div>
+
+        {/* Mode Toggles for Owner */}
+        {user.role === 'owner' && (
+          <div className={styles.modeToggleRow}>
+            <button
+              className={`${styles.modeBtnGreen} ${activeTab === 'orders' ? styles.btnActive : ''}`}
+              onClick={() => setActiveTab('orders')}
+            >
+              <ShoppingCart size={18} /> PERSONAL GEAR
+            </button>
+            <button
+              className={`${styles.modeBtnBlue} ${activeTab === 'listings' ? styles.btnActive : ''}`}
+              onClick={() => setActiveTab('listings')}
+            >
+              <Store size={18} /> SHOP INVENTORY
+            </button>
+          </div>
+        )}
+
+        {/* Dynamic Mode Content */}
+        {activeTab === 'orders' ? (
+          <div className={styles.dashboardSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.gizzmoHeading}>ACTIVE USAGE</h2>
+              <div className={styles.pulseBadge}>
+                <span className={styles.pulseDot}></span>
+                {orders.length} DEVICES IN HAND
+              </div>
+            </div>
+            <OrdersList />
+          </div>
+        ) : (
+          <div className={styles.dashboardSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.gizzmoHeading}>LIVE INVENTORY</h2>
+              <div className={styles.inventoryActions}>
+                {latestOrder ? (
+                  <Link href={`/order/${latestOrder._id}/tracking`} className={styles.trackLink}>
+                    Track Order <ChevronRight size={14} />
+                  </Link>
+                ) : (
+                  <button className={styles.trackLink} disabled>
+                    Track Order <ChevronRight size={14} />
+                  </button>
+                )}
+                <Link href="/owner" className={styles.gizzmoAddBtn}>+ EXPAND SHOP</Link>
+              </div>
+            </div>
+
+            <div className={styles.feasibilityHub}>
+              <div className={styles.hubInfo}>
+                <h4>FEASIBILITY PROTOCOL</h4>
+                <p>Automated student-friendly rates are active across your network.</p>
+              </div>
+              <div className={styles.discountRow}>
+                <div className={styles.discBadge}>WEEKEND <span>-10%</span></div>
+                <div className={styles.discBadge}>WEEKLY <span>-25%</span></div>
+                <div className={styles.discBadge}>MONTHLY <span>-50%</span></div>
+              </div>
+            </div>
+
+            {listingsLoading ? (
+              <div className={styles.modernLoading}>Syncing shop data...</div>
+            ) : listings.length === 0 ? (
+              <div className={styles.emptyShop}>
+                <div className={styles.emptyIcon}>📦</div>
+                <h3>Shop is Empty</h3>
+                <p>Monetize your idle gear and help students access premium tech.</p>
+                <Link href="/owner" className={styles.ctaShopBtn}>Start Listing</Link>
+              </div>
+            ) : (
+              <div className={styles.modernListingGrid}>
+                {listings.map(item => (
+                  <div key={item._id} className={styles.modernListingCard}>
+                    <div className={styles.cardImg}>
+                      <img src={item.images[0]} alt={item.title} />
+                      {item.isAvailable ? (
+                        <span className={styles.liveIndicator}>LIVE</span>
+                      ) : (
+                        <span className={styles.offlineIndicator}>OFFLINE</span>
+                      )}
+                    </div>
+                    <div className={styles.cardBody}>
+                      <h3>{item.title}</h3>
+                      <div className={styles.cardPricing}>
+                        <span className={styles.pDay}>₹{item.pricePerDay}</span>
+                        <span className={styles.pSlash}>/day</span>
+                      </div>
+                      <div className={styles.cardFooter}>
+                        <span className={styles.rentCount}>{item.rentedCount || 0} Rentals</span>
+                        {latestOrder ? (
+                          <Link href={`/order/${latestOrder._id}/tracking`} className={styles.manageBtn}>
+                            Track Order
+                          </Link>
+                        ) : (
+                          <button className={styles.manageBtn} disabled>
+                            Track Order
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         <div className={styles.actions}>

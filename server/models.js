@@ -218,10 +218,19 @@ const orderSchema = new mongoose.Schema({
   },
   damageDeposit: Number,
   totalAmount: Number,
-  status: {
+  paymentStatus: {
     type: String,
-    enum: ['pending', 'confirmed', 'active', 'returned', 'cancelled'],
+    enum: ['pending', 'paid', 'failed'],
     default: 'pending',
+  },
+  trackingStatus: {
+    type: String,
+    enum: ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered'],
+    default: 'Order Placed',
+  },
+  estimatedDelivery: {
+    type: String,
+    default: '2 Days',
   },
   paymentMethod: {
     type: String,
@@ -233,6 +242,10 @@ const orderSchema = new mongoose.Schema({
     phone: String,
     email: String,
     address: String,
+  },
+  paymentRequestId: {
+    type: String,
+    default: null,
   },
   txHash: {
     type: String,

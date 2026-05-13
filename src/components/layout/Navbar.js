@@ -1,50 +1,135 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Menu, Search, ShoppingCart, User, X, Trash2, ChevronsRight } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+const CATEGORY_MENU = [
+  {
+    key: 'popular',
+    label: 'Popular',
+    href: '/category/all',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=best+rated+tech+rentals+hd',
+    previewTitle: 'Top rated all-rounder',
+    previewImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1000',
+    review: 'Fast delivery, spotless condition and excellent support. Feels premium every time.',
+    brands: ['Apple', 'Sony', 'Canon', 'Dell', 'Samsung'],
+  },
+  {
+    key: 'laptops',
+    label: 'Laptops',
+    href: '/category/laptops',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+laptop+image+google+images',
+    previewTitle: 'Creator laptop with RTX power',
+    previewImage: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1000',
+    review: 'Perfect for editing, coding and presentations. Great battery life and very clean.',
+    brands: ['Apple', 'Dell', 'HP', 'Lenovo', 'Asus', 'MSI'],
+  },
+  {
+    key: 'cameras',
+    label: 'Cameras & Lenses',
+    href: '/category/cameras',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+camera+lens+image+google+images',
+    previewTitle: 'Best-selling camera setup',
+    previewImage: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000',
+    review: 'Sharp photos, professional feel and reliable for shoots. The image quality is excellent.',
+    brands: ['Canon', 'Nikon', 'Sony', 'Fujifilm', 'GoPro'],
+  },
+  {
+    key: 'phones',
+    label: 'Smartphones',
+    href: '/category/phones',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+smartphone+image+google+images',
+    previewTitle: 'Flagship phone with great reviews',
+    previewImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1000',
+    review: 'Smooth booking, premium finish and exactly as described. Highly rated owner.',
+    brands: ['Apple', 'Samsung', 'Google', 'OnePlus', 'Xiaomi'],
+  },
+  {
+    key: 'drones',
+    label: 'Drones',
+    href: '/category/drones',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+drone+image+google+images',
+    previewTitle: 'Best rated drone for aerial shots',
+    previewImage: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000',
+    review: 'Stable flight, impressive camera and fully charged on delivery. A solid rental.',
+    brands: ['DJI', 'Autel', 'Parrot', 'Ryze'],
+  },
+  {
+    key: 'tablets',
+    label: 'Tablets',
+    href: '/category/tablets',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+tablet+image+google+images',
+    previewTitle: 'Tablet for work and entertainment',
+    previewImage: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=1000',
+    review: 'Very neat device, great display and easy checkout. Felt like a premium marketplace purchase.',
+    brands: ['Apple', 'Samsung', 'Lenovo', 'Microsoft'],
+  },
+  {
+    key: 'gaming',
+    label: 'Gaming Consoles',
+    href: '/category/gaming',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+gaming+console+image+google+images',
+    previewTitle: 'Most loved gaming console',
+    previewImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000',
+    review: 'Low latency, excellent condition and a great controller setup. Booked in minutes.',
+    brands: ['PlayStation', 'Xbox', 'Nintendo'],
+  },
+  {
+    key: 'vr',
+    label: 'VR Headsets',
+    href: '/category/vr',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+vr+headset+image+google+images',
+    previewTitle: 'Immersive VR experience',
+    previewImage: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=1000',
+    review: 'Comfortable fit and very immersive. The owner was helpful and the listing was accurate.',
+    brands: ['Meta', 'Apple', 'Pico', 'HTC'],
+  },
+  {
+    key: 'audio',
+    label: 'Audio & Music',
+    href: '/category/audio',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+audio+equipment+image+google+images',
+    previewTitle: 'Studio-grade audio pick',
+    previewImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000',
+    review: 'Clean sound, premium delivery and the best option for short events or editing sessions.',
+    brands: ['Sony', 'Bose', 'Sennheiser', 'JBL', 'Audio-Technica'],
+  },
+  {
+    key: 'accessories',
+    label: 'Accessories',
+    href: '/category/accessories',
+    imageQuery: 'https://www.google.com/search?tbm=isch&q=hd+camera+accessories+image+google+images',
+    previewTitle: 'Pro Camera & Tech Gear',
+    previewImage: 'https://images.unsplash.com/photo-1493723843671-1d655e66ac1c?q=80&w=1000',
+    review: 'Perfect add-ons for every shoot. The equipment was well-maintained and delivered on time.',
+    brands: ['Manfrotto', 'Rode', 'SanDisk', 'Anker', 'Ulanzi'],
+  },
+];
+
 export default function Navbar({ onMenuClick }) {
-  const [user, setUser] = useState(null);
-  const [checked, setChecked] = useState(false);
+  const { user, loading: authLoading, logout } = useAuth();
   const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeMenu, setActiveMenu] = useState(CATEGORY_MENU[0]);
+  const [categoryHoverOpen, setCategoryHoverOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const isComparePage = pathname === '/compare';
 
   const { cartItems, removeFromCart, cartCount, cartSubtotal } = useCart();
-
-  useEffect(() => {
-    const token = localStorage.getItem('gadgetgo_token');
-    if (!token) {
-      setChecked(true);
-      return;
-    }
-
-    fetch(`${API_URL}/api/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-    })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => {
-        setUser(data.user);
-        setChecked(true);
-      })
-      .catch(() => {
-        localStorage.removeItem('gadgetgo_token');
-        setChecked(true);
-      });
-  }, []);
 
   const emojiMap = {
     laptops: '💻', cameras: '📸', phones: '📱', drones: '🚁',
     tablets: '📱', gaming: '🎮', vr: '🥽', audio: '🎧', accessories: '🔌',
   };
+
+  const getBrandHref = (category, brand) => `/category/${category.key === 'popular' ? 'all' : category.key}?brand=${encodeURIComponent(brand)}`;
 
   return (
     <>
@@ -80,17 +165,20 @@ export default function Navbar({ onMenuClick }) {
             <Link href="/compare" className={styles.actionText}>Compare</Link>
             <div className={styles.divider}></div>
 
-            {checked && user ? (
-              <Link href="/profile" className={styles.iconAction}>
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className={styles.userAvatar} />
-                ) : (
-                  <div className={styles.userAvatarPlaceholder}>
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span>{user.name.split(' ')[0]}</span>
-              </Link>
+            {!authLoading && user ? (
+              <div className={styles.userActionWrapper}>
+                <Link href="/profile" className={styles.iconAction}>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className={styles.userAvatar} />
+                  ) : (
+                    <div className={styles.userAvatarPlaceholder}>
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span>{user.name.split(' ')[0]}</span>
+                </Link>
+                <button onClick={logout} className={styles.logoutBtn}>Logout</button>
+              </div>
             ) : (
               <Link href="/login" className={styles.iconAction}>
                 <User size={22} />
@@ -98,7 +186,6 @@ export default function Navbar({ onMenuClick }) {
               </Link>
             )}
 
-            {/* Cart Button with badge */}
             <button
               className={styles.cartBtn}
               onClick={() => setCartOpen(true)}
@@ -115,28 +202,78 @@ export default function Navbar({ onMenuClick }) {
           </div>
         </div>
 
-        {/* Bottom Row: Horizontal Categories List */}
-        <div className={styles.bottomRow}>
-          <nav className={styles.categories}>
-            <Link href="/category/all">Popular</Link>
-            <Link href="/category/laptops">Laptops</Link>
-            <Link href="/category/cameras">Cameras & Lenses</Link>
-            <Link href="/category/phones">Smartphones</Link>
-            <Link href="/category/drones">Drones</Link>
-            <Link href="/category/tablets">Tablets</Link>
-            <Link href="/category/gaming">Gaming Consoles</Link>
-            <Link href="/category/vr">VR Headsets</Link>
-            <Link href="/category/audio">Audio & Music</Link>
-            <Link href="/category/accessories">Accessories</Link>
-          </nav>
-        </div>
+        {/* Bottom Row: Horizontal Categories List - Hidden on Compare Page */}
+        {!isComparePage && (
+          <div
+            className={styles.bottomArea}
+            onMouseLeave={() => {
+              setCategoryHoverOpen(false);
+              setActiveMenu(CATEGORY_MENU[0]);
+            }}
+          >
+            <div className={styles.bottomRow}>
+              <nav className={styles.categories}>
+                {CATEGORY_MENU.map(item => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    className={styles.categoryLink}
+                    onMouseEnter={() => {
+                      setActiveMenu(item);
+                      setCategoryHoverOpen(true);
+                    }}
+                    onFocus={() => {
+                      setActiveMenu(item);
+                      setCategoryHoverOpen(true);
+                    }}
+                    onClick={() => setCategoryHoverOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className={`${styles.brandPreview} ${categoryHoverOpen ? styles.brandPreviewOpen : ''}`}>
+                <div className={styles.brandSide}>
+                  <h3>{activeMenu.label}</h3>
+                  <p className={styles.brandListLabel}>Available Brands</p>
+                  <div className={styles.brandLinks}>
+                    {activeMenu.brands.map(brand => (
+                      <Link
+                        key={brand}
+                        href={getBrandHref(activeMenu, brand)}
+                        className={styles.brandLinkItem}
+                        onClick={() => setCategoryHoverOpen(false)}
+                      >
+                        {brand}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.productSide}>
+                  <div className={styles.bestRatedBadge}>Best Rated in {activeMenu.label}</div>
+                  <div className={styles.previewImageWrap}>
+                    <img src={activeMenu.previewImage} alt={activeMenu.previewTitle} className={styles.previewImage} loading="lazy" />
+                  </div>
+                  <div className={styles.productMeta}>
+                    <h4 className={styles.productTitle}>
+                      {activeMenu.previewTitle}
+                    </h4>
+                    <p className={styles.reviewText}>
+                      "{activeMenu.review}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Cart Drawer Overlay */}
       {cartOpen && (
         <div className={styles.drawerOverlay} onClick={() => setCartOpen(false)}>
           <aside className={styles.cartDrawer} onClick={e => e.stopPropagation()}>
-            {/* Drawer Header */}
             <div className={styles.drawerHeader}>
               <h2 className={styles.drawerTitle}>
                 <ShoppingCart size={20} /> Your Cart
@@ -147,7 +284,6 @@ export default function Navbar({ onMenuClick }) {
               </button>
             </div>
 
-            {/* Drawer Body */}
             <div className={styles.drawerBody}>
               {cartItems.length === 0 ? (
                 <div className={styles.emptyCart}>
@@ -159,8 +295,12 @@ export default function Navbar({ onMenuClick }) {
                 <ul className={styles.cartList}>
                   {cartItems.map(item => (
                     <li key={item._id} className={styles.cartItem}>
-                      <div className={styles.cartItemEmoji}>
-                        {emojiMap[item.category] || '📦'}
+                      <div className={styles.cartItemImage}>
+                        {item.images?.[0] ? (
+                          <img src={item.images[0]} alt={item.title} className={styles.cartImg} />
+                        ) : (
+                          <span className={styles.orderEmoji}>📦</span>
+                        )}
                       </div>
                       <div className={styles.cartItemInfo}>
                         <p className={styles.cartItemTitle}>{item.title}</p>
@@ -190,7 +330,6 @@ export default function Navbar({ onMenuClick }) {
               )}
             </div>
 
-            {/* Drawer Footer */}
             {cartItems.length > 0 && (
               <div className={styles.drawerFooter}>
                 <div className={styles.subtotalRow}>

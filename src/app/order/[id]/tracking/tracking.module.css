@@ -1,0 +1,393 @@
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.backBtn {
+  background: none;
+  border: 3px solid #000;
+  padding: 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.backBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #000;
+}
+
+.headerInfo h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 0.25rem;
+}
+
+.headerInfo p {
+  font-weight: 700;
+  color: #666;
+}
+
+.headerInfo span {
+  color: #000;
+  font-family: monospace;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+}
+
+/* ── Left Column ── */
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mapContainer {
+  width: 100%;
+  height: 350px;
+  background: #f1f5f9;
+  border: 4px solid #000;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 12px 12px 0 #000;
+}
+
+.mockMap {
+  width: 100%;
+  height: 100%;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e4/Google_Maps_Pin.svg'); /* Just for feel, or use a pattern */
+  background-color: #e2e8f0;
+  background-size: 50px;
+  position: relative;
+}
+
+/* Grid pattern for the map */
+.mockMap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.courierDot {
+  position: absolute;
+  top: 40%;
+  left: 30%;
+  background: #000;
+  padding: 0.75rem;
+  border-radius: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: moveCourier 20s infinite linear;
+}
+
+@keyframes moveCourier {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(100px, 50px); }
+  100% { transform: translate(0, 0); }
+}
+
+.pulse {
+  position: absolute;
+  inset: -10px;
+  border: 4px solid #000;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  opacity: 0;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.5); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.destinationMarker {
+  position: absolute;
+  top: 60%;
+  right: 20%;
+  z-index: 5;
+}
+
+.mapLabel {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 3px solid #000;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  z-index: 20;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.statusBanner {
+  background: var(--lime-cream);
+  border: 4px solid #000;
+  border-radius: 20px;
+  display: flex;
+  padding: 2rem;
+  align-items: center;
+  box-shadow: 12px 12px 0 #000;
+}
+
+.etaBox, .currentStatusBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.etaLabel, .statusLabel {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #555;
+  letter-spacing: 0.05em;
+}
+
+.etaTime, .statusText {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #000;
+}
+
+.divider {
+  width: 3px;
+  height: 60px;
+  background: #000;
+  margin: 0 2.5rem;
+  opacity: 0.15;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1rem 0;
+}
+
+.timelineStep {
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+  padding-bottom: 2.5rem;
+}
+
+.stepIcon {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  border: 3px solid #eee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.3s;
+}
+
+.stepConnector {
+  position: absolute;
+  top: 48px;
+  left: 23px;
+  width: 4px;
+  height: calc(100% - 40px);
+  background: #eee;
+  z-index: 1;
+}
+
+.timelineStep.past .stepIcon {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+.timelineStep.past .stepConnector {
+  background: #000;
+}
+
+.timelineStep.current .stepIcon {
+  border-color: #000;
+  background: var(--tea-green);
+  color: #000;
+  box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.stepInfo h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.stepInfo p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #777;
+}
+
+/* ── Right Column ── */
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.productCard {
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.productCard img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #eee;
+}
+
+.productDetails h3 {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.productDetails p {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.orderMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.listerCard {
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.listerInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--cornflower-blue);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.listerLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #777;
+}
+
+.callBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #000;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.callBtn:hover {
+  transform: translateY(-2px);
+}
+
+.returnPolicyCard {
+  background: var(--tea-green);
+  border: 4px solid #000;
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.returnPolicyCard h3 {
+  margin: 1rem 0 0.5rem;
+  font-weight: 900;
+}
+
+.returnPolicyCard p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.homeLink {
+  text-align: center;
+  font-weight: 800;
+  text-decoration: underline;
+  color: #000;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .sideCol {
+    order: 2;
+  }
+}

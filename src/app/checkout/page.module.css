@@ -153,8 +153,22 @@
 }
 
 .productInfo h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 0.2rem;
+  font-weight: 800;
+}
+
+.itemPrice {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 700;
+}
+
+.miniDivider {
+  height: 1px;
+  background: #000;
+  opacity: 0.1;
+  margin: 1rem 0;
 }
 
 .productInfo p {
@@ -253,6 +267,87 @@
   margin-top: 0.25rem;
 }
 
+.instamojoBox {
+  background: #f8fafc;
+  border: 3px solid #000;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 10px 10px 0 #000;
+}
+
+.instamojoBtn {
+  background: #1e293b;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  text-align: center;
+  border: 3px solid #000;
+}
+
+.instamojoBtn:hover {
+  background: #000;
+  transform: translateY(-2px);
+}
+
+.instamojoNote {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.actionRow {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.secondaryBtn {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  background-color: #fff;
+  color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px var(--black);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.secondaryBtn:hover {
+  background-color: #f8fafc;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--black);
+}
+
+.policyBox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--tea-green);
+  border: 3px solid #000;
+  padding: 1.5rem;
+  border-radius: 16px;
+  max-width: 600px;
+  text-align: left;
+  margin-top: 1rem;
+  box-shadow: 10px 10px 0 #000;
+}
+
+.policyBox p {
+  font-size: 0.95rem !important;
+  line-height: 1.4;
+}
+
 .errorMsg {
   background: #fee2e2;
   color: #dc2626;
@@ -260,6 +355,20 @@
   border-radius: 8px;
   padding: 0.75rem 1rem;
   font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.phoneWarning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f0f9ff;
+  border: 2px solid var(--cornflower-blue);
+  border-radius: 8px;
+  color: var(--cornflower-blue);
+  font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }

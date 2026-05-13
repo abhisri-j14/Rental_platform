@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Shield } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Shield, ShoppingCart } from 'lucide-react';
 import styles from './page.module.css';
+import { useCart } from '@/context/CartContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -13,7 +14,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [orderResult, setOrderResult] = useState(null);
-  const [product, setProduct] = useState(null);
+  const [paymentLink, setPaymentLink] = useState('');
+  const [checkoutItems, setCheckoutItems] = useState([]);
+  const { cartItems, clearCart } = useCart();
 
   // Delivery form
   const [fullName, setFullName] = useState('');
@@ -32,7 +35,9 @@ export default function CheckoutPage() {
 
     const stored = sessionStorage.getItem('checkout_product');
     if (stored) {
-      setProduct(JSON.parse(stored));
+      setCheckoutItems([JSON.parse(stored)]);
+    } else if (cartItems.length > 0) {
+      setCheckoutItems(cartItems);
     }
 
     // Pre-fill user data
@@ -50,20 +55,33 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, [router]);
 
-  if (!product) {
+  if (checkoutItems.length === 0) {
     return (
       <div className={styles.successContainer}>
-        <h1>No product selected</h1>
+        <ShoppingCart size={60} />
+        <h1>Your Checkout is Empty</h1>
         <p>Please browse our catalog and select a device to rent.</p>
         <Link href="/category/all" className={styles.primaryBtn}>Browse Devices</Link>
       </div>
     );
   }
 
-  const totalRent = product.pricePerDay * product.days;
-  const platformFee = Math.round(totalRent * 0.10);
+  // Calculate totals with duration-based discounts
+  const totalRent = checkoutItems.reduce((sum, item) => {
+    let price = item.pricePerDay * item.days;
+    // Duration discounts
+    if (item.days >= 30) price *= 0.5; // 50% off for monthly
+    else if (item.days >= 7) price *= 0.75; // 25% off for weekly
+    else if (item.days >= 3) price *= 0.9; // 10% off for short-term
+    return sum + price;
+  }, 0);
+
+  const platformFee = Math.round(totalRent * 0.05); // Lower platform fee (5%) for better feasibility
   const deliveryFee = 150;
-  const totalAmount = totalRent + platformFee + deliveryFee + product.damageDeposit;
+  const totalDamageDeposit = checkoutItems.reduce((sum, item) => sum + (item.damageDeposit || 0), 0);
+  const totalAmount = Math.round(totalRent + platformFee + deliveryFee + totalDamageDeposit);
+
+  const savings = checkoutItems.reduce((sum, item) => sum + (item.pricePerDay * item.days), 0) - totalRent;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,35 +95,73 @@ export default function CheckoutPage() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          productId: product._id,
-          days: product.days,
-          paymentMethod,
-          deliveryAddress: {
-            fullName,
-            phone: `+91${phone}`,
-            email,
-            address,
+      // Since backend expects one productId, we'll place orders for each item
+      // For a real app, we'd have a 'bulk create' endpoint
+      let lastOrder = null;
+      for (const item of checkoutItems) {
+        const res = await fetch(`${API_URL}/api/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Failed to place order');
-        return;
+          body: JSON.stringify({
+            productId: item._id,
+            days: item.days,
+            paymentMethod,
+            deliveryAddress: {
+              fullName,
+              phone: `+91${phone}`,
+              email,
+              address,
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || 'Failed to place order');
+          setLoading(false);
+          return;
+        }
+        lastOrder = data.order;
       }
 
-      setOrderResult(data.order);
+      setOrderResult(lastOrder);
+      
+      // If payment is online, generate Instamojo link
+      if (paymentMethod === 'online') {
+        try {
+          const payRes = await fetch(`${API_URL}/api/payments/create-request`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount: totalAmount,
+              purpose: checkoutItems.length > 1 ? `Rental of ${checkoutItems.length} gadgets` : `Rental of ${checkoutItems[0].title}`,
+              buyerName: fullName,
+              email: email,
+              phone: phone,
+              orderId: lastOrder._id
+            }),
+          });
+          const payData = await payRes.json();
+          console.log("📥 Payment API Response:", payData);
+          if (payRes.ok) {
+            setPaymentLink(payData.paymentRequestUrl);
+            console.log("✅ Dynamic Link Set:", payData.paymentRequestUrl);
+          } else {
+            console.error("❌ Payment API Error:", payData.error);
+          }
+        } catch (err) {
+          console.error("🌐 Payment API Network Error:", err);
+        }
+      }
+
       setIsPlaced(true);
       sessionStorage.removeItem('checkout_product');
+      clearCart();
     } catch {
       setError('Network error. Is the server running?');
     } finally {
@@ -117,20 +173,35 @@ export default function CheckoutPage() {
     return (
       <div className={styles.successContainer}>
         <CheckCircle2 size={80} className={styles.successIcon} />
-        <h1>Order Placed Successfully!</h1>
-        <p>Your <strong>{product.title}</strong> is confirmed for <strong>{product.days} days</strong>.</p>
-        <p>Total: <strong>₹{orderResult.totalAmount}</strong></p>
-
-        <div className={styles.txHashBox}>
-          <Shield size={16} />
-          <div>
-            <strong>Web3 Transaction Hash</strong>
-            <p className={styles.txHash}>{orderResult.txHash}</p>
-          </div>
+        <h1>Order Placed & Payment Initiated!</h1>
+        <p>Your <strong>{checkoutItems.length > 1 ? `${checkoutItems.length} items` : checkoutItems[0].title}</strong> are being processed.</p>
+        
+        <div className={styles.instamojoBox}>
+          <p>Please complete your payment of <strong>₹{totalAmount}</strong> using the secure link below:</p>
+          <a 
+            href={paymentLink || "https://www.instamojo.com/@shazam101/l7f06ad5d610747d68fc751fb532bc2f7/"} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className={styles.instamojoBtn}
+          >
+            {paymentLink ? `Pay ₹${totalAmount} Now` : 'Pay on Instamojo'}
+          </a>
+          <span className={styles.instamojoNote}>
+            {paymentLink ? '* This is a secure dynamic link for your exact total.' : '* Note: This is a standard link. Please verify the amount manually.'}
+          </span>
         </div>
 
-        <p>Delivery details will be sent to your email and phone.</p>
-        <Link href="/" className={styles.primaryBtn}>Return to Home</Link>
+        <div className={styles.actionRow}>
+          <Link href={`/order/${orderResult._id}/tracking`} className={styles.primaryBtn}>
+            Track Order Status
+          </Link>
+          <Link href="/" className={styles.secondaryBtn}>Return to Home</Link>
+        </div>
+
+        <div className={styles.policyBox}>
+          <Shield size={20} />
+          <p><strong>6-Hour Return Policy:</strong> Not satisfied? Return within 6 hours for a 100% instant cashback.</p>
+        </div>
       </div>
     );
   }
@@ -178,39 +249,64 @@ export default function CheckoutPage() {
               </label>
             </div>
 
-            <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Placing Order...' : `Place Order & Pay ₹${totalAmount}`}
-            </button>
+            {(!phone || phone.includes('google_pending')) && (
+              <div className={styles.phoneWarning}>
+                <Shield size={18} />
+                <span>A valid 10-digit phone number is required for your safety and delivery coordination.</span>
+              </div>
+            )}
+
+            {(phone && !phone.includes('google_pending')) ? (
+              <button type="submit" className={styles.submitBtn} disabled={loading}>
+                {loading ? 'Placing Order...' : `Place Order & Pay ₹${totalAmount}`}
+              </button>
+            ) : (
+              <Link href="/profile" className={styles.submitBtn} style={{ textAlign: 'center', background: '#555' }}>
+                Verify Phone in Profile
+              </Link>
+            )}
           </form>
         </div>
 
         <div className={styles.billSection}>
           <h2>Order Summary</h2>
           <div className={styles.billCard}>
-            <div className={styles.productInfo}>
-              <h3>{product.title}</h3>
-              <p>Duration: {product.days} Days</p>
+            <div className={styles.productList}>
+              {checkoutItems.map(item => (
+                <div key={item._id} className={styles.productInfo}>
+                  <h3>{item.title}</h3>
+                  <p>Duration: {item.days} Days</p>
+                  <p className={styles.itemPrice}>₹{(item.pricePerDay * item.days).toLocaleString()} + ₹{item.damageDeposit} deposit</p>
+                  <div className={styles.miniDivider}></div>
+                </div>
+              ))}
             </div>
             <div className={styles.billRow}>
-              <span>Rent ({product.days} days × ₹{product.pricePerDay})</span>
-              <span>₹{totalRent}</span>
+              <span>Total Rent (Base)</span>
+              <span>₹{checkoutItems.reduce((sum, item) => sum + (item.pricePerDay * item.days), 0).toLocaleString()}</span>
             </div>
+            {savings > 0 && (
+              <div className={styles.billRow} style={{ color: '#00D99F', fontWeight: 800 }}>
+                <span>Student Savings ✨</span>
+                <span>- ₹{savings.toLocaleString()}</span>
+              </div>
+            )}
             <div className={styles.billRow}>
-              <span>Platform Fee (10%)</span>
-              <span>₹{platformFee}</span>
+              <span>Platform Fee (5%)</span>
+              <span>₹{platformFee.toLocaleString()}</span>
             </div>
             <div className={styles.billRow}>
               <span>Delivery Fee</span>
               <span>₹{deliveryFee}</span>
             </div>
             <div className={styles.billRow}>
-              <span>Damage Deposit (Refundable)</span>
-              <span>₹{product.damageDeposit}</span>
+              <span>Total Damage Deposit</span>
+              <span>₹{totalDamageDeposit.toLocaleString()}</span>
             </div>
             <div className={styles.divider}></div>
             <div className={styles.totalRow}>
               <span>Total Amount</span>
-              <span>₹{totalAmount}</span>
+              <span>₹{totalAmount.toLocaleString()}</span>
             </div>
           </div>
         </div>

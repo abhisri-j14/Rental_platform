@@ -8,50 +8,45 @@
   gap: 4rem;
 }
 
-/* Intro Header */
-.introHeader {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 1300px;
+/* Conveyor Header */
+.conveyorWrapper {
   width: 100%;
-  margin: 0 auto;
-  padding: 0 2rem;
-  min-height: 300px;
+  overflow: hidden;
+  background: #000;
+  padding: 4rem 0;
+  border-bottom: 3px solid #111;
+  white-space: nowrap;
 }
 
-.mainTitle {
-  font-size: 4.5rem;
+.conveyorTrack {
+  display: flex;
+  width: fit-content;
+  animation: marquee 30s linear infinite;
+}
+
+.conveyorText {
+  font-size: 5rem;
   font-weight: 900;
   color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 0 4rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
   letter-spacing: -2px;
-  text-transform: capitalize;
-  line-height: 1.2;
-  text-align: center;
-  max-width: 800px;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .numberGreen {
   color: #00D99F;
   font-weight: 900;
-}
-
-.underlineStyled {
-  position: relative;
-  font-weight: 900;
   display: inline-block;
-}
-
-.underlineStyled::after {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  left: -10px;
-  right: -50px;
-  height: 3px;
-  background: linear-gradient(90deg, #00D99F 0%, #00D99F 100%);
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 217, 159, 0.4);
+  transform: rotate(12deg);
 }
 
 /* Main Layout */
