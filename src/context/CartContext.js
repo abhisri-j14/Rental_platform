@@ -1,14 +1,59 @@
 "use client";
+<<<<<<< HEAD
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+=======
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
 const CartContext = createContext(null);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+/**
+ * Helper: get the current token from localStorage.
+ */
+function getToken() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('gadgetgo_token') || null;
+}
+
+/**
+ * Convert server cart items (with `product` ObjectId) to the shape
+ * the frontend expects (with `_id` as the product identifier).
+ */
+function normalizeItems(serverItems) {
+  return (serverItems || []).map(item => ({
+    _id: item.product, // ObjectId string
+    title: item.title,
+    brand: item.brand,
+    category: item.category,
+    pricePerDay: item.pricePerDay,
+    actualPrice: item.actualPrice || 0,
+    damageDeposit: item.damageDeposit,
+    days: item.days,
+  }));
+}
 
 export function CartProvider({ children }) {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [hydrated, setHydrated] = useState(false);
+  const fetchingRef = useRef(false);
 
+  // ─── Fetch cart from server ──────────────────────────────
+  const fetchCart = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setCartItems([]);
+      setHydrated(true);
+      return;
+    }
+
+    // Prevent duplicate fetches
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+
+<<<<<<< HEAD
   // Storage key depends on user ID
   const storageKey = useMemo(() => {
     return user ? `gadgetgo_cart_${user.id || user._id}` : 'gadgetgo_cart_guest';
@@ -29,34 +74,147 @@ export function CartProvider({ children }) {
     }
     setHydrated(true);
   }, [storageKey]);
+=======
+    try {
+      const res = await fetch(`${API_URL}/api/cart`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        // Token might be invalid — clear cart
+        setCartItems([]);
+      } else {
+        const data = await res.json();
+        setCartItems(normalizeItems(data.items));
+      }
+    } catch {
+      // Network error — leave cart empty
+      setCartItems([]);
+    } finally {
+      fetchingRef.current = false;
+      setHydrated(true);
+    }
+  }, []);
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
-  // Persist to localStorage whenever cartItems changes (after hydration)
+  // Load cart on mount
   useEffect(() => {
+<<<<<<< HEAD
     if (hydrated) {
       localStorage.setItem(storageKey, JSON.stringify(cartItems));
     }
   }, [cartItems, hydrated, storageKey]);
+=======
+    fetchCart();
+  }, [fetchCart]);
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
   /**
-   * addToCart — merges if same _id already exists (updates days).
-   * item shape: { _id, title, brand, category, pricePerDay, actualPrice, damageDeposit, days }
+   * refreshCart — call this after login / signup to reload the user's cart.
    */
-  const addToCart = useCallback((item) => {
+  const refreshCart = useCallback(() => {
+    return fetchCart();
+  }, [fetchCart]);
+
+  /**
+   * addToCart — requires auth.
+   * Returns { requiresLogin: true } if the user is not logged in,
+   * so callers can redirect to /login.
+   * Otherwise adds the item to the server cart and updates local state.
+   */
+  const addToCart = useCallback(async (item) => {
+    const token = getToken();
+    if (!token) {
+      return { requiresLogin: true };
+    }
+
+    // Optimistically update local state
     setCartItems(prev => {
       const existing = prev.find(i => i._id === item._id);
       if (existing) {
-        // Update days if product already in cart
         return prev.map(i => i._id === item._id ? { ...i, days: item.days } : i);
       }
       return [...prev, item];
     });
+
+    // Persist to server
+    try {
+      const res = await fetch(`${API_URL}/api/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId: item._id,
+          title: item.title,
+          brand: item.brand,
+          category: item.category,
+          pricePerDay: item.pricePerDay,
+          actualPrice: item.actualPrice || 0,
+          damageDeposit: item.damageDeposit,
+          days: item.days,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCartItems(normalizeItems(data.items));
+      }
+    } catch {
+      // If server fails, local state still shows the item (best effort)
+    }
+
+    return { requiresLogin: false };
   }, []);
 
-  const removeFromCart = useCallback((id) => {
+  /**
+   * removeFromCart — removes an item from server and local state.
+   */
+  const removeFromCart = useCallback(async (id) => {
+    const token = getToken();
+
+    // Optimistically update local
     setCartItems(prev => prev.filter(i => i._id !== id));
+
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/cart/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCartItems(normalizeItems(data.items));
+      }
+    } catch {
+      // best effort
+    }
   }, []);
 
-  const clearCart = useCallback(() => {
+  /**
+   * clearCart — clears all items from the server cart.
+   */
+  const clearCart = useCallback(async () => {
+    const token = getToken();
+    setCartItems([]);
+
+    if (!token) return;
+
+    try {
+      await fetch(`${API_URL}/api/cart`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+    } catch {
+      // best effort
+    }
+  }, []);
+
+  /**
+   * clearLocalCart — clears local state only (used on logout).
+   * Does NOT delete server-side cart data so it persists for next login.
+   */
+  const clearLocalCart = useCallback(() => {
     setCartItems([]);
   }, []);
 
@@ -73,6 +231,8 @@ export function CartProvider({ children }) {
       addToCart,
       removeFromCart,
       clearCart,
+      clearLocalCart,
+      refreshCart,
       cartCount,
       cartSubtotal,
     }}>

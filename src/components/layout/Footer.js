@@ -37,8 +37,9 @@ export default function Footer() {
               type="email"
               placeholder="Enter your email"
               className={styles.subscribeInput}
+              suppressHydrationWarning
             />
-            <button type="submit" className={styles.subscribeBtn}>
+            <button type="submit" className={styles.subscribeBtn} suppressHydrationWarning>
               Subscribe
             </button>
           </form>
@@ -59,7 +60,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className={styles.copyright}>
-        <p>&copy; {new Date().getFullYear()} Gizzmo. All rights reserved.</p>
+        <p suppressHydrationWarning>&copy; {new Date().getFullYear()} Gizzmo. All rights reserved.</p>
       </div>
     </footer>
   );

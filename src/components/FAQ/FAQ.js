@@ -57,7 +57,7 @@ export default function FAQ() {
               key={i}
               className={`${styles.faqItem} ${openIndex === i ? styles.faqItemOpen : ""}`}
             >
-              <button className={styles.faqQuestion} onClick={() => toggle(i)}>
+              <button className={styles.faqQuestion} onClick={() => toggle(i)} suppressHydrationWarning>
                 <span>{item.q}</span>
                 <span className={styles.faqIcon}>
                   {openIndex === i ? <Minus size={22} /> : <Plus size={22} />}

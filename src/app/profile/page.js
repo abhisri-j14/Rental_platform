@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Phone, Shield, ShieldCheck, CheckCircle, XCircle, Edit3, Save, LogOut, ChevronRight, ShoppingCart, Store } from 'lucide-react';
 import styles from './profile.module.css';
+import { useCart } from '@/context/CartContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { clearLocalCart } = useCart();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -149,6 +151,7 @@ export default function ProfilePage() {
     }
   };
 
+<<<<<<< HEAD
   // Become owner
   const handleBecomeOwner = async () => {
     setSaving(true);
@@ -173,8 +176,12 @@ export default function ProfilePage() {
   };
 
   // Logout
+=======
+  // Logout — clear local cart view but keep server-side data
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
   const handleLogout = () => {
     localStorage.removeItem('gadgetgo_token');
+    clearLocalCart();
     router.push('/login');
   };
 

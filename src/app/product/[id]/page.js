@@ -91,8 +91,8 @@ export default function ProductPage({ params }) {
     router.push('/checkout');
   };
 
-  const handleAddToCart = () => {
-    addToCart({
+  const handleAddToCart = async () => {
+    const result = await addToCart({
       _id: product._id,
       title: product.title,
       brand: product.brand,
@@ -102,6 +102,10 @@ export default function ProductPage({ params }) {
       damageDeposit: product.damageDeposit,
       days: days,
     });
+    if (result?.requiresLogin) {
+      router.push('/login');
+      return;
+    }
     setToast(true);
     setTimeout(() => setToast(false), 2500);
   };

@@ -255,4 +255,32 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model('Order', orderSchema);
 
-module.exports = { User, OTP, Product, Review, Order };
+// ─── Cart Schema ───────────────────────────────────────────
+const cartItemSchema = new mongoose.Schema({
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true,
+  },
+  title: String,
+  brand: String,
+  category: String,
+  pricePerDay: Number,
+  actualPrice: { type: Number, default: 0 },
+  damageDeposit: Number,
+  days: { type: Number, default: 1 },
+}, { _id: false });
+
+const cartSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true, // one cart per user
+  },
+  items: [cartItemSchema],
+}, { timestamps: true });
+
+const Cart = mongoose.model('Cart', cartSchema);
+
+module.exports = { User, OTP, Product, Review, Order, Cart };

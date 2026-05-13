@@ -165,6 +165,7 @@ export default function Navbar({ onMenuClick }) {
             <Link href="/compare" className={styles.actionText}>Compare</Link>
             <div className={styles.divider}></div>
 
+<<<<<<< HEAD
             {!authLoading && user ? (
               <div className={styles.userActionWrapper}>
                 <Link href="/profile" className={styles.iconAction}>
@@ -179,6 +180,26 @@ export default function Navbar({ onMenuClick }) {
                 </Link>
                 <button onClick={logout} className={styles.logoutBtn}>Logout</button>
               </div>
+=======
+            {checked && user ? (
+              <Link href="/profile" className={styles.iconAction}>
+                {user.avatar && user.avatar.startsWith('http') ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className={styles.userAvatar}
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                  />
+                ) : null}
+                <div
+                  className={styles.userAvatarPlaceholder}
+                  style={user.avatar && user.avatar.startsWith('http') ? { display: 'none' } : {}}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span>{user.name.split(' ')[0]}</span>
+              </Link>
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
             ) : (
               <Link href="/login" className={styles.iconAction}>
                 <User size={22} />

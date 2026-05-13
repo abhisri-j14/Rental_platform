@@ -97,8 +97,8 @@ function CategoryContent({ params }) {
     tablets: '📱', gaming: '🎮', vr: '🥽', audio: '🎧', accessories: '🔌',
   };
 
-  const handleAddToCart = (product) => {
-    addToCart({
+  const handleAddToCart = async (product) => {
+    const result = await addToCart({
       _id: product._id,
       title: product.title,
       brand: product.brand,
@@ -108,6 +108,10 @@ function CategoryContent({ params }) {
       damageDeposit: product.damageDeposit,
       days: 1,
     });
+    if (result?.requiresLogin) {
+      router.push('/login');
+      return;
+    }
     setAddedIds(prev => ({ ...prev, [product._id]: true }));
     setTimeout(() => setAddedIds(prev => ({ ...prev, [product._id]: false })), 2000);
   };

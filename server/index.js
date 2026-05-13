@@ -90,7 +90,11 @@ passport.deserializeUser(async (id, done) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
+<<<<<<< HEAD
 app.use('/api/payments', require('./routes/payments'));
+=======
+app.use('/api/cart', require('./routes/cart'));
+>>>>>>> 224b304 (feat: user-specific cart with auth guard - Add Cart model (MongoDB) for per-user cart persistence - Add /api/cart CRUD routes (GET, POST, DELETE) - Rewrite CartContext: auth-aware, server-synced - Auth guard on Add to Cart (redirects to /login) - refreshCart on login, clearLocalCart on logout - Fix navbar avatar fallback for broken images)
 
 // Health check
 app.get('/api/health', (req, res) => {
