@@ -118,6 +118,16 @@ export default function ProductPage({ params }) {
     return HD_IMAGES[p.category] || HD_IMAGES.accessories;
   };
 
+  const getProductImgList = (p) => {
+    if (p.images && p.images.length > 0 && !p.images[0].includes('placeholder')) {
+      return p.images;
+    }
+    return [HD_IMAGES[p.category] || HD_IMAGES.accessories];
+  };
+
+  const imgList = getProductImgList(product);
+  const currentImage = imgList[activeImg] || imgList[0];
+
   const effectiveDays = customDays !== '' ? (parseInt(customDays, 10) || 1) : days;
   const estimatedRent = product.pricePerDay * effectiveDays;
   const mrp = product.actualPrice || (product.pricePerDay * 50);
@@ -141,15 +151,15 @@ export default function ProductPage({ params }) {
         <div className={styles.imageColumn}>
           <div className={styles.verticalGalleryWrapper}>
             <div className={styles.thumbnailsVertical}>
-              {[0, 1, 2, 3, 4, 5].map((idx) => (
+              {imgList.map((imgUrl, idx) => (
                 <div key={idx} className={`${styles.thumbItem} ${activeImg === idx ? styles.activeThumb : ''}`} onMouseEnter={() => setActiveImg(idx)}>
-                   <img src={getProductImg(product)} alt="" />
+                   <img src={imgUrl} alt="" />
                 </div>
               ))}
             </div>
             <div className={styles.mainImageArea}>
               <div className={styles.mainImageWrapper}>
-                <img src={getProductImg(product)} alt={product.title} className={styles.mainImage} />
+                <img src={currentImage} alt={product.title} className={styles.mainImage} />
                 <p className={styles.zoomText}>Roll over image to zoom in</p>
               </div>
             </div>

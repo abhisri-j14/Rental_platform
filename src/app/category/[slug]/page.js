@@ -58,7 +58,7 @@ function CategoryContent({ params }) {
   }, [slug, searchQuery, brandQuery]);
 
   // Derived data for filters
-  const brands = ['Apple', 'Samsung', 'OnePlus', 'Sony', 'Canon', 'DJI', 'Dell', 'iQOO', 'Redmi', 'realme', 'vivo', 'Motorola', 'Nokia', 'OPPO'];
+  const brands = ['Apple', 'Samsung', 'OnePlus', 'Sony', 'Canon', 'DJI', 'Dell', 'Lenovo', 'ASUS', 'iQOO', 'Redmi', 'realme', 'vivo', 'Motorola', 'Nokia', 'OPPO'];
 
   // Filter and Sort products
   const processedProducts = useMemo(() => {
