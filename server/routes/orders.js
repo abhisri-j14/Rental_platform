@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { ethers } = require('ethers');
 const { Order, Product, User } = require('../models');
+const upload = require('../utils/upload');
 
 const router = express.Router();
 
@@ -237,11 +238,18 @@ router.patch('/:id/status', auth, async (req, res) => {
     }
 
     if (trackingStatus) {
-      const validTracking = ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered'];
+      const validTracking = ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned'];
       if (!validTracking.includes(trackingStatus)) {
         return res.status(400).json({ error: 'Invalid tracking status' });
       }
       order.trackingStatus = trackingStatus;
+      
+      // Generate OTP if out for delivery/pickup
+      if (trackingStatus === 'Out for Delivery' && !order.deliveryOtp) {
+        order.deliveryOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      } else if (trackingStatus === 'Out for Pickup' && !order.returnOtp) {
+        order.returnOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      }
     }
 
     if (paymentStatus) {
@@ -258,12 +266,92 @@ router.patch('/:id/status', auth, async (req, res) => {
     const renter = await User.findById(order.renter);
     if (renter?.phone) {
       const updateMsg = trackingStatus ? `now "${trackingStatus}"` : `payment is "${paymentStatus}"`;
-      await sendSMS(renter.phone, `📦 Order update: Your rental of "${order.product.title}" ${updateMsg}.`);
+      let extraMsg = '';
+      if (trackingStatus === 'Out for Delivery') extraMsg = ` Your Delivery OTP is ${order.deliveryOtp}. Share this with the agent.`;
+      if (trackingStatus === 'Out for Pickup') extraMsg = ` Your Return OTP is ${order.returnOtp}. Share this with the pickup agent.`;
+      await sendSMS(renter.phone, `📦 Order update: Your rental of "${order.product.title}" ${updateMsg}.${extraMsg}`);
     }
 
     res.json({ message: 'Order status updated', order });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  VERIFY DELIVERY & ADD PHOTOS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/:id/verify-delivery', auth, upload.array('photos', 3), async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.owner.toString() !== req.user.id) return res.status(403).json({ error: 'Only owner can verify' });
+    if (order.trackingStatus !== 'Out for Delivery') return res.status(400).json({ error: 'Order is not out for delivery' });
+    if (order.deliveryOtp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+
+    const photos = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    
+    order.trackingStatus = 'Delivered';
+    order.deliveryPhotos = photos;
+    await order.save();
+
+    res.json({ message: 'Delivery verified successfully', order });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify delivery' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  SCHEDULE RETURN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.patch('/:id/schedule-return', auth, async (req, res) => {
+  try {
+    const { pickupSlot } = req.body;
+    const order = await Order.findById(req.params.id).populate('product', 'title');
+    
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.renter.toString() !== req.user.id) return res.status(403).json({ error: 'Only renter can schedule return' });
+    if (order.trackingStatus !== 'Delivered') return res.status(400).json({ error: 'Order must be delivered to schedule return' });
+    
+    order.returnPickupSlot = pickupSlot;
+    order.trackingStatus = 'Scheduled Return';
+    await order.save();
+
+    const owner = await User.findById(order.owner);
+    if (owner?.phone) {
+      await sendSMS(owner.phone, `🔄 Return scheduled: Renter scheduled pickup for "${order.product.title}" at ${pickupSlot}.`);
+    }
+
+    res.json({ message: 'Return scheduled', order });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to schedule return' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  VERIFY RETURN & ADD PHOTOS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/:id/verify-return', auth, upload.array('photos', 3), async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.owner.toString() !== req.user.id) return res.status(403).json({ error: 'Only owner can verify' });
+    if (order.trackingStatus !== 'Out for Pickup') return res.status(400).json({ error: 'Order is not out for pickup' });
+    if (order.returnOtp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+
+    const photos = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    
+    order.trackingStatus = 'Returned';
+    order.returnPhotos = photos;
+    await order.save();
+
+    res.json({ message: 'Return verified successfully. Deposit refund initiated.', order });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify return' });
   }
 });
 

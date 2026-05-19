@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, BarChart2, Check, Zap } from 'lucide-react';
-import Spline from '@splinetool/react-spline';
+import dynamic from 'next/dynamic';
+const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false });
 import styles from './compare.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';

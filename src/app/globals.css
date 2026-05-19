@@ -25,6 +25,10 @@
   padding: 0;
 }
 
+html {
+  font-size: 87.5%; /* Reduces overall size slightly for standard, clean appearance (1rem = 14px instead of 16px) */
+}
+
 html,
 body {
   overscroll-behavior: none;

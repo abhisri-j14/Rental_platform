@@ -23,6 +23,8 @@ export default function Footer() {
           <Link href="/owner">List Device</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/faq">FAQ</Link>
+          <Link href="/policies">Policies</Link>
+          <Link href="/how-we-work">How We Work</Link>
         </nav>
       </div>
 

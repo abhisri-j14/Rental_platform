@@ -234,12 +234,32 @@ const orderSchema = new mongoose.Schema({
   },
   trackingStatus: {
     type: String,
-    enum: ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered'],
+    enum: ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned'],
     default: 'Order Placed',
   },
   estimatedDelivery: {
     type: String,
     default: '2 Days',
+  },
+  deliveryOtp: {
+    type: String,
+    default: null,
+  },
+  returnOtp: {
+    type: String,
+    default: null,
+  },
+  deliveryPhotos: {
+    type: [String],
+    default: [],
+  },
+  returnPhotos: {
+    type: [String],
+    default: [],
+  },
+  returnPickupSlot: {
+    type: String,
+    default: null,
   },
   paymentMethod: {
     type: String,

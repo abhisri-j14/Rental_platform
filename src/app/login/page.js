@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, Mail, Phone, Lock, User, ShoppingBag, Store, ChevronLeft } from 'lucide-react';
@@ -9,7 +9,7 @@ import { useCart } from '@/context/CartContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
   const { refreshCart } = useCart();
@@ -440,5 +440,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0a0a0a', color: '#fff' }}>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
