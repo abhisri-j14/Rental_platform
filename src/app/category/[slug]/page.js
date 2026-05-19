@@ -325,7 +325,6 @@ function CategoryContent({ params }) {
                     ) : (
                       <span className={styles.emojiIcon}>{emojiMap[product.category] || '📦'}</span>
                     )}
-                    <div className={styles.discountBadge}>UP TO 50% OFF</div>
                   </div>
                   {product.sponsored && (
                     <span className={styles.sponsoredBadge}>Sponsored</span>
