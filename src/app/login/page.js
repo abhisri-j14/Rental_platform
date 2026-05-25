@@ -48,7 +48,8 @@ function LoginPageContent() {
     if (errorParam === 'google_not_configured') {
       setError('Google Sign-in is not configured on this Vercel deployment. Please sign in using your Email & Password instead!');
     } else if (errorParam === 'google_failed') {
-      setError('Google Sign-in failed. Please try again.');
+      const msg = searchParams.get('msg');
+      setError(`Google Sign-in failed: ${msg ? decodeURIComponent(msg) : 'Please try again.'}`);
     }
     };
     handleAuth();

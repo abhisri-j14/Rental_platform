@@ -336,7 +336,9 @@ router.get('/google/callback', (req, res, next) => {
   }
   passport.authenticate('google', { session: false, failureRedirect: '/login' }, (err, user) => {
     if (err || !user) {
-      return res.redirect(`${clientUrl}/login?error=google_failed`);
+      console.error('❌ Passport Google auth failed:', err);
+      const errMsg = err ? encodeURIComponent(err.message) : 'user_not_found';
+      return res.redirect(`${clientUrl}/login?error=google_failed&msg=${errMsg}`);
     }
     const token = generateToken(user);
     res.redirect(`${clientUrl}/login?token=${token}`);
