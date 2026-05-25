@@ -79,9 +79,35 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your_clien
   console.log('⚠️  Google OAuth not configured (set GOOGLE_CLIENT_ID in .env)');
 }
 
+// Connect to DB setup
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gadgetgo';
+
+let cachedConnection = null;
+const connectDB = async () => {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+  console.log('🔄 Connecting to MongoDB...');
+  cachedConnection = await mongoose.connect(MONGO_URI);
+  console.log('✅ Connected to MongoDB');
+  return cachedConnection;
+};
+
+// Middleware to ensure DB connection is active before processing any route
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Passport serialization (needed even for session: false on callback)
 passport.serializeUser((user, done) => done(null, user._id));
 passport.deserializeUser(async (id, done) => {
+  // Ensure database is connected before looking up serializations (e.g. on callback redirect)
+  await connectDB();
   const user = await User.findById(id);
   done(null, user);
 });
@@ -109,30 +135,6 @@ app.use((err, req, res, next) => {
     message: err.message,
     stack: process.env.NODE_ENV === 'production' ? null : err.stack
   });
-});
-
-// ─── Connect to MongoDB and start server ────────────────────
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gadgetgo';
-
-let cachedConnection = null;
-const connectDB = async () => {
-  if (cachedConnection && mongoose.connection.readyState === 1) {
-    return cachedConnection;
-  }
-  console.log('🔄 Connecting to MongoDB...');
-  cachedConnection = await mongoose.connect(MONGO_URI);
-  console.log('✅ Connected to MongoDB');
-  return cachedConnection;
-};
-
-// Middleware to ensure DB connection is active before processing any route
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    next(err);
-  }
 });
 
 if (!process.env.VERCEL) {
