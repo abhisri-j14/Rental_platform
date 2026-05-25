@@ -34,6 +34,7 @@ function LoginPageContent() {
     const handleAuth = async () => {
     const token = searchParams.get('token');
     const emailVerified = searchParams.get('emailVerified');
+    const errorParam = searchParams.get('error');
 
     if (token) {
       login(token);
@@ -43,6 +44,11 @@ function LoginPageContent() {
     }
     if (emailVerified) {
       setSuccess('Email verified successfully! You can now log in.');
+    }
+    if (errorParam === 'google_not_configured') {
+      setError('Google Sign-in is not configured on this Vercel deployment. Please sign in using your Email & Password instead!');
+    } else if (errorParam === 'google_failed') {
+      setError('Google Sign-in failed. Please try again.');
     }
     };
     handleAuth();

@@ -314,24 +314,34 @@ router.get('/verify-email/:token', async (req, res) => {
   await user.save();
 
   // Redirect to frontend with success
-  res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?emailVerified=true`);
+  const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  res.redirect(`${clientUrl}/login?emailVerified=true`);
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  GOOGLE OAUTH
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-  (req, res) => {
-    // req.user is set by passport — generate JWT and redirect to frontend
-    const token = generateToken(req.user);
-    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?token=${token}`);
+router.get('/google', (req, res, next) => {
+  const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID === 'your_client_id') {
+    return res.redirect(`${clientUrl}/login?error=google_not_configured`);
   }
-);
+  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
+
+router.get('/google/callback', (req, res, next) => {
+  const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID === 'your_client_id') {
+    return res.redirect(`${clientUrl}/login?error=google_not_configured`);
+  }
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }, (err, user) => {
+    if (err || !user) {
+      return res.redirect(`${clientUrl}/login?error=google_failed`);
+    }
+    const token = generateToken(user);
+    res.redirect(`${clientUrl}/login?token=${token}`);
+  })(req, res, next);
+});
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  GET CURRENT USER (protected route)
