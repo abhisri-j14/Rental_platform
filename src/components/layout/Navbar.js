@@ -217,36 +217,54 @@ export default function Navbar({ onMenuClick }) {
 
         {/* Bottom Row: Horizontal Categories List - Hidden on Compare Page */}
         {!isComparePage && (
-          <div
-            className={styles.bottomArea}
-            onMouseLeave={() => {
-              setCategoryHoverOpen(false);
-              setActiveMenu(CATEGORY_MENU[0]);
-            }}
-          >
+          <div className={styles.bottomArea}>
             <div className={styles.bottomRow}>
-              <nav className={styles.categories}>
-                {CATEGORY_MENU.map(item => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className={styles.categoryLink}
-                    onMouseEnter={() => {
-                      setActiveMenu(item);
-                      setCategoryHoverOpen(true);
-                    }}
-                    onFocus={() => {
-                      setActiveMenu(item);
-                      setCategoryHoverOpen(true);
-                    }}
-                    onClick={() => setCategoryHoverOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              <div className={styles.categoriesWrapper}>
+                <button
+                  type="button"
+                  className={styles.categoriesToggleBtn}
+                  onClick={() => setCategoryHoverOpen(!categoryHoverOpen)}
+                  suppressHydrationWarning={true}
+                >
+                  <Menu size={16} /> Categories
+                </button>
+                <nav className={styles.categories}>
+                  {CATEGORY_MENU.map(item => (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className={styles.categoryLink}
+                      onClick={() => setCategoryHoverOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
 
               <div className={`${styles.brandPreview} ${categoryHoverOpen ? styles.brandPreviewOpen : ''}`}>
+                {/* Column 1: Category Selector */}
+                <div className={styles.categorySelectorSide}>
+                  <p className={styles.brandListLabel}>Browse Categories</p>
+                  <div className={styles.categorySelectorLinks}>
+                    {CATEGORY_MENU.map(item => (
+                      <button
+                        key={item.key}
+                        className={`${styles.selectorLinkItem} ${activeMenu.key === item.key ? styles.selectorLinkActive : ''}`}
+                        onMouseEnter={() => setActiveMenu(item)}
+                        onClick={() => {
+                          setActiveMenu(item);
+                          router.push(item.href);
+                          setCategoryHoverOpen(false);
+                        }}
+                      >
+                        <span className={styles.categoryEmoji}>{emojiMap[item.key] || '⭐'}</span> {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 2: Available Brands */}
                 <div className={styles.brandSide}>
                   <h3>{activeMenu.label}</h3>
                   <p className={styles.brandListLabel}>Available Brands</p>
@@ -264,6 +282,7 @@ export default function Navbar({ onMenuClick }) {
                   </div>
                 </div>
 
+                {/* Column 3: Showcase Preview */}
                 <div className={styles.productSide}>
                   <div className={styles.bestRatedBadge}>Best Rated in {activeMenu.label}</div>
                   <div className={styles.previewImageWrap}>

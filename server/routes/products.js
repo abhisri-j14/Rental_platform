@@ -62,7 +62,21 @@ router.get('/', async (req, res) => {
       .populate('owner', 'name avatar role')
       .lean();
 
-    res.json({ products, total: products.length });
+    const host = req.get('host');
+    const protocol = req.protocol;
+    const formattedProducts = products.map(product => {
+      if (product.images) {
+        product.images = product.images.map(img => {
+          if (img && img.startsWith('http://localhost:5000')) {
+            return img.replace('http://localhost:5000', `${protocol}://${host}`);
+          }
+          return img;
+        });
+      }
+      return product;
+    });
+
+    res.json({ products: formattedProducts, total: formattedProducts.length });
   } catch (err) {
     console.error('❌ Products fetch error:', err.message);
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -81,7 +95,19 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.json({ product });
+    const host = req.get('host');
+    const protocol = req.protocol;
+    const productObj = product.toObject();
+    if (productObj.images) {
+      productObj.images = productObj.images.map(img => {
+        if (img && img.startsWith('http://localhost:5000')) {
+          return img.replace('http://localhost:5000', `${protocol}://${host}`);
+        }
+        return img;
+      });
+    }
+
+    res.json({ product: productObj });
   } catch (err) {
     console.error('❌ Product fetch error:', err.message);
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -94,8 +120,24 @@ router.get('/:id', async (req, res) => {
 router.get('/my/listings', auth, ownerOnly, async (req, res) => {
   try {
     const products = await Product.find({ owner: req.user.id })
-      .sort({ createdAt: -1 });
-    res.json({ products });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const host = req.get('host');
+    const protocol = req.protocol;
+    const formattedProducts = products.map(product => {
+      if (product.images) {
+        product.images = product.images.map(img => {
+          if (img && img.startsWith('http://localhost:5000')) {
+            return img.replace('http://localhost:5000', `${protocol}://${host}`);
+          }
+          return img;
+        });
+      }
+      return product;
+    });
+
+    res.json({ products: formattedProducts });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch listings' });
   }
