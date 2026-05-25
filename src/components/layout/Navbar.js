@@ -137,7 +137,7 @@ export default function Navbar({ onMenuClick }) {
         {/* Top Row: Logo, Search, Actions */}
         <div className={styles.topRow}>
           <div className={styles.logoContainer}>
-            <button className={styles.hamburger} onClick={onMenuClick}>
+            <button className={styles.hamburger} onClick={onMenuClick} suppressHydrationWarning={true}>
               <Menu size={24} />
             </button>
             <Link href="/" className={styles.brand}>Gi<span className={styles.tiltedZ}>z</span>zmo</Link>
@@ -156,13 +156,16 @@ export default function Navbar({ onMenuClick }) {
                   router.push(`/category/all?search=${encodeURIComponent(searchQuery.trim())}`);
                 }
               }}
+              suppressHydrationWarning={true}
             />
           </div>
 
           <div className={styles.rightActions}>
-            <Link href="/owner" className={styles.actionText}>List Your Device</Link>
+            <Link href="/owner/info" className={styles.actionText}>List Your Device</Link>
             <div className={styles.divider}></div>
             <Link href="/compare" className={styles.actionText}>Compare</Link>
+            <div className={styles.divider}></div>
+            <Link href="/corporate" className={styles.actionText}>Corporate</Link>
             <div className={styles.divider}></div>
 
             {!authLoading && user ? (
@@ -199,6 +202,7 @@ export default function Navbar({ onMenuClick }) {
               className={styles.cartBtn}
               onClick={() => setCartOpen(true)}
               aria-label="Open Cart"
+              suppressHydrationWarning={true}
             >
               <div className={styles.cartIconWrapper}>
                 <ShoppingCart size={22} />

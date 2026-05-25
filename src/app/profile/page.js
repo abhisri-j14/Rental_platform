@@ -31,7 +31,11 @@ export default function ProfilePage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [listings, setListings] = useState([]);
   const [listingsLoading, setListingsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders' or 'listings'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'listings', or 'ambassador'
+  
+  // Ambassador state
+  const [referralsData, setReferralsData] = useState(null);
+  const [referralsLoading, setReferralsLoading] = useState(true);
 
   // Fetch user data
   useEffect(() => {
@@ -83,6 +87,17 @@ export default function ProfilePage() {
         })
         .catch(() => setListingsLoading(false));
     }
+
+    // Fetch referrals
+    fetch(`${API_URL}/api/auth/referrals`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setReferralsData(data);
+        setReferralsLoading(false);
+      })
+      .catch(() => setReferralsLoading(false));
   }, [router, user?.role]);
 
   // Save profile
@@ -215,6 +230,29 @@ export default function ProfilePage() {
       setMessage({ type: 'error', text: 'Failed to update role' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleBoostListing = async (productId) => {
+    if (!confirm('Boost this listing for 7 days for ₹99? It will appear at the top of category & search results.')) return;
+    const token = localStorage.getItem('gadgetgo_token');
+    try {
+      const res = await fetch(`${API_URL}/api/products/${productId}/boost`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Listing boosted successfully!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+        // Update local listing state
+        const updatedListings = listings.map(l => l._id === productId ? data.product : l);
+        setListings(updatedListings);
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to boost listing' });
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Network error boosting listing' });
     }
   };
 
@@ -458,26 +496,58 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            <div className={styles.detailRow}>
+              <div className={styles.detailLabel}><Store size={16} /> Referral Code</div>
+              <div className={styles.detailValue} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontWeight: 'bold', fontFamily: 'monospace', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', border: '1px solid #bae6fd' }}>
+                  {user.referralCode || 'GZZM-XXXX'}
+                </span>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(user.referralCode || '');
+                    setMessage({ type: 'success', text: 'Referral code copied to clipboard!' });
+                    setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#0284c7', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.detailRow}>
+              <div className={styles.detailLabel}><CreditCard size={16} /> Gizzmo Credits</div>
+              <div className={styles.detailValue} style={{ fontWeight: 'bold', color: '#16a34a' }}>
+                ₹{user.credits || 0}
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Mode Toggles for Owner */}
-        {user.role === 'owner' && (
-          <div className={styles.modeToggleRow}>
-            <button
-              className={`${styles.modeBtnGreen} ${activeTab === 'orders' ? styles.btnActive : ''}`}
-              onClick={() => setActiveTab('orders')}
-            >
-              <ShoppingCart size={18} /> PERSONAL GEAR
-            </button>
+        {/* Mode Toggles */}
+        <div className={styles.modeToggleRow}>
+          <button
+            className={`${styles.modeBtnGreen} ${activeTab === 'orders' ? styles.btnActive : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            <ShoppingCart size={18} /> MY RENTALS
+          </button>
+          {user.role === 'owner' && (
             <button
               className={`${styles.modeBtnBlue} ${activeTab === 'listings' ? styles.btnActive : ''}`}
               onClick={() => setActiveTab('listings')}
             >
               <Store size={18} /> SHOP INVENTORY
             </button>
-          </div>
-        )}
+          )}
+          <button
+            className={`${styles.modeBtnPink} ${activeTab === 'ambassador' ? styles.btnActive : ''}`}
+            onClick={() => setActiveTab('ambassador')}
+          >
+            🎓 AMBASSADOR HUB
+          </button>
+        </div>
 
         {/* Dynamic Mode Content */}
         {activeTab === 'orders' ? (
@@ -491,7 +561,7 @@ export default function ProfilePage() {
             </div>
             <OrdersList />
           </div>
-        ) : (
+        ) : activeTab === 'listings' ? (
           <div className={styles.dashboardSection}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.gizzmoHeading}>LIVE INVENTORY</h2>
@@ -548,6 +618,22 @@ export default function ProfilePage() {
                         <span className={styles.pDay}>₹{item.pricePerDay}</span>
                         <span className={styles.pSlash}>/day</span>
                       </div>
+                      
+                      <div className={styles.boostSection}>
+                        {item.isBoosted && new Date(item.boostedUntil) > new Date() ? (
+                          <span className={styles.boostActiveBadge}>
+                            ⚡ Boosted until {new Date(item.boostedUntil).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => handleBoostListing(item._id)} 
+                            className={styles.boostBtnInline}
+                          >
+                            ⚡ Boost Listing (₹99)
+                          </button>
+                        )}
+                      </div>
+
                       <div className={styles.cardFooter}>
                         <span className={styles.rentCount}>{item.rentedCount || 0} Rentals</span>
                         {latestOrder ? (
@@ -565,6 +651,89 @@ export default function ProfilePage() {
                 ))}
               </div>
             )}
+          </div>
+        ) : (
+          <div className={styles.dashboardSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.gizzmoHeading}>AMBASSADOR HUB</h2>
+              <div className={styles.pulseBadge} style={{ border: '2px solid #db2777', color: '#db2777' }}>
+                <span className={styles.pulseDot} style={{ background: '#db2777' }}></span>
+                CAMPUS PROGRAM ACTIVE
+              </div>
+            </div>
+
+            <div className={styles.ambassadorGrid}>
+              <div className={styles.ambassadorHeroCard}>
+                <h3>Earn ₹100 Reward Credits</h3>
+                <p>Share Gizzmo with your friends! When a new user signs up using your link or code, both of you instantly get ₹100 credits to use on any device rental.</p>
+                
+                <div className={styles.referralLinkBox}>
+                  <label>YOUR REFERRAL LINK</label>
+                  <div className={styles.linkCopyRow}>
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={typeof window !== 'undefined' ? `${window.location.origin}/register?ref=${user.referralCode}` : `https://gizzmo.in/register?ref=${user.referralCode}`} 
+                      className={styles.referralLinkInput}
+                    />
+                    <button 
+                      onClick={() => {
+                        const link = typeof window !== 'undefined' ? `${window.location.origin}/register?ref=${user.referralCode}` : `https://gizzmo.in/register?ref=${user.referralCode}`;
+                        navigator.clipboard.writeText(link);
+                        setMessage({ type: 'success', text: 'Referral link copied to clipboard!' });
+                        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                      }}
+                      className={styles.referralCopyBtn}
+                    >
+                      Copy Link
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.statsCardGrid}>
+                <div className={styles.statCard}>
+                  <h4>CREDITS EARNED</h4>
+                  <h2>₹{referralsData?.credits || 0}</h2>
+                  <p>Redeemable on next rental</p>
+                </div>
+                <div className={styles.statCard}>
+                  <h4>TOTAL SIGNUPS</h4>
+                  <h2>{referralsData?.referredCount || 0}</h2>
+                  <p>Successful referrals</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.referredListCard}>
+              <h3>Your Referrals</h3>
+              {referralsLoading ? (
+                <div className={styles.modernLoading}>Fetching referral list...</div>
+              ) : !referralsData?.referredUsers || referralsData.referredUsers.length === 0 ? (
+                <p className={styles.noReferralsText}>No referrals yet. Share your link to start earning credits!</p>
+              ) : (
+                <div className={styles.tableWrapper}>
+                  <table className={styles.referralTable}>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Joined Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {referralsData.referredUsers.map((refUser, index) => (
+                        <tr key={index}>
+                          <td>{refUser.name}</td>
+                          <td>{refUser.email}</td>
+                          <td>{new Date(refUser.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

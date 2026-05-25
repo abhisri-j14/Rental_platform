@@ -37,6 +37,58 @@ export default function TrackingPage({ params }) {
   const [pickupDate, setPickupDate] = useState('');
   const [pickupTime, setPickupTime] = useState('Morning (9 AM - 12 PM)');
   const [scheduleSubmitting, setScheduleSubmitting] = useState(false);
+  
+  // Buyout state
+  const [buyoutSubmitting, setBuyoutSubmitting] = useState(false);
+  const [buyoutPaymentMethod, setBuyoutPaymentMethod] = useState('online');
+
+  const handleBuyoutSubmit = async () => {
+    if (!confirm('Are you sure you want to buy this device? This will finalize the purchase.')) return;
+    setBuyoutSubmitting(true);
+    const token = localStorage.getItem('gadgetgo_token');
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/buyout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ paymentMethod: buyoutPaymentMethod })
+      });
+      if (res.ok) {
+        alert('Congratulations! You successfully bought the device.');
+        fetchOrder();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to process buyout');
+      }
+    } catch (err) {
+      alert('Network error');
+    }
+  };
+
+  const updateStatus = async (status) => {
+    const token = localStorage.getItem('gadgetgo_token');
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ trackingStatus: status })
+      });
+      if (res.ok) {
+        fetchOrder();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (err) {
+      alert('Error updating status');
+    }
+  };
+
 
   useEffect(() => {
     if (!isPaymentReturn || !paymentRequestId) return;
@@ -183,6 +235,18 @@ export default function TrackingPage({ params }) {
 
       <div className={styles.grid}>
         <div className={styles.mainCol}>
+          {/* Order Simulation Tool (Dev/Testing only) */}
+          <div className={styles.simulationCard}>
+            <h4>🛠️ Testing & Simulation Dashboard</h4>
+            <p>Advance the order tracking status to test different stages and trigger the <strong>Rent-to-Buy buyout mechanism</strong>.</p>
+            <div className={styles.simButtons}>
+              <button onClick={() => updateStatus('Payment Verified')} className={`${styles.simBtn} ${order.trackingStatus === 'Payment Verified' ? styles.simBtnActive : ''}`}>Verify Payment</button>
+              <button onClick={() => updateStatus('In Transit')} className={`${styles.simBtn} ${order.trackingStatus === 'In Transit' ? styles.simBtnActive : ''}`}>In Transit</button>
+              <button onClick={() => updateStatus('Out for Delivery')} className={`${styles.simBtn} ${order.trackingStatus === 'Out for Delivery' ? styles.simBtnActive : ''}`}>Out for Delivery</button>
+              <button onClick={() => updateStatus('Delivered')} className={`${styles.simBtn} ${order.trackingStatus === 'Delivered' ? styles.simBtnActive : ''}`}>Delivered ⚡</button>
+            </div>
+          </div>
+
           {/* ── Delivery OTP / Scheduling Banners ── */}
           {isRenter && order.trackingStatus === 'Out for Delivery' && order.deliveryOtp && (
             <div className={styles.otpBanner}>
@@ -222,6 +286,74 @@ export default function TrackingPage({ params }) {
               <button onClick={() => setShowScheduleModal(true)} className={styles.primaryBtn}>
                 Schedule Return Pickup
               </button>
+            </div>
+          )}
+
+          {isRenter && order.trackingStatus === 'Delivered' && order.days >= 7 && (() => {
+            const actualPrice = order.product?.actualPrice || 0;
+            const discount = Math.round(actualPrice * 0.05);
+            const finalBuyoutPrice = actualPrice - discount;
+
+            return (
+              <div className={styles.buyoutBanner}>
+                <div className={styles.buyoutHeader}>
+                  <h3>Rent-to-Buy Option</h3>
+                  <span className={styles.buyoutTag}>Available for 7+ Days Rentals</span>
+                </div>
+                <p className={styles.buyoutDesc}>Love the device? Buy it permanently. Since you have rented from us, we give you a 5% loyalty discount!</p>
+                <div className={styles.priceBreakdown}>
+                  <div className={styles.breakdownRow}>
+                    <span>Device MRP:</span>
+                    <span>₹{actualPrice.toLocaleString()}</span>
+                  </div>
+                  <div className={styles.breakdownRow}>
+                    <span>Loyalty Renter Discount (5%):</span>
+                    <span className={styles.discountColor}>- ₹{discount.toLocaleString()}</span>
+                  </div>
+                  <div className={`${styles.breakdownRow} ${styles.buyoutTotalRow}`}>
+                    <span>Final Buyout Price:</span>
+                    <strong>₹{finalBuyoutPrice.toLocaleString()}</strong>
+                  </div>
+                </div>
+
+                <div className={styles.paymentSelector}>
+                  <span className={styles.paymentLabel}>Choose Payment Method</span>
+                  <div className={styles.paymentOptionsGrid}>
+                    <button 
+                      type="button"
+                      onClick={() => setBuyoutPaymentMethod('online')} 
+                      className={`${styles.paymentOptionCard} ${buyoutPaymentMethod === 'online' ? styles.paymentOptionActive : ''}`}
+                    >
+                      💳 Online Razorpay
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setBuyoutPaymentMethod('cod')} 
+                      className={`${styles.paymentOptionCard} ${buyoutPaymentMethod === 'cod' ? styles.paymentOptionActive : ''}`}
+                    >
+                      💵 Cash on Delivery (COD)
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleBuyoutSubmit} 
+                  disabled={buyoutSubmitting} 
+                  className={styles.buyoutBtn}
+                >
+                  {buyoutSubmitting ? 'PROCESSING BUYOUT...' : 'BUY THIS DEVICE PERMANENTLY'}
+                </button>
+              </div>
+            );
+          })()}
+
+          {order.trackingStatus === 'Purchased' && (
+            <div className={styles.buyoutSuccessBanner}>
+              <BadgeCheck size={28} />
+              <div>
+                <h3>Device Purchased</h3>
+                <p>Congratulations! You successfully bought out this device permanently. Enjoy your new gear.</p>
+              </div>
             </div>
           )}
 
@@ -293,7 +425,7 @@ export default function TrackingPage({ params }) {
               <h3><Camera size={18} /> Delivery Condition Proof</h3>
               <div className={styles.photoGrid}>
                 {order.deliveryPhotos.map((p, i) => (
-                  <img key={i} src={`${API_URL}${p}`} alt={`Delivery Photo ${i}`} className={styles.proofImg} />
+                  <img key={i} src={p.startsWith('data:') ? p : `${API_URL}${p}`} alt={`Delivery Photo ${i}`} className={styles.proofImg} />
                 ))}
               </div>
             </div>
@@ -304,7 +436,7 @@ export default function TrackingPage({ params }) {
               <h3><Camera size={18} /> Return Condition Proof</h3>
               <div className={styles.photoGrid}>
                 {order.returnPhotos.map((p, i) => (
-                  <img key={i} src={`${API_URL}${p}`} alt={`Return Photo ${i}`} className={styles.proofImg} />
+                  <img key={i} src={p.startsWith('data:') ? p : `${API_URL}${p}`} alt={`Return Photo ${i}`} className={styles.proofImg} />
                 ))}
               </div>
             </div>

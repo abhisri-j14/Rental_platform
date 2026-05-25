@@ -56,6 +56,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  referralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  referredBy: {
+    type: String,
+    default: null,
+  },
+  credits: {
+    type: Number,
+    default: 0,
+  },
+  listingFeeExpiresAt: {
+    type: Date,
+    default: null,
+  },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
@@ -156,6 +173,14 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isBoosted: {
+    type: Boolean,
+    default: false,
+  },
+  boostedUntil: {
+    type: Date,
+    default: null,
+  },
 }, { timestamps: true });
 
 // Text index for search
@@ -234,7 +259,7 @@ const orderSchema = new mongoose.Schema({
   },
   trackingStatus: {
     type: String,
-    enum: ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned'],
+    enum: ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned', 'Purchased'],
     default: 'Order Placed',
   },
   estimatedDelivery: {
@@ -266,6 +291,11 @@ const orderSchema = new mongoose.Schema({
     enum: ['online', 'cod'],
     default: 'online',
   },
+  deliveryType: {
+    type: String,
+    enum: ['standard', 'express', 'midnight'],
+    default: 'standard',
+  },
   deliveryAddress: {
     fullName: String,
     phone: String,
@@ -279,6 +309,28 @@ const orderSchema = new mongoose.Schema({
   txHash: {
     type: String,
     default: null,
+  },
+  buyoutPrice: {
+    type: Number,
+    default: null,
+  },
+  buyoutPaymentMethod: {
+    type: String,
+    enum: ['online', 'cod'],
+    default: null,
+  },
+  // ── Post-return inspection result (set by email/inspection-complete endpoint) ──
+  inspectionResult: {
+    damageLevel: {
+      type: String,
+      enum: ['none', 'minor', 'moderate', 'severe'],
+      default: null,
+    },
+    damageDescription: { type: String, default: '' },
+    deductedAmount:    { type: Number, default: 0 },
+    poolContribution:  { type: Number, default: 0 },
+    refundAmount:      { type: Number, default: 0 },
+    inspectedAt:       { type: Date,   default: null },
   },
 }, { timestamps: true });
 
@@ -312,4 +364,26 @@ const cartSchema = new mongoose.Schema({
 
 const Cart = mongoose.model('Cart', cartSchema);
 
-module.exports = { User, OTP, Product, Review, Order, Cart };
+// ─── B2B Lead Schema ──────────────────────────────────────
+const b2bLeadSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  company: { type: String, required: true, trim: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true, lowercase: true, trim: true },
+  packageType: {
+    type: String,
+    enum: ['starter', 'growth', 'scale'],
+    required: true,
+  },
+  teamSize: { type: Number, default: 1 },
+  status: {
+    type: String,
+    enum: ['pending', 'contacted', 'closed'],
+    default: 'pending',
+  },
+  notes: { type: String, default: '' },
+}, { timestamps: true });
+
+const B2BLead = mongoose.model('B2BLead', b2bLeadSchema);
+
+module.exports = { User, OTP, Product, Review, Order, Cart, B2BLead };

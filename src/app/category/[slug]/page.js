@@ -76,20 +76,21 @@ function CategoryContent({ params }) {
       return matchesBrand && matchesPrice && matchesRating && matchesDelivery && matchesCondition && matchesDiscount;
     });
 
-    switch (sort) {
-      case 'popular':
-        return arr.sort((a, b) => (b.rentedCount || 0) - (a.rentedCount || 0));
-      case 'price_asc':
-        return arr.sort((a, b) => a.pricePerDay - b.pricePerDay);
-      case 'price_desc':
-        return arr.sort((a, b) => b.pricePerDay - a.pricePerDay);
-      case 'rating':
-        return arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      case 'newest':
-        return arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      default:
-        return arr;
-    }
+    const sortFunc = (a, b) => {
+      const aBoosted = a.isBoosted && new Date(a.boostedUntil) > new Date();
+      const bBoosted = b.isBoosted && new Date(b.boostedUntil) > new Date();
+      if (aBoosted && !bBoosted) return -1;
+      if (!aBoosted && bBoosted) return 1;
+      
+      if (sort === 'popular') return (b.rentedCount || 0) - (a.rentedCount || 0);
+      if (sort === 'price_asc') return a.pricePerDay - b.pricePerDay;
+      if (sort === 'price_desc') return b.pricePerDay - a.pricePerDay;
+      if (sort === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sort === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
+      return 0;
+    };
+
+    return arr.sort(sortFunc);
   }, [products, sort, selectedBrands, priceRange, minRating]);
 
   const emojiMap = {
@@ -326,7 +327,7 @@ function CategoryContent({ params }) {
                       <span className={styles.emojiIcon}>{emojiMap[product.category] || '📦'}</span>
                     )}
                   </div>
-                  {product.sponsored && (
+                  {(product.sponsored || product.isBoosted) && (
                     <span className={styles.sponsoredBadge}>Sponsored</span>
                   )}
                 </div>
@@ -377,6 +378,9 @@ function CategoryContent({ params }) {
                     <div className={styles.perk}>
                       <ShieldCheck size={14} className={styles.checkIcon} />
                       <span>Gizzmo Verified</span>
+                    </div>
+                    <div className={`${styles.perk} ${styles.dataSafePerk}`}>
+                      <span className={styles.dataSafeBadge}>🔒 Data Safe</span>
                     </div>
                   </div>
 

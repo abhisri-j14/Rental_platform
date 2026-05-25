@@ -52,10 +52,10 @@ router.get('/', async (req, res) => {
       filter.$text = { $search: search };
     }
 
-    let sortOption = { createdAt: -1 }; // newest first by default
-    if (sort === 'price_asc') sortOption = { pricePerDay: 1 };
-    if (sort === 'price_desc') sortOption = { pricePerDay: -1 };
-    if (sort === 'rating') sortOption = { rating: -1 };
+    let sortOption = { isBoosted: -1, createdAt: -1 }; // boosted first, then newest first by default
+    if (sort === 'price_asc') sortOption = { isBoosted: -1, pricePerDay: 1 };
+    if (sort === 'price_desc') sortOption = { isBoosted: -1, pricePerDay: -1 };
+    if (sort === 'rating') sortOption = { isBoosted: -1, rating: -1 };
 
     const products = await Product.find(filter)
       .sort(sortOption)
@@ -112,13 +112,27 @@ router.post('/', auth, ownerOnly, upload.array('images', 10), async (req, res) =
       return res.status(400).json({ error: 'Title, brand, category, price, and damage deposit are required' });
     }
 
+    // Check listing fee subscription — skip during trial (listingFeeExpiresAt is set when they become owner)
+    const ownerUser = await User.findById(req.user.id);
+    if (ownerUser && ownerUser.listingFeeExpiresAt && ownerUser.listingFeeExpiresAt < new Date()) {
+      return res.status(403).json({
+        error: 'Your listing subscription has expired. Please renew (₹399/month) to continue listing devices.',
+        subscriptionExpired: true,
+      });
+    }
+
     // Process uploaded files
     const imageUrls = [];
     if (req.files && req.files.length > 0) {
       req.files.forEach(file => {
-        // Construct public URL
-        const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
-        imageUrls.push(url);
+        if (file.buffer) {
+          const base64Data = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+          imageUrls.push(base64Data);
+        } else {
+          // Construct public URL
+          const url = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+          imageUrls.push(url);
+        }
       });
     }
 
@@ -214,6 +228,37 @@ router.delete('/:id', auth, ownerOnly, async (req, res) => {
     res.json({ message: 'Product deleted' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  BOOST PRODUCT (owner only, own product)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/:id/boost', auth, ownerOnly, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (product.owner.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'You can only boost your own products' });
+    }
+
+    // Simulate ₹99 payment — boost for 7 days
+    const boostedUntil = new Date();
+    boostedUntil.setDate(boostedUntil.getDate() + 7);
+
+    product.isBoosted = true;
+    product.boostedUntil = boostedUntil;
+    await product.save();
+
+    console.log(`⚡ Product "${product.title}" boosted until ${boostedUntil.toISOString()} by owner ${req.user.id}`);
+
+    res.json({
+      message: 'Product boosted for 7 days! It will appear at the top of search results.',
+      boostedUntil,
+      product,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to boost product' });
   }
 });
 

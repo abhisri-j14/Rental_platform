@@ -111,7 +111,7 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     console.log('💾 Creating user in database...');
-    const user = await User.create({
+    const user = new User({
       name,
       email,
       password: hashedPassword,
@@ -119,7 +119,21 @@ router.post('/signup', async (req, res) => {
       role: assignedRole,
     });
 
-    console.log(`✅ User created successfully: ${user._id} as ${user.role}`);
+    user.referralCode = 'GZZM-' + user._id.toString().slice(-4).toUpperCase();
+
+    // Verify referredBy code if provided
+    const { referredBy } = req.body;
+    if (referredBy) {
+      const referrer = await User.findOne({ referralCode: referredBy.toUpperCase().trim() });
+      if (referrer) {
+        user.referredBy = referrer.referralCode;
+        console.log(`🔗 User referred by: ${referrer.email}`);
+      }
+    }
+
+    await user.save();
+
+    console.log(`✅ User created successfully: ${user._id} as ${user.role} with referralCode ${user.referralCode}`);
 
     // Send verification email (non-blocking catch inside helper)
     console.log('📧 Triggering verification email...');
@@ -142,6 +156,8 @@ router.post('/signup', async (req, res) => {
         isKycVerified: user.isKycVerified,
         aadhaarNumber: user.aadhaarNumber,
         role: user.role,
+        referralCode: user.referralCode,
+        credits: user.credits,
       },
     });
   } catch (err) {
@@ -186,6 +202,8 @@ router.post('/login', async (req, res) => {
         aadhaarNumber: user.aadhaarNumber,
         avatar: user.avatar,
         role: user.role,
+        referralCode: user.referralCode,
+        credits: user.credits,
       },
     });
   } catch (err) {
@@ -274,6 +292,8 @@ router.post('/verify-otp', async (req, res) => {
       isKycVerified: user.isKycVerified,
       aadhaarNumber: user.aadhaarNumber,
       role: user.role,
+      referralCode: user.referralCode,
+      credits: user.credits,
     },
   });
 });
@@ -330,6 +350,15 @@ router.get('/me', async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Auto-initialize listingFeeExpiresAt for legacy store owners who don't have it set
+    if (user.role === 'owner' && !user.listingFeeExpiresAt) {
+      const trialExpiry = new Date();
+      trialExpiry.setDate(trialExpiry.getDate() + 90);
+      user.listingFeeExpiresAt = trialExpiry;
+      await user.save();
+    }
+
     res.json({ user });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
@@ -412,10 +441,14 @@ router.put('/become-owner', async (req, res) => {
   try {
     const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
     const decoded = jwt.verify(token, secret);
+
+    // 3-month free trial from the day they become owner
+    const trialExpiry = new Date();
+    trialExpiry.setDate(trialExpiry.getDate() + 90);
     
     const user = await User.findByIdAndUpdate(
       decoded.id,
-      { role: 'owner' },
+      { role: 'owner', listingFeeExpiresAt: trialExpiry },
       { new: true }
     ).select('-password -emailVerifyToken');
 
@@ -423,7 +456,7 @@ router.put('/become-owner', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: 'Congratulations! You are now a Store Owner.', user });
+    res.json({ message: 'Congratulations! You are now a Store Owner. 3-month free trial started.', user });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
@@ -460,6 +493,76 @@ router.post('/kyc/verify-aadhaar', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     res.json({ message: 'Aadhaar verified successfully (Simulated)', user });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  PAY LISTING FEE (renew subscription by 30 days)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/pay-listing-fee', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
+    const user = await User.findById(decoded.id);
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.role !== 'owner') return res.status(403).json({ error: 'Only store owners can pay listing fee' });
+
+    // Simulate ₹399 payment — extend subscription by 30 days from now or from existing expiry
+    const base = user.listingFeeExpiresAt && user.listingFeeExpiresAt > new Date()
+      ? new Date(user.listingFeeExpiresAt)
+      : new Date();
+    base.setDate(base.getDate() + 30);
+
+    user.listingFeeExpiresAt = base;
+    await user.save();
+
+    const updatedUser = await User.findById(decoded.id).select('-password -emailVerifyToken');
+    console.log(`💰 Listing fee paid by ${user.email}. New expiry: ${base.toISOString()}`);
+
+    res.json({
+      message: 'Listing fee paid! Subscription extended by 30 days.',
+      listingFeeExpiresAt: base,
+      user: updatedUser,
+    });
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  GET REFERRALS (referred users list)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.get('/referrals', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const secret = process.env.JWT_SECRET || 'dev-jwt-secret-key-12345';
+    const decoded = jwt.verify(token, secret);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const referredUsers = await User.find({ referredBy: user.referralCode })
+      .select('name email createdAt');
+
+    res.json({
+      referralCode: user.referralCode,
+      referredCount: referredUsers.length,
+      credits: user.credits || 0,
+      referredUsers,
+    });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }

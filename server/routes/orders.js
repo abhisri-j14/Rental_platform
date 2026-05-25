@@ -59,7 +59,7 @@ async function sendSMS(to, body) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.post('/', auth, async (req, res) => {
   try {
-    const { productId, days, paymentMethod, deliveryAddress, deliveryFee: frontendDeliveryFee } = req.body;
+    const { productId, days, paymentMethod, deliveryAddress, deliveryFee: frontendDeliveryFee, deliveryType } = req.body;
 
     if (!productId || !days || !deliveryAddress) {
       return res.status(400).json({ error: 'Product, days, and delivery address are required' });
@@ -82,9 +82,15 @@ router.post('/', auth, async (req, res) => {
     // Dynamic Delivery Fee
     let deliveryFee = frontendDeliveryFee !== undefined ? frontendDeliveryFee : 0;
     if (frontendDeliveryFee === undefined) {
-      if (totalRent < 500) deliveryFee = 20;
-      else if (totalRent <= 1500) deliveryFee = 12;
-      else deliveryFee = 0;
+      if (deliveryType === 'express') {
+        deliveryFee = 149;
+      } else if (deliveryType === 'midnight') {
+        deliveryFee = 249;
+      } else {
+        if (totalRent < 500) deliveryFee = 20;
+        else if (totalRent <= 1500) deliveryFee = 12;
+        else deliveryFee = 0;
+      }
     }
 
     // Protection Fee (Insurance) based on MRP
@@ -116,9 +122,10 @@ router.post('/', auth, async (req, res) => {
       totalAmount,
       paymentStatus: 'pending',
       trackingStatus: 'Order Placed',
-      estimatedDelivery: '2 Days',
+      estimatedDelivery: deliveryType === 'express' ? '2 Hours' : (deliveryType === 'midnight' ? 'Midnight / Emergency' : '2 Days'),
       paymentMethod: paymentMethod || 'online',
       deliveryAddress,
+      deliveryType: deliveryType || 'standard',
     });
 
     // Generate Web3 transaction hash
@@ -136,8 +143,20 @@ router.post('/', auth, async (req, res) => {
     product.rentedCount += 1;
     await product.save();
 
-    // SMS to renter
     const renter = await User.findById(req.user.id);
+
+    // Referral Credit Hook
+    const orderCount = await Order.countDocuments({ renter: req.user.id });
+    if (orderCount === 1 && renter && renter.referredBy) {
+      const referrer = await User.findOne({ referralCode: renter.referredBy });
+      if (referrer) {
+        referrer.credits = (referrer.credits || 0) + 50;
+        await referrer.save();
+        console.log(`🎁 Referral Hook: Awarded ₹50 credit to referrer: ${referrer.email} for first order of: ${renter.email}`);
+      }
+    }
+
+    // SMS to renter
     if (renter?.phone) {
       await sendSMS(renter.phone, `✅ Your order for "${product.title}" is confirmed! ${days} days rental. Order total: ₹${totalAmount}. TxHash: ${txHash.slice(0, 10)}...`);
     }
@@ -207,7 +226,7 @@ router.get('/my-sales', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate('product', 'title brand images pricePerDay')
+      .populate('product', 'title brand images pricePerDay actualPrice')
       .populate('renter', 'name email phone')
       .populate('owner', 'name email phone');
 
@@ -233,12 +252,12 @@ router.patch('/:id/status', auth, async (req, res) => {
     
     const order = await Order.findById(req.params.id).populate('product', 'title');
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    if (order.owner.toString() !== req.user.id) {
-      return res.status(403).json({ error: 'Only the product owner can update order status' });
+    if (order.owner.toString() !== req.user.id && order.renter.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Only the product owner or renter can update order status' });
     }
 
     if (trackingStatus) {
-      const validTracking = ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned'];
+      const validTracking = ['Order Placed', 'Payment Verified', 'Handed over to Courier', 'In Transit', 'Out for Delivery', 'Delivered', 'Scheduled Return', 'Out for Pickup', 'Returned', 'Purchased'];
       if (!validTracking.includes(trackingStatus)) {
         return res.status(400).json({ error: 'Invalid tracking status' });
       }
@@ -291,7 +310,12 @@ router.post('/:id/verify-delivery', auth, upload.array('photos', 3), async (req,
     if (order.trackingStatus !== 'Out for Delivery') return res.status(400).json({ error: 'Order is not out for delivery' });
     if (order.deliveryOtp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
 
-    const photos = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    const photos = req.files ? req.files.map(f => {
+      if (f.buffer) {
+        return `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+      }
+      return `/uploads/${f.filename}`;
+    }) : [];
     
     order.trackingStatus = 'Delivered';
     order.deliveryPhotos = photos;
@@ -343,7 +367,12 @@ router.post('/:id/verify-return', auth, upload.array('photos', 3), async (req, r
     if (order.trackingStatus !== 'Out for Pickup') return res.status(400).json({ error: 'Order is not out for pickup' });
     if (order.returnOtp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
 
-    const photos = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    const photos = req.files ? req.files.map(f => {
+      if (f.buffer) {
+        return `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+      }
+      return `/uploads/${f.filename}`;
+    }) : [];
     
     order.trackingStatus = 'Returned';
     order.returnPhotos = photos;
@@ -352,6 +381,67 @@ router.post('/:id/verify-return', auth, upload.array('photos', 3), async (req, r
     res.json({ message: 'Return verified successfully. Deposit refund initiated.', order });
   } catch (err) {
     res.status(500).json({ error: 'Failed to verify return' });
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  RENT-TO-BUY BUYOUT (renter only, 7+ day delivered orders)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+router.post('/:id/buyout', auth, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('product', 'title brand actualPrice pricePerDay images');
+
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    // Only the renter can initiate a buyout
+    if (order.renter.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Only the renter can initiate a buyout' });
+    }
+
+    // Must be delivered and 7+ day rental
+    if (order.trackingStatus !== 'Delivered') {
+      return res.status(400).json({ error: 'Buyout is only available for delivered orders' });
+    }
+    if (order.days < 7) {
+      return res.status(400).json({ error: 'Rent-to-Buy is only available for rentals of 7+ days' });
+    }
+
+    const { paymentMethod } = req.body;
+    const actualPrice = order.product.actualPrice || 0;
+
+    // Buyout price formula: MRP - 5% discount
+    const discount = Math.round(actualPrice * 0.05);
+    const finalBuyoutPrice = actualPrice - discount;
+
+    // Save buyout details on the order
+    order.trackingStatus = 'Purchased';
+    order.buyoutPrice = finalBuyoutPrice;
+    order.buyoutPaymentMethod = paymentMethod || 'online';
+    await order.save();
+
+    // Make product unavailable (it's now owned by the renter)
+    await order.product.constructor.findByIdAndUpdate(order.product._id, { isAvailable: false });
+
+    // SMS to owner
+    const owner = await User.findById(order.owner);
+    if (owner?.phone) {
+      await sendSMS(owner.phone, `💰 Buyout Alert! Your device "${order.product.title}" has been purchased by the renter for ₹${finalBuyoutPrice.toLocaleString()} via ${paymentMethod === 'cod' ? 'COD' : 'online payment'}. Great news!`);
+    }
+
+    console.log(`🛒 Buyout: Order ${order._id} — "${order.product.title}" purchased for ₹${finalBuyoutPrice} via ${paymentMethod || 'online'}`);
+
+    res.json({
+      message: 'Buyout successful! The device is now yours.',
+      buyoutPrice: finalBuyoutPrice,
+      originalPrice: actualPrice,
+      discount,
+      paymentMethod: paymentMethod || 'online',
+      order,
+    });
+  } catch (err) {
+    console.error('❌ Buyout error:', err.message);
+    res.status(500).json({ error: 'Failed to process buyout' });
   }
 });
 

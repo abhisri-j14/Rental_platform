@@ -1,19 +1,20 @@
 .section {
-  padding: 6rem 2rem;
-  background: #000;
-  border-bottom: 0.5rem solid var(--black);
-  border-radius: 1rem;
+  padding: 5rem 0;
+  background: linear-gradient(180deg, rgba(219, 254, 135, 0.08) 0%, rgba(202, 255, 208, 0.06) 100%);
+  border-top: 1px solid rgba(219, 254, 135, 0.15);
+  border-bottom: 1px solid rgba(219, 254, 135, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rem;
+  gap: 3.5rem;
   overflow: hidden;
+  width: 100%;
 }
 
 .headerBox {
-  background: #fff;
-  border: 4px solid #000;
-  box-shadow: 10px 10px 0 var(--cornflower-blue);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
   padding: 3rem;
   border-radius: 1.5rem;
   text-align: center;
@@ -22,18 +23,19 @@
 }
 
 .headerBox h2 {
-  font-size: 3.5rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: #000;
+  font-size: 2.4rem;
+  font-weight: 800;
+  text-transform: none;
+  color: #111111;
   margin-bottom: 1rem;
-  letter-spacing: -2px;
+  letter-spacing: -0.5px;
 }
 
 .headerBox p {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #555555;
+  line-height: 1.6;
 }
 
 .imageContainer {
@@ -42,16 +44,16 @@
   display: flex;
   justify-content: center;
   padding: 1rem;
-  background: #fff;
-  border: 4px solid #000;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 1.5rem;
-  box-shadow: 12px 12px 0 var(--black, #000);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .imageContainer:hover {
-  transform: translateY(-8px) rotate(-0.5deg);
-  box-shadow: 18px 18px 0 var(--black, #000);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
 }
 
 .infographic {
@@ -62,13 +64,16 @@
 }
 
 @media (max-width: 900px) {
+  .section {
+    padding: 3rem 1.5rem;
+  }
+
   .headerBox {
     padding: 2rem 1.5rem;
   }
   
   .headerBox h2 {
-    font-size: 2.2rem;
-    letter-spacing: -1px;
+    font-size: 1.8rem;
   }
   
   .headerBox p {
@@ -76,11 +81,11 @@
   }
 
   .imageContainer {
-    box-shadow: 8px 8px 0 var(--black, #000);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
   }
   
   .imageContainer:hover {
     transform: none;
-    box-shadow: 8px 8px 0 var(--black, #000);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
   }
 }

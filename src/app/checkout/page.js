@@ -29,23 +29,23 @@ export default function CheckoutPage() {
   const [checkoutItems, setCheckoutItems] = useState([]);
   const { cartItems, clearCart } = useCart();
 
+  // Policy consent checkboxes — all 3 must be agreed before checkout
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedDamage, setAgreedDamage] = useState(false);
+  const [agreedDeposit, setAgreedDeposit] = useState(false);
+  const allPoliciesAgreed = agreedTerms && agreedDamage && agreedDeposit;
+
   // Delivery form
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('online');
+  const [deliveryType, setDeliveryType] = useState('standard');
 
   useEffect(() => {
     const token = localStorage.getItem('gadgetgo_token');
     if (!token) { router.push('/login'); return; }
-
-    const stored = sessionStorage.getItem('checkout_product');
-    if (stored) {
-      setCheckoutItems([JSON.parse(stored)]);
-    } else if (cartItems.length > 0) {
-      setCheckoutItems(cartItems);
-    }
 
     // Pre-fill user data
     fetch(`${API_URL}/api/auth/me`, {
@@ -62,6 +62,15 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, [router]);
 
+  useEffect(() => {
+    const stored = sessionStorage.getItem('checkout_product');
+    if (stored) {
+      setCheckoutItems([JSON.parse(stored)]);
+    } else if (cartItems.length > 0) {
+      setCheckoutItems(cartItems);
+    }
+  }, [cartItems]);
+
   if (checkoutItems.length === 0) {
     return (
       <div className={styles.successContainer}>
@@ -74,6 +83,14 @@ export default function CheckoutPage() {
   }
 
   // ── Pricing ──────────────────────────────────────────────
+  // Compute the discount % label for each item so the bill clearly shows why
+  const getDiscountLabel = (days) => {
+    if (days >= 30) return '50% off (30+ days)';
+    if (days >= 7)  return '25% off (7–29 days)';
+    if (days >= 3)  return '10% off (3–6 days)';
+    return null; // No discount for 1–2 days
+  };
+
   const totalRent = checkoutItems.reduce((sum, item) => {
     let price = item.pricePerDay * item.days;
     if (item.days >= 30) price *= 0.5;
@@ -82,11 +99,17 @@ export default function CheckoutPage() {
     return sum + price;
   }, 0);
 
-  // Dynamic Delivery Fee
+  // Dynamic Delivery Fee based on selection
   let deliveryFee = 0;
-  if (totalRent < 500) deliveryFee = 20;
-  else if (totalRent <= 1500) deliveryFee = 12;
-  else deliveryFee = 0;
+  if (deliveryType === 'express') {
+    deliveryFee = 149;
+  } else if (deliveryType === 'midnight') {
+    deliveryFee = 249;
+  } else {
+    if (totalRent < 500) deliveryFee = 20;
+    else if (totalRent <= 1500) deliveryFee = 12;
+    else deliveryFee = 0;
+  }
 
   // Tiered Protection Fee
   const totalProtectionFee = checkoutItems.reduce((sum, item) => {
@@ -230,6 +253,7 @@ export default function CheckoutPage() {
             days: item.days,
             paymentMethod,
             deliveryFee: i === 0 ? deliveryFee : 0,
+            deliveryType,
             deliveryAddress: {
               fullName,
               phone: `+91${phone}`,
@@ -269,6 +293,9 @@ export default function CheckoutPage() {
 
   // ── Order placed + COD / payment error fallback screen ────
   if (isPlaced && orderResult) {
+    const displayTitle = orderResult.product?.title || 'device';
+    const displayAmount = orderResult.totalAmount || totalAmount;
+
     return (
       <div className={styles.successContainer}>
         <CheckCircle2 size={80} className={styles.successIcon} />
@@ -276,13 +303,13 @@ export default function CheckoutPage() {
           {paymentMethod === 'cod' ? 'Order Confirmed!' : 'Order Placed!'}
         </h1>
         <p>
-          Your <strong>{checkoutItems.length > 1 ? `${checkoutItems.length} devices` : checkoutItems[0].title}</strong> rental is being processed.
+          Your <strong>{checkoutItems.length > 1 ? `${checkoutItems.length} devices` : displayTitle}</strong> rental is being processed.
         </p>
 
         {/* COD confirmation */}
         {paymentMethod === 'cod' && (
           <div className={styles.instamojoBox}>
-            <p>✅ Cash on Delivery selected. Pay <strong>₹{totalAmount.toLocaleString()}</strong> when your device arrives.</p>
+            <p>✅ Cash on Delivery selected. Pay <strong>₹{displayAmount.toLocaleString()}</strong> when your device arrives.</p>
           </div>
         )}
 
@@ -306,9 +333,10 @@ export default function CheckoutPage() {
           <Link href="/" className={styles.secondaryBtn}>Return to Home</Link>
         </div>
 
+        {/* Helpful reminder after successful order */}
         <div className={styles.policyBox}>
           <Shield size={20} />
-          <p><strong>6-Hour Return Policy:</strong> Not satisfied? Return within 6 hours for a 100% instant cashback.</p>
+          <p>Your order is protected by the <strong>Gizzmo Damage Protection System</strong>. Keep the device safe and return it on time for a full deposit refund. 😊</p>
         </div>
       </div>
     );
@@ -374,6 +402,45 @@ export default function CheckoutPage() {
               />
             </div>
 
+            <h2>Delivery Speed</h2>
+            <div className={styles.paymentMethods} style={{ marginBottom: '24px' }}>
+              <label className={`${styles.radioLabel} ${deliveryType === 'standard' ? styles.radioSelected : ''}`}>
+                <input
+                  type="radio" name="delivery" value="standard"
+                  checked={deliveryType === 'standard'}
+                  onChange={() => setDeliveryType('standard')}
+                />
+                <div className={styles.radioContent}>
+                  <span className={styles.radioTitle}>Standard Delivery</span>
+                  <span className={styles.radioSub}>Delivered within 2 days (₹0–₹20 based on order value)</span>
+                </div>
+              </label>
+
+              <label className={`${styles.radioLabel} ${deliveryType === 'express' ? styles.radioSelected : ''}`}>
+                <input
+                  type="radio" name="delivery" value="express"
+                  checked={deliveryType === 'express'}
+                  onChange={() => setDeliveryType('express')}
+                />
+                <div className={styles.radioContent}>
+                  <span className={styles.radioTitle}>⚡ Express 2-Hour Delivery</span>
+                  <span className={styles.radioSub}>Dedicated campus rider (₹149 flat)</span>
+                </div>
+              </label>
+
+              <label className={`${styles.radioLabel} ${deliveryType === 'midnight' ? styles.radioSelected : ''}`}>
+                <input
+                  type="radio" name="delivery" value="midnight"
+                  checked={deliveryType === 'midnight'}
+                  onChange={() => setDeliveryType('midnight')}
+                />
+                <div className={styles.radioContent}>
+                  <span className={styles.radioTitle}>🌙 Midnight / Emergency Delivery</span>
+                  <span className={styles.radioSub}>Night rider (₹249 flat)</span>
+                </div>
+              </label>
+            </div>
+
             <h2>Payment Method</h2>
             <div className={styles.paymentMethods}>
               <label className={`${styles.radioLabel} ${paymentMethod === 'online' ? styles.radioSelected : ''}`}>
@@ -408,11 +475,68 @@ export default function CheckoutPage() {
               </div>
             )}
 
+            {/* ── Policy Consent Checkboxes ── */}
+            {/* All 3 must be checked before the Pay button becomes active */}
+            <div className={styles.policyConsent}>
+              <p className={styles.policyConsentTitle}>Before you pay, please confirm:</p>
+
+              <label className={styles.consentRow}>
+                <input
+                  type="checkbox"
+                  checked={agreedTerms}
+                  onChange={e => setAgreedTerms(e.target.checked)}
+                />
+                <span>
+                  I agree to the{' '}
+                  <a href="/policies#terms" target="_blank" rel="noreferrer" className={styles.policyConsentLink}>
+                    Terms & Conditions
+                  </a>
+                </span>
+              </label>
+
+              <label className={styles.consentRow}>
+                <input
+                  type="checkbox"
+                  checked={agreedDamage}
+                  onChange={e => setAgreedDamage(e.target.checked)}
+                />
+                <span>
+                  I have read and accept the{' '}
+                  <a href="/policies#damage" target="_blank" rel="noreferrer" className={styles.policyConsentLink}>
+                    Damage Policy
+                  </a>
+                </span>
+              </label>
+
+              <label className={styles.consentRow}>
+                <input
+                  type="checkbox"
+                  checked={agreedDeposit}
+                  onChange={e => setAgreedDeposit(e.target.checked)}
+                />
+                <span>
+                  I understand the{' '}
+                  <a href="/policies#deposit" target="_blank" rel="noreferrer" className={styles.policyConsentLink}>
+                    Deposit Refund Policy
+                  </a>{' '}
+                  — my deposit of ₹{totalDamageDeposit.toLocaleString()} is fully refundable if the device is returned undamaged.
+                </span>
+              </label>
+
+              {/* Friendly nudge if user tries to pay without checking all boxes */}
+              {!allPoliciesAgreed && (
+                <p className={styles.consentHint}>
+                  💡 Please check all 3 boxes above to enable payment.
+                </p>
+              )}
+            </div>
+
             {phoneIsValid ? (
               <button
                 type="submit"
                 className={styles.submitBtn}
-                disabled={loading || paymentLoading}
+                disabled={loading || paymentLoading || !allPoliciesAgreed}
+                title={!allPoliciesAgreed ? 'Please agree to all policies above first' : ''}
               >
                 {loading || paymentLoading ? (
                   <>
@@ -458,9 +582,19 @@ export default function CheckoutPage() {
               <span>Total Rent (Base)</span>
               <span>₹{checkoutItems.reduce((sum, item) => sum + (item.pricePerDay * item.days), 0).toLocaleString()}</span>
             </div>
+            {/* Show each item's discount label so users know exactly what they're saving */}
+            {checkoutItems.map(item => {
+              const label = getDiscountLabel(item.days);
+              return label ? (
+                <div key={`disc-${item._id}`} className={styles.billRow} style={{ color: '#22c55e', fontSize: '0.85rem' }}>
+                  <span>✨ {item.title.length > 20 ? item.title.slice(0, 20) + '…' : item.title} — {label}</span>
+                  <span></span>
+                </div>
+              ) : null;
+            })}
             {savings > 0 && (
               <div className={styles.billRow} style={{ color: '#22c55e', fontWeight: 800 }}>
-                <span>Duration Discount ✨</span>
+                <span>Total Discount Applied</span>
                 <span>− ₹{Math.round(savings).toLocaleString()}</span>
               </div>
             )}

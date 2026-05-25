@@ -1,361 +1,274 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { Star, Plus, Minus } from "lucide-react";
 import styles from "./page.module.css";
-import HowItWorks from "@/components/HowItWorks/HowItWorks";
-import FAQ from "@/components/FAQ/FAQ";
+
+const faqs = [
+  {
+    q: "How fast can I get a device delivered?",
+    a: "Same-day delivery is available in all metro cities. For other locations, expect delivery within 24–48 hours. You'll get real-time tracking from the moment your order is confirmed.",
+  },
+  {
+    q: "Is my data safe on a rented device?",
+    a: "Absolutely. Every device goes through Gizzmo's mandatory Data Safe Protocol before each rental — factory reset, secure erase, BIOS clear, and a brand new user account. We are the only rental platform in India with this guarantee. We also recommend signing out of all accounts before returning.",
+  },
+  {
+    q: "What happens if the device gets damaged?",
+    a: "Every rental includes basic damage protection. For accidental damage, you'll only pay a small deductible — not the full repair cost. We also offer premium coverage plans for complete peace of mind.",
+  },
+  {
+    q: "How is identity verification handled?",
+    a: "Both renters and owners go through Aadhaar-based verification. This ensures a safe, trustworthy marketplace where every transaction is between verified individuals.",
+  },
+  {
+    q: "Can I extend my rental period?",
+    a: "Absolutely! You can extend directly from your dashboard with one tap. Extensions are prorated, so you only pay for the extra days you need.",
+  },
+  {
+    q: "How do owners list their devices?",
+    a: "Listing is free and takes under 2 minutes. Just upload photos, set your daily rate, and define availability. We handle payments, verification, and logistics.",
+  },
+  {
+    q: "Is there a minimum rental period?",
+    a: "Nope — you can rent for as little as one day. We offer daily, weekly, and monthly plans so you can pick whatever works best for your needs.",
+  },
+];
 
 export default function Home() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const toggleFAQ = (i) => {
+    setOpenIndex(openIndex === i ? null : i);
+  };
+
   return (
     <div className={styles.container}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>
-            Tech without the <span className={styles.highlight}>price tag</span>.
-          </h1>
-          <p className={styles.subtitle}>
-            Rent premium laptops, cameras, drones, and more for a fraction of the cost.
-            Delivered to your door.
-          </p>
-          <div className={styles.ctaGroup}>
-            <Link href="/category/all" className={styles.primaryBtn}>
-              Start Renting
-            </Link>
-            <Link href="/compare" className={styles.secondaryBtn}>
-              Compare Devices
-            </Link>
-            <Link href="/owner" className={styles.secondaryBtn}>
-              List Your Device
-            </Link>
-          </div>
-        </div>
-        <div className={styles.heroImageContainer}>
-          <img src="/chatgpt.png" alt="Electronic devices" className={styles.heroImage} />
-        </div>
-      </section>
-
-      {/* Community Listings Conveyor */}
-      <section className={styles.conveyor}>
-        <div className={styles.conveyorTrack}>
-          {/* Original set */}
-          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
-            <span className={styles.adTag}>🔥 Top Rated</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Amit&apos;s Electronics</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardPink}`}>
-            <span className={styles.adTag}>🎧 Music Lovers</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>SkyView Rentals</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardBlue}`}>
-            <span className={styles.adTag}>✈️ Travel Ready</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Rahul S.</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardGreen}`}>
-            <span className={styles.adTag}>⌚ Steal Deal</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Priya&apos;s Gadget Hub</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardLavender}`}>
-            <span className={styles.adTag}>🎮 Pro Gear</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>GameZone Store</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
-            <span className={styles.adTag}>🎙️ Creators</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>TechBuddy Rentals</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          {/* Duplicate set for seamless loop */}
-          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
-            <span className={styles.adTag}>🔥 Top Rated</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Amit&apos;s Electronics</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Custom gaming PC with RTX 4080 — rent for LAN parties or video editing at ₹1500/day!&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardPink}`}>
-            <span className={styles.adTag}>🎧 Music Lovers</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>SkyView Rentals</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Premium earphones for music lovers. Crystal clear audio at just ₹100/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardBlue}`}>
-            <span className={styles.adTag}>✈️ Travel Ready</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/headphone.jpg" alt="Sony Headphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Rahul S.</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Sony WH-1000XM5 headphones — noise cancelling, perfect for travel. ₹200/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardGreen}`}>
-            <span className={styles.adTag}>⌚ Steal Deal</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/watch.jpg" alt="Apple Watch" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>Priya&apos;s Gadget Hub</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Apple Watch Series 9 — short-term rentals. Best deal at ₹350/day!&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardLavender}`}>
-            <span className={styles.adTag}>🎮 Pro Gear</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/anthony-roberts-5WJhuXkqCkc-unsplash.jpg" alt="Gaming PC" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>GameZone Store</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;High-end gaming rig with dual monitors. Perfect for weekend tournaments at ₹2000/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className={`${styles.listingCard} ${styles.cardYellow}`}>
-            <span className={styles.adTag}>🎙️ Creators</span>
-            <div className={styles.deviceHeader}>
-              <div className={styles.deviceCircle}><img src="/earphones.jpg" alt="Earphones" className={styles.deviceImg} /></div>
-              <span className={styles.listingAuthor}>TechBuddy Rentals</span>
-            </div>
-            <div className={styles.listingContent}>
-              <p className={styles.listingComment}>&quot;Studio-grade earphones — ideal for podcasting and music production. ₹150/day.&quot;</p>
-            </div>
-            <div className={styles.stars}>
-              <Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it Works */}
-      <HowItWorks />
-
-      {/* Features Section */}
-      <section className={styles.features}>
-        {/* Feature 1: Text left, Image right */}
-        <div className={styles.featureBlock}>
-          <div className={styles.featureText}>
-            <h2 className={styles.featureTitle}>Lightning fast delivery</h2>
-            <p className={styles.featureDesc}>
-              Get your rented device delivered to your doorstep within hours, not days.
-              Our hyperlocal network ensures you never wait too long.
+      {/* 1. Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.innerSection}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.title}>
+              Tech without the <span className={styles.highlight}>price tag</span>.
+            </h1>
+            <p className={styles.subtitle}>
+              Rent premium laptops, cameras, drones, and more for a fraction of the cost.
+              Delivered straight to your doorstep.
             </p>
-            <ul className={styles.featureList}>
-              <li>→ Same-day delivery in metro cities</li>
-              <li>→ Real-time tracking on every order</li>
-              <li>→ Secure, tamper-proof packaging</li>
-              <li>→ Free pickup when you&apos;re done</li>
-            </ul>
-          </div>
-          <div className={`${styles.featureImgWrap} ${styles.featureImgOrange}`}>
-            <img src="/woman.jpeg" alt="Fast delivery" className={styles.featureImg} />
-          </div>
-        </div>
-
-        {/* Feature 2: Image left, Text right */}
-        <div className={`${styles.featureBlock} ${styles.featureBlockReversed}`}>
-          <div className={styles.featureText}>
-            <h2 className={styles.featureTitle}>Effortless process</h2>
-            <p className={styles.featureDesc}>
-              From browsing to booking to returning — every step is designed to be
-              frictionless. No paperwork, no hassle, just tech when you need it.
-            </p>
-            <ul className={styles.featureList}>
-              <li>→ One-tap booking with instant confirmation</li>
-              <li>→ Aadhaar-verified owners you can trust</li>
-              <li>→ Flexible daily, weekly & monthly plans</li>
-              <li>→ Instant refundable deposits</li>
-            </ul>
-          </div>
-          <div className={`${styles.featureImgWrap} ${styles.featureImgLavender}`}>
-            <img src="/flowers.jpeg" alt="Easy process" className={styles.featureImg} />
-          </div>
-        </div>
-
-        {/* Feature 3: Text left, Image right */}
-        <div className={styles.featureBlock}>
-          <div className={styles.featureText}>
-            <h2 className={styles.featureTitle}>Sustainable choice</h2>
-            <p className={styles.featureDesc}>
-              Renting instead of buying reduces electronic waste and promotes a circular economy. 
-              Join thousands of others in making a smarter choice for the planet.
-            </p>
-            <ul className={styles.featureList}>
-              <li>→ 80% lower carbon footprint per use</li>
-              <li>→ Certified refurbishing partners</li>
-              <li>→ Zero-waste packaging initiative</li>
-              <li>→ Recycling rewards for active renters</li>
-            </ul>
-          </div>
-          <div className={`${styles.featureImgWrap} ${styles.featureImgLime}`}>
-            <img src="/building.jpeg" alt="Sustainability" className={styles.featureImg} />
-          </div>
-        </div>
-
-        {/* Feature 4: Image left, Text right */}
-        <div className={`${styles.featureBlock} ${styles.featureBlockReversed}`}>
-          <div className={styles.featureText}>
-            <h2 className={styles.featureTitle}>Community driven</h2>
-            <p className={styles.featureDesc}>
-              Gizzmo is built on trust. Our peer-to-peer network connects tech enthusiasts 
-              who care about their gear and the people who use it.
-            </p>
-            <ul className={styles.featureList}>
-              <li>→ 24/7 localized support team</li>
-              <li>→ In-person handovers available</li>
-              <li>→ Community events and workshops</li>
-              <li>→ Damage protection on every rental</li>
-            </ul>
-          </div>
-          <div className={`${styles.featureImgWrap} ${styles.featureImgBlue}`}>
-            <img src="/run.jpg" alt="Community" className={styles.featureImg} />
-          </div>
-        </div>
-      </section>
-
-      {/* Trusted Community Section */}
-      <section className={styles.communitySection}>
-        <div className={styles.communityPill}>
-          <img src="/community.png" alt="Community building" className={styles.communityImg} />
-        </div>
-        <div className={styles.communityFeatures}>
-          <div className={styles.communityFeature}>
-            <h3>Verified profiles</h3>
-            <p>Every renter and owner is Aadhaar-verified for a safe, trustworthy marketplace.</p>
-          </div>
-          <div className={styles.communityFeature}>
-            <h3>Ratings & reviews</h3>
-            <p>Transparent feedback system so you always know who you&apos;re dealing with.</p>
-          </div>
-          <div className={styles.communityFeature}>
-            <h3>Community first</h3>
-            <p>Built by people who believe sharing tech is better than hoarding it.</p>
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Testimonials */}
-      <section className={styles.testimonials}>
-        <h2 className={styles.sectionTitle}>What our users say</h2>
-        <div className={styles.reviews}>
-          <div className={styles.review}>
-            <div className={styles.stars}>
-              <Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" />
+            <div className={styles.ctaGroup}>
+              <Link href="/category/all" className={styles.primaryBtn}>
+                Start Renting
+              </Link>
+              <Link href="/compare" className={styles.secondaryBtn}>
+                Compare Devices
+              </Link>
+              <Link href="/owner" className={styles.secondaryBtn}>
+                List Your Device
+              </Link>
             </div>
-            <p>"Needed a Macbook for a hackathon. Gizzmo saved my life! Super smooth process and the device was brand new."</p>
-            <h4>- Rahul S. (Student)</h4>
           </div>
-          <div className={styles.review}>
-            <div className={styles.stars}>
-              <Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" /><Star size={16} fill="currentColor" />
-            </div>
-            <p>"As a store owner, my unsold inventory was gathering dust. Now I make passive income every week! Highly recommend."</p>
-            <h4>- Amit's Electronics</h4>
+          <div className={styles.heroImageContainer}>
+            <img src="/chatgpt.png" alt="Electronic devices" className={styles.heroImage} />
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <FAQ />
-
-      {/* CTA Banner */}
-      <section className={styles.ctaBanner}>
-        <div className={styles.ctaIcon}>
-          <img src="/run.jpg" alt="Run Icon" className={styles.ctaIconImg} />
+      {/* 2. How Gizzmo Works Section */}
+      <section className={styles.howItWorksSection}>
+        <div className={styles.innerSectionColumn}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>How Gizzmo Works ♻️</h2>
+            <p className={styles.sectionSubtitle}>
+              A simple, secure, and profitable circular lifecycle for both renters and owners.
+            </p>
+          </div>
+          <div className={styles.infographicContainer}>
+            <img 
+              src="/how_we_work.png" 
+              alt="Gizzmo Rental Platform: How It Works Infographic" 
+              className={styles.infographic}
+            />
+          </div>
         </div>
-        <h2 className={styles.ctaHeading}>
-          Ready to rent smarter,<br />not harder?
-        </h2>
-        <p className={styles.ctaSub}>
-          Give yourself access to premium tech without the commitment&mdash;rent, use, return, repeat.
-        </p>
-        <Link href="/category/all" className={styles.ctaButton}>
-          Get started
-        </Link>
+      </section>
+
+      {/* 3. Why Choose Gizzmo (Advantages) Section */}
+      <section className={styles.advantagesSection}>
+        <div className={styles.innerSectionColumn}>
+          <div className={styles.communityPill}>
+            <img src="/community.png" alt="Community illustration" className={styles.communityImg} />
+          </div>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Why choose Gizzmo?</h2>
+            <p className={styles.sectionSubtitle}>
+              A simpler, smarter, and safer tech rental marketplace built for the modern consumer.
+            </p>
+          </div>
+          <div className={styles.advantagesGrid}>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>⚡</span>
+              <h3>Lightning fast delivery</h3>
+              <p>Get your rented device delivered to your doorstep within hours through our hyperlocal network.</p>
+            </div>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>✨</span>
+              <h3>Effortless process</h3>
+              <p>Instant bookings, Aadhaar-verified users, and standard paperless flows—designed to be frictionless.</p>
+            </div>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>♻️</span>
+              <h3>Sustainable choice</h3>
+              <p>Renting instead of buying reduces electronic waste, supporting a cleaner circular economy.</p>
+            </div>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>🛡️</span>
+              <h3>Damage protection</h3>
+              <p>Accidental damage coverage and secure handovers on every transaction for ultimate peace of mind.</p>
+            </div>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>🤝</span>
+              <h3>Community first</h3>
+              <p>Connecting tech enthusiasts and local retailers who care about quality and secure sharing.</p>
+            </div>
+            <div className={styles.advantageCard}>
+              <span className={styles.advantageIcon}>⭐</span>
+              <h3>Ratings & reviews</h3>
+              <p>Transparent peer feedback and user history ensure a reliable, verified community.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Data Safe Trust Section */}
+      <section className={styles.dataSafeSection}>
+        <div className={styles.innerSectionColumn}>
+          <div className={styles.dataSafeBanner}>
+            <div className={styles.dataSafeLeft}>
+              <div className={styles.dataSafePill}>🔒 India's Only Mandatory Data Safe Protocol</div>
+              <h2 className={styles.dataSafeTitle}>Your data, always safe.</h2>
+              <p className={styles.dataSafeText}>
+                Before every rental, devices are fully factory reset and secure wiped by our verified
+                retailers. We are the <strong>only electronics rental platform in India</strong> with
+                this guarantee — building trust that Flipkart refurbished and OLX can never offer.
+              </p>
+              <p className={styles.dataSafeText}>
+                We recommend signing out of all accounts before returning. For extra peace of mind,
+                avoid saving sensitive passwords on rented devices.
+              </p>
+              <Link href="/policies#datasafe" className={styles.dataSafeLink}>
+                Read the full Data Safe Protocol →
+              </Link>
+            </div>
+            <div className={styles.dataSafeRight}>
+              <div className={styles.dataSafeStep}>
+                <div className={styles.dataSafeIcon}>🖥️</div>
+                <div>
+                  <strong>Factory Reset</strong>
+                  <span>All files wiped before every rental</span>
+                </div>
+              </div>
+              <div className={styles.dataSafeStep}>
+                <div className={styles.dataSafeIcon}>🛡️</div>
+                <div>
+                  <strong>Secure Erase</strong>
+                  <span>Deleted files overwritten, unrecoverable</span>
+                </div>
+              </div>
+              <div className={styles.dataSafeStep}>
+                <div className={styles.dataSafeIcon}>👤</div>
+                <div>
+                  <strong>Fresh User Account</strong>
+                  <span>New clean account for every renter</span>
+                </div>
+              </div>
+              <div className={styles.dataSafeStep}>
+                <div className={styles.dataSafeIcon}>📷</div>
+                <div>
+                  <strong>Camera SD Card Cleared</strong>
+                  <span>SD removed or formatted before rental</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Testimonials Section */}
+      <section className={styles.testimonialsSection}>
+        <div className={styles.innerSectionColumn}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>What our users say</h2>
+            <p className={styles.sectionSubtitle}>Real reviews from renters and store owners in our community.</p>
+          </div>
+          <div className={styles.reviewsGrid}>
+            <div className={styles.reviewCard}>
+              <div className={styles.stars}>
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+              </div>
+              <p className={styles.reviewText}>
+                "Needed a Macbook for a hackathon. Gizzmo saved my life! Super smooth process and the device was brand new."
+              </p>
+              <span className={styles.reviewAuthor}>— Rahul S. (Student)</span>
+            </div>
+            <div className={styles.reviewCard}>
+              <div className={styles.stars}>
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+              </div>
+              <p className={styles.reviewText}>
+                "As a store owner, my unsold inventory was gathering dust. Now I make passive income every week! Highly recommend."
+              </p>
+              <span className={styles.reviewAuthor}>— Amit's Electronics</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. FAQ Section */}
+      <section className={styles.faqSection}>
+        <div className={styles.innerSection}>
+          <div className={styles.faqSidebar}>
+            <h2 className={styles.faqTitle}>FAQ</h2>
+            <p className={styles.faqSubtitle}>
+              Frequently asked questions about our platform, security, and rentals.
+            </p>
+          </div>
+          <div className={styles.faqAccordion}>
+            {faqs.map((item, i) => (
+              <div
+                key={i}
+                className={`${styles.faqItem} ${openIndex === i ? styles.faqItemOpen : ""}`}
+              >
+                <button 
+                  className={styles.faqQuestion} 
+                  onClick={() => toggleFAQ(i)}
+                  suppressHydrationWarning
+                >
+                  <span>{item.q}</span>
+                  <span className={styles.faqToggleIcon}>
+                    {openIndex === i ? <Minus size={20} /> : <Plus size={20} />}
+                  </span>
+                </button>
+                <div
+                  className={styles.faqAnswer}
+                  style={{
+                    maxHeight: openIndex === i ? "200px" : "0",
+                  }}
+                >
+                  <p>{item.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );

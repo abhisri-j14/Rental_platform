@@ -410,6 +410,68 @@
   gap: 0.6rem;
 }
 
+/* ── Policy Consent Checkboxes ── */
+.policyConsent {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.policyConsentTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Each checkbox row */
+.consentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.consentRow input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--cornflower-blue);
+  cursor: pointer;
+}
+
+/* Clickable policy link inside checkbox label */
+.policyConsentLink {
+  color: var(--cornflower-blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.policyConsentLink:hover {
+  opacity: 0.8;
+}
+
+/* Friendly nudge shown when not all boxes are checked */
+.consentHint {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  margin: 0;
+  padding-top: 0.25rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

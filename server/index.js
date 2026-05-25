@@ -92,6 +92,9 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/cart', require('./routes/cart'));
+// Post-return inspection emails — sends summary to both renter and retailer
+app.use('/api/emails', require('./routes/emails'));
+app.use('/api/corporate', require('./routes/corporate'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -111,15 +114,41 @@ app.use((err, req, res, next) => {
 // ─── Connect to MongoDB and start server ────────────────────
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gadgetgo';
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
+let cachedConnection = null;
+const connectDB = async () => {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+  console.log('🔄 Connecting to MongoDB...');
+  cachedConnection = await mongoose.connect(MONGO_URI);
+  console.log('✅ Connected to MongoDB');
+  return cachedConnection;
+};
+
+// Middleware to ensure DB connection is active before processing any route
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+if (!process.env.VERCEL) {
+  // Start server locally
+  connectDB().then(() => {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
     });
-  })
-  .catch((err) => {
+  }).catch((err) => {
     console.error('❌ MongoDB connection failed:', err.message);
     process.exit(1);
   });
+} else {
+  // Ensure DB connects on cold starts on Vercel
+  connectDB().catch(err => console.error('❌ Mongoose cold start connection failed:', err));
+}
+
+module.exports = app;

@@ -1,0 +1,409 @@
+/* ── How We Work Page — Wide Layout with Color Palette ── */
+
+.page {
+  min-height: 100vh;
+  background: #f8f9fb;
+  font-family: inherit;
+}
+
+/* ── Hero ── */
+.hero {
+  background: var(--black);
+  padding: 4rem 6vw 3.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 2rem;
+}
+
+.heroBadge {
+  display: inline-block;
+  background: var(--lime-cream);
+  color: #000;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: #f5f0e8;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.hero p {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* ── Content ── */
+.content {
+  padding: 2.5rem 6vw 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Section Card ── */
+.section {
+  background: #fff;
+  border-radius: 1.25rem;
+  border: 1px solid #e5e7eb;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--cornflower-blue);
+}
+
+.sectionNum {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--cornflower-blue);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.sectionTitle h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #111827;
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+/* ── Money Split — 2 big bold cards ── */
+.splitGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.splitCard {
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.splitCard:first-child {
+  background: var(--tea-green);
+  border: 2px solid #86efac;
+}
+
+.splitCard:last-child {
+  background: var(--lime-cream);
+  border: 2px solid #bef264;
+}
+
+.splitPercent {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #111;
+  letter-spacing: -3px;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.splitCard h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 0.5rem 0;
+}
+
+.splitCard p {
+  font-size: 0.93rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Info Note ── */
+.infoNote {
+  background: var(--cornflower-blue);
+  color: #fff;
+  border-radius: 0.875rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-top: 1.25rem;
+}
+
+/* ── Pay Table ── */
+.payTable {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.payRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-radius: 0.875rem;
+  background: #f8f9fb;
+  border: 1px solid #e5e7eb;
+  gap: 1rem;
+}
+
+.payItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.payItem strong {
+  font-size: 0.97rem;
+  color: #111827;
+}
+
+.payItem span {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.payBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Table ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.table th, .table td {
+  padding: 0.875rem 1.1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.97rem;
+}
+
+.table th {
+  background: var(--black);
+  color: var(--lime-cream);
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.table tr:last-child td { border-bottom: none; }
+.table td { color: #374151; }
+
+.tableNote {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0.75rem 0 0 0;
+}
+
+/* ── Protection Pool Flow — 4 cols ── */
+.poolFlow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.poolStep {
+  background: var(--black);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.poolIcon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.poolStep p {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.poolArrow {
+  color: var(--cornflower-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ── Damage Grid — 3 cols ── */
+.damageGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.damageCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 2px solid transparent;
+}
+
+.minor    { background: var(--tea-green); border-color: #86efac; }
+.moderate { background: var(--lime-cream); border-color: #bef264; }
+.severe   { background: #fecaca; border-color: #f87171; }
+
+.damageLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #111;
+}
+
+.damageDetail strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.damageDetail p {
+  font-size: 0.87rem;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+}
+
+.outcome {
+  font-size: 0.85rem !important;
+  color: #111 !important;
+  font-weight: 600 !important;
+  background: rgba(255,255,255,0.5);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+}
+
+/* ── Return List ── */
+.returnList {
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+  margin: 0;
+  counter-reset: ret;
+}
+
+.returnList li {
+  counter-increment: ret;
+  font-size: 0.97rem;
+  color: #374151;
+  line-height: 1.6;
+  background: #f8f9fb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.875rem;
+  padding: 1rem 1.25rem 1rem 1rem;
+  position: relative;
+}
+
+.returnList li::before {
+  content: counter(ret);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--cornflower-blue);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-right: 0.6rem;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.returnList li strong { color: #111827; }
+
+/* ── Trust Grid — 4 cols ── */
+.trustGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.trustItem {
+  background: var(--black);
+  color: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.trustIcon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.875rem;
+}
+
+.trustItem strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--lime-cream);
+  margin-bottom: 0.4rem;
+}
+
+.trustItem p {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .trustGrid { grid-template-columns: repeat(2, 1fr); }
+  .poolFlow { grid-template-columns: 1fr; gap: 0.5rem; }
+  .poolArrow { display: none; }
+}
+
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem 2.5rem; }
+  .content { padding: 2rem 1.5rem 3rem; }
+  .section { padding: 1.5rem; }
+  .splitGrid,
+  .damageGrid,
+  .payTable { grid-template-columns: 1fr; }
+  .returnList { grid-template-columns: 1fr; }
+  .trustGrid { grid-template-columns: 1fr 1fr; }
+}

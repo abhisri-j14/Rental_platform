@@ -986,6 +986,225 @@
   transition: all 0.2s;
 }
 
+/* Ambassador Tab Styling */
+.modeBtnPink {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  border: 2px solid var(--black);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--black);
+  opacity: 0.65;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.95), rgba(255, 255, 255, 0.95));
+}
+
+.ambassadorGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.ambassadorHeroCard {
+  background: linear-gradient(135deg, #fdf2f8, #fff);
+  border: 3px solid #db2777;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #db2777;
+}
+
+.ambassadorHeroCard h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #9d174d;
+  margin-bottom: 0.5rem;
+}
+
+.ambassadorHeroCard p {
+  color: #831843;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.referralLinkBox label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #9d174d;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.linkCopyRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.referralLinkInput {
+  flex: 1;
+  background: #fff;
+  border: 2px solid #db2777;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #db2777;
+  outline: none;
+}
+
+.referralCopyBtn {
+  background: #db2777;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.referralCopyBtn:hover {
+  background: #be185d;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #000;
+}
+
+.statsCardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statCard {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.statCard h4 {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #666;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.statCard h2 {
+  font-size: 2.2rem;
+  font-weight: 950;
+  margin: 0 0 0.25rem 0;
+}
+
+.statCard p {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.referredListCard {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.referredListCard h3 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+}
+
+.noReferralsText {
+  color: #666;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.referralTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.referralTable th, .referralTable td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+}
+
+.referralTable th {
+  font-weight: 800;
+  color: #444;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.referralTable td {
+  font-size: 0.95rem;
+}
+
+/* Listings Boost styles */
+.boostSection {
+  margin: 0.5rem 0;
+  width: 100%;
+}
+
+.boostBtnInline {
+  width: 100%;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.boostBtnInline:hover {
+  background: #00D99F;
+  color: #000;
+}
+
+.boostActiveBadge {
+  display: block;
+  width: 100%;
+  background: rgba(0, 217, 159, 0.1);
+  border: 2px solid #00D99F;
+  color: #00b383;
+  padding: 0.6rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (max-width: 820px) {
+  .ambassadorGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .modalCancelBtn:hover {
   background: #f1f5f9;
 }

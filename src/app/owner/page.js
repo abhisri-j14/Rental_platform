@@ -16,6 +16,9 @@ export default function OwnerPage() {
   const [toast, setToast] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [renewLoading, setRenewLoading] = useState(false);
+  const [simulatedExpired, setSimulatedExpired] = useState(false);
+  const [showRenewPaymentOptions, setShowRenewPaymentOptions] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -30,6 +33,35 @@ export default function OwnerPage() {
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
+
+  const handlePayListingFee = async () => {
+    setRenewLoading(true);
+    setError('');
+    const token = localStorage.getItem('gadgetgo_token');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/pay-listing-fee`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        setSimulatedExpired(false);
+        setShowRenewPaymentOptions(false);
+        setToast(true);
+        setTimeout(() => setToast(false), 3000);
+      } else {
+        const result = await res.json();
+        setError(result.error || 'Failed to renew subscription');
+      }
+    } catch (err) {
+      setError('Network error');
+    } finally {
+      setRenewLoading(false);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('gadgetgo_token');
@@ -63,9 +95,17 @@ export default function OwnerPage() {
       
       // Auto-suggest rent and deposit when actualPrice changes
       if (name === 'actualPrice' && value > 0) {
-        // Suggesting highly feasible prices for students (approx 0.5% - 0.7% per day)
-        next.pricePerDay = Math.round(value * 0.005); 
-        next.damageDeposit = Math.round(value * 0.10); // 10% deposit
+        // Suggest rent at ~0.5% of device value per day (student-friendly rate)
+        next.pricePerDay = Math.round(value * 0.005);
+
+        // Use Gizzmo's finalized flat deposit tiers (NOT a percentage)
+        // This keeps deposits affordable for students while still being meaningful
+        const mrp = Number(value);
+        if (mrp >= 150000)     next.damageDeposit = 2499;
+        else if (mrp >= 90000) next.damageDeposit = 1799;
+        else if (mrp >= 50000) next.damageDeposit = 1199;
+        else if (mrp >= 25000) next.damageDeposit = 799;
+        else                   next.damageDeposit = 499;
       }
       
       return next;
@@ -198,6 +238,11 @@ export default function OwnerPage() {
     );
   }
 
+  // Support testing expired state via React state or URL param (e.g. /owner?expired=true)
+  const isSubscriptionExpired = simulatedExpired || (typeof window !== 'undefined' && window.location.search.includes('expired=true'))
+    ? true
+    : (user?.listingFeeExpiresAt ? new Date(user.listingFeeExpiresAt) < new Date() : false);
+
   return (
     <div className={styles.container}>
       {/* Left Side - 3D Scene & Policies */}
@@ -246,14 +291,155 @@ export default function OwnerPage() {
 
       {/* Right Side - Form */}
       <section className={styles.formSection}>
+        {/* Developer simulation banner */}
+        <div style={{
+          background: '#fff3cd',
+          border: '1px solid #ffeeba',
+          padding: '0.75rem 1rem',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.8rem',
+          fontWeight: '700',
+          color: '#856404',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}>
+          <span>🛠️ TESTING SIMULATOR:</span>
+          <button
+            type="button"
+            onClick={() => setSimulatedExpired(!simulatedExpired)}
+            style={{
+              background: simulatedExpired ? '#856404' : '#fff',
+              color: simulatedExpired ? '#fff' : '#856404',
+              border: '1px solid #856404',
+              padding: '0.35rem 0.75rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            {simulatedExpired ? '⚡ Switch to Active (Trial)' : '⚡ Switch to Expired'}
+          </button>
+        </div>
+
         <div className={styles.formHeader}>
           <h2>NEW LISTING</h2>
           <p>Submit device details for verification.</p>
+          
+          {user?.listingFeeExpiresAt && (
+            <div className={isSubscriptionExpired ? styles.expiredStatusCard : styles.activeStatusCard}>
+              {isSubscriptionExpired ? (
+                <div>
+                  <h4>⚠️ SUBSCRIPTION EXPIRED</h4>
+                  <p>Your store subscription has expired. Renew below to unlock listing privileges.</p>
+                </div>
+              ) : (
+                <div>
+                  <h4>✓ ACTIVE SUBSCRIPTION</h4>
+                  <p>Subscription active until {new Date(user.listingFeeExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {error && <div className={styles.errorMsg}>{error}</div>}
 
-        <form onSubmit={handleSubmit} className={styles.listingForm}>
+        {isSubscriptionExpired && (
+          <div className={styles.renewFormSection}>
+            {!showRenewPaymentOptions ? (
+              <button 
+                type="button" 
+                onClick={() => setShowRenewPaymentOptions(true)} 
+                className={styles.renewActionBtn}
+              >
+                RENEW SUBSCRIPTION — ₹399 / MONTH
+              </button>
+            ) : (
+              <div style={{
+                background: '#f9fafb',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <p style={{
+                  fontSize: '0.85rem',
+                  fontWeight: '800',
+                  color: '#374151',
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  textAlign: 'left'
+                }}>
+                  Select Payment Method:
+                </p>
+                
+                <div style={{
+                  background: '#fff',
+                  border: '2px solid #db2777', // pink active border
+                  borderRadius: '10px',
+                  padding: '0.75rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  color: '#db2777',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                }}>
+                  <span style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: '#db2777',
+                    display: 'inline-block'
+                  }}></span>
+                  💳 Pay Online (Razorpay / Card / UPI / NetBanking)
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button 
+                    type="button" 
+                    onClick={handlePayListingFee} 
+                    className={styles.renewActionBtn}
+                    disabled={renewLoading}
+                    style={{ flex: 1, margin: 0 }}
+                  >
+                    {renewLoading ? 'PROCESSING...' : 'PROCEED TO PAY ₹399'}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowRenewPaymentOptions(false)}
+                    style={{
+                      background: '#f3f4f6',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      padding: '0.75rem 1.25rem',
+                      fontSize: '0.85rem',
+                      fontWeight: '700',
+                      color: '#4b5563',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className={`${styles.listingForm} ${isSubscriptionExpired ? styles.formDisabled : ''}`}>
           
           <div className={styles.inputGroup}>
             <label>Title</label>
@@ -264,6 +450,7 @@ export default function OwnerPage() {
               onChange={handleChange} 
               placeholder="e.g. Sony A7IV - Professional Kit" 
               required 
+              disabled={isSubscriptionExpired}
             />
           </div>
 
@@ -277,11 +464,12 @@ export default function OwnerPage() {
                 onChange={handleChange} 
                 placeholder="e.g. Sony, Apple, DJI" 
                 required 
+                disabled={isSubscriptionExpired}
               />
             </div>
             <div className={styles.inputGroup}>
               <label>Classification</label>
-              <select name="category" value={formData.category} onChange={handleChange}>
+              <select name="category" value={formData.category} onChange={handleChange} disabled={isSubscriptionExpired}>
                 <option value="laptops">Laptops</option>
                 <option value="cameras">Cameras</option>
                 <option value="phones">Phones</option>
@@ -305,6 +493,7 @@ export default function OwnerPage() {
                 onChange={handleChange} 
                 placeholder="250000" 
                 required 
+                disabled={isSubscriptionExpired}
               />
               <span className={styles.inputHint}>Required to suggest affordable rates.</span>
             </div>
@@ -318,6 +507,7 @@ export default function OwnerPage() {
                   onChange={handleChange} 
                   placeholder="1500" 
                   required 
+                  disabled={isSubscriptionExpired}
                 />
                 {formData.actualPrice > 0 && formData.pricePerDay <= (formData.actualPrice * 0.008) && (
                   <span className={styles.tagStudent}>Student Friendly</span>
@@ -336,12 +526,13 @@ export default function OwnerPage() {
                 onChange={handleChange} 
                 placeholder="10000" 
                 required 
+                disabled={isSubscriptionExpired}
               />
               {formData.actualPrice > 0 && formData.damageDeposit <= (formData.actualPrice * 0.15) && (
                 <span className={styles.tagSafe}>Safe Deposit</span>
               )}
             </div>
-            <small style={{ color: '#777' }}>Suggested: 10% of value for student trust.</small>
+            <small style={{ color: '#777' }}>Auto-suggested based on device MRP (flat tier: ₹499–₹2,499). Student-friendly & platform-approved.</small>
           </div>
 
           <div className={styles.inputGroup}>
@@ -354,6 +545,7 @@ export default function OwnerPage() {
                 onChange={handleFileChange}
                 className={styles.fileInput}
                 id="file-upload"
+                disabled={isSubscriptionExpired}
               />
               <label htmlFor="file-upload" className={styles.uploadPlaceholder}>
                 <Plus size={32} />
@@ -367,7 +559,7 @@ export default function OwnerPage() {
                 {previews.map((src, idx) => (
                   <div key={idx} className={styles.previewCard}>
                     <img src={src} alt="Preview" />
-                    <button type="button" onClick={() => removeFile(idx)} className={styles.removePreview}>
+                    <button type="button" onClick={() => removeFile(idx)} className={styles.removePreview} disabled={isSubscriptionExpired}>
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -384,6 +576,7 @@ export default function OwnerPage() {
               value={formData.specs} 
               onChange={handleChange} 
               placeholder="e.g. RAM: 16GB, Sensor: Full Frame" 
+              disabled={isSubscriptionExpired}
             />
           </div>
 
@@ -396,10 +589,11 @@ export default function OwnerPage() {
               rows="5" 
               placeholder="Provide a professional assessment of the device state..."
               required 
+              disabled={isSubscriptionExpired}
             ></textarea>
           </div>
 
-          <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+          <button type="submit" className={styles.submitBtn} disabled={isSubmitting || isSubscriptionExpired}>
             {isSubmitting ? 'PROCESSING...' : 'SUBMIT FOR REVIEW'}
           </button>
         </form>
@@ -408,7 +602,7 @@ export default function OwnerPage() {
       {toast && (
         <div className={styles.toast}>
           <CheckCircle size={24} />
-          LISTING SUCCESSFUL
+          {isSubscriptionExpired ? 'SUBSCRIPTION RENEWED' : 'LISTING SUCCESSFUL'}
         </div>
       )}
     </div>

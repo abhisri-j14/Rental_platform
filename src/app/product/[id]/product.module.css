@@ -2,7 +2,7 @@
   width: 100%;
   margin: 0;
   padding: 2rem 3rem 5rem;
-  background-color: #fcfbfa;
+  background: linear-gradient(180deg, rgba(229, 212, 237, 0.12) 0%, rgba(202, 255, 208, 0.08) 50%, rgba(219, 254, 135, 0.05) 100%), #fcfbfa;
   min-height: 100vh;
   font-family: var(--font-sans), Arial, sans-serif;
   color: var(--black);
@@ -17,9 +17,9 @@
 }
 
 .breadcrumbs {
-  font-size: 13px;
-  font-weight: 700;
-  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+  color: #777;
   margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -27,17 +27,17 @@
 
 .breadcrumbs a {
   text-decoration: none;
-  color: #666;
+  color: #777;
   transition: color 0.15s ease;
 }
 
 .breadcrumbs a:hover {
   color: var(--cornflower-blue);
-  text-decoration: underline;
 }
 
 .breadcrumbs span {
   color: var(--black);
+  font-weight: 700;
 }
 
 .productLayout {
@@ -57,8 +57,8 @@
 
 .galleryCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 8px 8px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
   border-radius: 16px;
   padding: 2rem;
 }
@@ -77,25 +77,26 @@
 .thumbItem {
   width: 64px;
   height: 64px;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   cursor: pointer;
   overflow: hidden;
   padding: 4px;
   background: #ffffff;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .thumbItem:hover {
   transform: translateY(-2px);
-  box-shadow: 2px 2px 0px var(--black);
+  border-color: rgba(100, 141, 229, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .activeThumb {
-  background: var(--lavender-veil);
-  border-color: var(--black);
-  box-shadow: 3px 3px 0px var(--black);
-  transform: translate(-2px, -2px);
+  background: rgba(229, 212, 237, 0.15);
+  border-color: var(--cornflower-blue);
+  box-shadow: 0 4px 12px rgba(100, 141, 229, 0.15);
+  transform: translateY(-2px);
 }
 
 .thumbItem img {
@@ -127,9 +128,9 @@
 
 .zoomText {
   margin-top: 1.5rem;
-  font-size: 12px;
-  font-weight: 700;
-  color: #777;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -150,27 +151,25 @@
 }
 
 .brandBadge {
-  background: var(--lavender-veil);
-  border: 2px solid var(--black);
-  color: var(--black);
+  background: rgba(229, 212, 237, 0.45);
+  border: 1px solid rgba(229, 212, 237, 0.2);
+  color: #5b2c6f;
   padding: 0.4rem 1rem;
-  font-weight: 800;
+  font-weight: 600;
   border-radius: 99px;
   font-size: 0.85rem;
-  box-shadow: 3px 3px 0px var(--black);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .verifiedBadge {
-  background: var(--tea-green);
-  border: 2px solid var(--black);
-  color: var(--black);
+  background: rgba(202, 255, 208, 0.45);
+  border: 1px solid rgba(202, 255, 208, 0.2);
+  color: #1b5e20;
   padding: 0.4rem 1rem;
-  font-weight: 800;
+  font-weight: 600;
   border-radius: 99px;
   font-size: 0.85rem;
-  box-shadow: 3px 3px 0px var(--black);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -178,15 +177,15 @@
 
 .checkIcon {
   color: #16a34a;
-  stroke-width: 3px;
+  stroke-width: 2.5px;
 }
 
 .productTitle {
-  font-size: 2.4rem;
-  font-weight: 900;
-  line-height: 1.15;
-  color: var(--black);
-  letter-spacing: -0.8px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #111111;
+  letter-spacing: -0.5px;
 }
 
 .ratingRow {
@@ -204,27 +203,27 @@
 
 .ratingValue {
   font-size: 1.1rem;
-  font-weight: 900;
+  font-weight: 700;
   margin-right: 4px;
   color: var(--black);
 }
 
 .ratingsLink {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--cornflower-blue);
-  text-decoration: underline;
 }
 
 .ratingsLink:hover {
   color: var(--black);
+  text-decoration: underline;
 }
 
 /* Interactive Calculator Box */
 .calculatorCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 8px 8px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.025);
   border-radius: 16px;
   padding: 2rem;
   margin-top: 0.5rem;
@@ -239,7 +238,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  border-bottom: 2px solid var(--black);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding-bottom: 1.2rem;
 }
 
@@ -249,21 +248,21 @@
 }
 
 .currency {
-  font-size: 1.6rem;
-  font-weight: 900;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin-top: 4px;
 }
 
 .priceVal {
-  font-size: 3rem;
-  font-weight: 900;
+  font-size: 2.8rem;
+  font-weight: 800;
   line-height: 1;
 }
 
 .priceUnit {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #555;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #666;
   align-self: flex-end;
   margin-bottom: 4px;
   margin-left: 2px;
@@ -277,19 +276,19 @@
 }
 
 .mrpLabel {
-  font-size: 12px;
-  font-weight: 800;
-  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
   text-transform: uppercase;
 }
 
 .mrpValue {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--black);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #888888;
   text-decoration: line-through;
-  text-decoration-color: #ff4d4d;
-  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(255, 77, 77, 0.4);
+  text-decoration-thickness: 1.5px;
 }
 
 .durationSection {
@@ -299,10 +298,11 @@
 }
 
 .selectorLabel {
-  font-size: 14px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: #555;
 }
 
 .presetGrid {
@@ -313,26 +313,28 @@
 }
 
 .presetBtn {
-  padding: 0.7rem 1.2rem;
-  border: 2px solid var(--black);
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  font-weight: 800;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.9rem;
   background: #ffffff;
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.2s ease;
 }
 
 .presetBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 0px var(--black);
+  transform: translateY(-1px);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
 }
 
 .activePreset {
   background: var(--cornflower-blue);
   color: #ffffff;
-  box-shadow: 3px 3px 0px var(--black);
-  transform: translate(-2px, -2px);
+  border-color: var(--cornflower-blue);
+  box-shadow: 0 4px 12px rgba(100, 141, 229, 0.25);
+  transform: translateY(-1px);
 }
 
 .customDaysWrapper {
@@ -344,20 +346,21 @@
 
 .customDaysInput {
   width: 100%;
-  padding: 0.7rem 2.2rem 0.7rem 1rem;
-  border: 2px solid var(--black);
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  font-weight: 800;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.9rem;
   outline: none;
   font-family: inherit;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .customDaysInput:focus, .activeInput {
-  background: var(--lime-cream);
-  box-shadow: 3px 3px 0px var(--black);
-  transform: translate(-2px, -2px);
+  background: rgba(219, 254, 135, 0.15);
+  border-color: rgba(100, 141, 229, 0.5);
+  box-shadow: 0 0 0 3px rgba(100, 141, 229, 0.1);
+  transform: translateY(-1px);
 }
 
 /* Hide arrow controls on numeric input */
@@ -370,16 +373,16 @@
 .inputDaysSuffix {
   position: absolute;
   right: 10px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #555;
+  font-size: 10px;
+  font-weight: 700;
+  color: #666;
   pointer-events: none;
   text-transform: uppercase;
 }
 
 .calculatorBreakdown {
-  background: #faf9f6;
-  border: 2px solid var(--black);
+  background: rgba(100, 141, 229, 0.03);
+  border: 1px solid rgba(100, 141, 229, 0.08);
   border-radius: 12px;
   padding: 1.2rem;
   display: flex;
@@ -391,18 +394,19 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.95rem;
-  font-weight: 800;
-  color: #444;
+  font-weight: 500;
+  color: #555;
 }
 
 .breakdownRow span:last-child {
   color: var(--black);
+  font-weight: 600;
 }
 
 .totalRow {
-  font-size: 1.15rem;
-  font-weight: 900;
-  border-top: 2px solid var(--black);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 0.8rem;
   margin-top: 0.4rem;
   align-items: center;
@@ -414,20 +418,19 @@
 }
 
 .totalValue {
-  background: var(--lime-cream);
-  color: var(--black) !important;
-  font-size: 1.3rem;
-  font-weight: 900;
+  background: rgba(219, 254, 135, 0.4);
+  color: #2e5b00 !important;
+  font-size: 1.2rem;
+  font-weight: 700;
   padding: 0.3rem 0.8rem;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(219, 254, 135, 0.6);
   border-radius: 8px;
-  box-shadow: 3px 3px 0px var(--black);
 }
 
 .depositNotice {
   font-size: 11px;
-  font-weight: 800;
-  color: #666;
+  font-weight: 600;
+  color: #777;
   font-style: italic;
   margin-top: 0.2rem;
 }
@@ -439,49 +442,50 @@
 
 .cartBtn, .rentBtn {
   flex: 1;
-  padding: 1.1rem 1.5rem;
-  border: 3px solid var(--black);
-  border-radius: 12px;
-  font-weight: 900;
-  font-size: 1.1rem;
+  padding: 0.9rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.25s ease;
 }
 
 .cartBtn {
-  background: var(--lavender-veil);
-  color: var(--black);
-  box-shadow: 4px 4px 0px var(--black);
+  background: rgba(229, 212, 237, 0.45);
+  color: #5b2c6f;
+  border: 1px solid rgba(229, 212, 237, 0.2);
 }
 
 .cartBtn:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px var(--black);
+  transform: translateY(-2px);
+  background: rgba(229, 212, 237, 0.7);
+  box-shadow: 0 4px 15px rgba(229, 212, 237, 0.35);
 }
 
 .cartBtn:active {
-  transform: translate(0, 0);
-  box-shadow: 2px 2px 0px var(--black);
+  transform: translateY(0);
 }
 
 .rentBtn {
-  background: var(--tea-green);
-  color: var(--black);
-  box-shadow: 4px 4px 0px var(--black);
+  background: var(--cornflower-blue);
+  color: #ffffff;
+  border: 1px solid var(--cornflower-blue);
+  box-shadow: 0 4px 15px rgba(100, 141, 229, 0.25);
 }
 
 .rentBtn:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 141, 229, 0.35);
+  background-color: #517bd4;
 }
 
 .rentBtn:active {
-  transform: translate(0, 0);
-  box-shadow: 2px 2px 0px var(--black);
+  transform: translateY(0);
 }
 
 /* Meta info cards (Owner + Trust) */
@@ -495,8 +499,8 @@
   flex: 1;
   min-width: 250px;
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 5px 5px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.015);
   border-radius: 16px;
   padding: 1.2rem;
   display: flex;
@@ -506,9 +510,9 @@
 }
 
 .metaLabel {
-  font-size: 12px;
-  font-weight: 800;
-  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -525,21 +529,20 @@
 }
 
 .ownerName {
-  font-size: 1.1rem;
-  font-weight: 900;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .kycPill {
-  background: #eefdf4;
-  color: #16a34a;
-  border: 2.5px solid #16a34a;
+  background: rgba(202, 255, 208, 0.35);
+  color: #1b5e20;
+  border: 1px solid rgba(202, 255, 208, 0.8);
   border-radius: 99px;
   font-size: 10px;
-  font-weight: 800;
-  padding: 0.1rem 0.6rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  box-shadow: 1.5px 1.5px 0px #16a34a;
 }
 
 .trustBadges {
@@ -554,26 +557,24 @@
 
 .deliveryIcon {
   color: var(--cornflower-blue);
-  background: var(--lavender-veil);
-  border: 2px solid var(--black);
+  background: rgba(229, 212, 237, 0.4);
+  border: 1px solid rgba(229, 212, 237, 0.6);
   border-radius: 50%;
   padding: 6px;
   width: 36px;
   height: 36px;
   box-sizing: content-box;
-  box-shadow: 2px 2px 0px var(--black);
 }
 
 .secureIcon {
-  color: #16a34a;
-  background: var(--tea-green);
-  border: 2px solid var(--black);
+  color: #1b5e20;
+  background: rgba(202, 255, 208, 0.4);
+  border: 1px solid rgba(202, 255, 208, 0.6);
   border-radius: 50%;
   padding: 6px;
   width: 36px;
   height: 36px;
   box-sizing: content-box;
-  box-shadow: 2px 2px 0px var(--black);
 }
 
 .badgeText {
@@ -582,32 +583,32 @@
 }
 
 .badgeText strong {
-  font-size: 14px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .badgeText span {
   font-size: 11px;
-  font-weight: 700;
-  color: #666;
+  font-weight: 600;
+  color: #777;
 }
 
 /* Specs card */
 .specsCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 5px 5px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.015);
   border-radius: 16px;
   padding: 1.5rem;
 }
 
 .specsTitle {
-  font-size: 1.2rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 1.2rem;
-  border-bottom: 2px solid var(--black);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding-bottom: 0.5rem;
 }
 
@@ -621,32 +622,31 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  background: #faf9f6;
-  border: 2px solid var(--black);
+  background: rgba(100, 141, 229, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   padding: 0.8rem;
-  box-shadow: 2.5px 2.5px 0px var(--black);
 }
 
 .specLabel {
   font-size: 11px;
-  font-weight: 800;
-  color: #666;
+  font-weight: 700;
+  color: #777;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .specVal {
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--black);
 }
 
 /* About Section */
 .aboutCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 5px 5px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.015);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -655,11 +655,11 @@
 }
 
 .aboutCard h3 {
-  font-size: 1.2rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--black);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding-bottom: 0.5rem;
 }
 
@@ -673,9 +673,9 @@
 
 .bulletsList li {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.5;
-  color: #333;
+  color: #444;
   position: relative;
   padding-left: 1.5rem;
 }
@@ -685,13 +685,13 @@
   position: absolute;
   left: 0;
   color: var(--cornflower-blue);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 /* Dynamic Reviews Section at the Bottom */
 .reviewsSection {
   margin-top: 5rem;
-  border-top: 3px solid var(--black);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 3rem;
   max-width: 1400px;
   margin-left: auto;
@@ -699,8 +699,8 @@
 }
 
 .reviewsHeading {
-  font-size: 2rem;
-  font-weight: 900;
+  font-size: 1.8rem;
+  font-weight: 800;
   color: var(--black);
   margin-bottom: 2rem;
   letter-spacing: -0.5px;
@@ -715,8 +715,8 @@
 
 .reviewsStatsCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 6px 6px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.015);
   border-radius: 16px;
   padding: 2rem;
   display: flex;
@@ -725,11 +725,11 @@
 }
 
 .statsTitle {
-  font-size: 1.25rem;
-  font-weight: 900;
+  font-size: 1.2rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 3px solid var(--black);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding-bottom: 0.6rem;
   margin: 0;
 }
@@ -741,8 +741,8 @@
 }
 
 .scoreNumber {
-  font-size: 3.5rem;
-  font-weight: 900;
+  font-size: 3.2rem;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -760,8 +760,8 @@
 
 .statsTotalCount {
   font-size: 11px;
-  font-weight: 800;
-  color: #666;
+  font-weight: 700;
+  color: #777;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -776,8 +776,9 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
 }
 
 .barLabel {
@@ -788,9 +789,8 @@
 
 .barTrack {
   flex: 1;
-  height: 14px;
-  background: #faf9f6;
-  border: 2px solid var(--black);
+  height: 10px;
+  background: rgba(0, 0, 0, 0.04);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -803,7 +803,8 @@
 
 .barPercent {
   width: 35px;
-  font-size: 12px;
+  font-size: 11px;
+  color: #777;
   text-align: right;
   flex-shrink: 0;
 }
@@ -817,15 +818,15 @@
 /* Write review card styling */
 .writeReviewCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 6px 6px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.015);
   border-radius: 16px;
   padding: 2rem;
 }
 
 .writeReviewTitle {
-  font-size: 1.3rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 0.3rem 0;
@@ -833,7 +834,7 @@
 
 .writeReviewSub {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   color: #666;
   margin: 0 0 1.5rem 0;
 }
@@ -851,26 +852,28 @@
 }
 
 .formRowInput label {
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: #555;
 }
 
 .formInputText {
   padding: 0.8rem 1rem;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  font-weight: 800;
+  font-weight: 500;
   font-family: inherit;
   font-size: 0.95rem;
   outline: none;
-  transition: box-shadow 0.15s, background-color 0.15s;
+  transition: all 0.2s ease;
 }
 
 .formInputText:focus {
-  background-color: var(--lavender-veil);
-  box-shadow: 3px 3px 0px var(--black);
+  background-color: rgba(229, 212, 237, 0.1);
+  border-color: rgba(100, 141, 229, 0.5);
+  box-shadow: 0 0 0 3px rgba(100, 141, 229, 0.1);
 }
 
 .interactiveStars {
@@ -895,69 +898,67 @@
 }
 
 .ratingFeedbackLabel {
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  color: var(--black);
+  color: #2e5b00;
   margin-left: 0.8rem;
-  background: var(--lime-cream);
-  border: 2px solid var(--black);
+  background: rgba(219, 254, 135, 0.4);
+  border: 1px solid rgba(219, 254, 135, 0.6);
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
-  box-shadow: 2px 2px 0px var(--black);
 }
 
 .formTextarea {
   padding: 0.8rem 1rem;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  font-weight: 800;
+  font-weight: 500;
   font-family: inherit;
   font-size: 0.95rem;
   outline: none;
-  transition: box-shadow 0.15s, background-color 0.15s;
+  transition: all 0.2s ease;
   resize: vertical;
 }
 
 .formTextarea:focus {
-  background-color: var(--lavender-veil);
-  box-shadow: 3px 3px 0px var(--black);
+  background-color: rgba(229, 212, 237, 0.1);
+  border-color: rgba(100, 141, 229, 0.5);
+  box-shadow: 0 0 0 3px rgba(100, 141, 229, 0.1);
 }
 
 .submitReviewBtn {
-  padding: 0.9rem 1.8rem;
-  border: 3px solid var(--black);
-  border-radius: 12px;
-  font-weight: 900;
-  font-size: 1rem;
+  padding: 0.75rem 1.8rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
   background: var(--lime-cream);
-  color: var(--black);
-  box-shadow: 4px 4px 0px var(--black);
+  color: #2e5b00;
   cursor: pointer;
   text-align: center;
   width: fit-content;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.25s ease;
 }
 
 .submitReviewBtn:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(219, 254, 135, 0.4);
+  background-color: #c9eb6b;
 }
 
 .submitReviewBtn:active {
-  transform: translate(0, 0);
-  box-shadow: 2px 2px 0px var(--black);
+  transform: translateY(0);
 }
 
 .formSuccessMsg {
-  color: #16a34a;
-  background: #eefdf4;
-  border: 2.5px solid #16a34a;
+  color: #1b5e20;
+  background: rgba(202, 255, 208, 0.2);
+  border: 1px solid rgba(202, 255, 208, 0.6);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   padding: 0.7rem 1.2rem;
   border-radius: 8px;
-  box-shadow: 3px 3px 0px #16a34a;
 }
 
 /* Reviews List Container */
@@ -968,19 +969,19 @@
 }
 
 .listHeaderTitle {
-  font-size: 1.3rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 3px solid var(--black);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding-bottom: 0.6rem;
   margin: 0;
 }
 
 .emptyReviews {
   font-size: 1rem;
-  font-weight: 800;
-  color: #666;
+  font-weight: 600;
+  color: #777;
   font-style: italic;
 }
 
@@ -992,19 +993,19 @@
 
 .reviewItemCard {
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 4px 4px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  transition: transform 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .reviewItemCard:hover {
   transform: translateY(-2px);
-  box-shadow: 6px 6px 0px var(--black);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.025);
 }
 
 .reviewItemHeader {
@@ -1016,15 +1017,15 @@
 .userAvatar {
   width: 48px;
   height: 48px;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(229, 212, 237, 0.8);
   border-radius: 50%;
-  background: var(--lavender-veil);
+  background: rgba(229, 212, 237, 0.5);
+  color: #5b2c6f;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
+  font-weight: 700;
   font-size: 1.2rem;
-  box-shadow: 2.5px 2.5px 0px var(--black);
 }
 
 .userMetaCol {
@@ -1041,26 +1042,25 @@
 }
 
 .reviewerName {
-  font-weight: 900;
+  font-weight: 700;
   font-size: 1.05rem;
 }
 
 .verifiedRenterBadge {
-  background: #eefdf4;
-  color: #16a34a;
-  border: 2px solid #16a34a;
+  background: rgba(202, 255, 208, 0.35);
+  color: #1b5e20;
+  border: 1px solid rgba(202, 255, 208, 0.8);
   border-radius: 99px;
   font-size: 9px;
-  font-weight: 800;
-  padding: 0.1rem 0.5rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  box-shadow: 1.5px 1.5px 0px #16a34a;
 }
 
 .reviewDate {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   color: #777;
 }
 
@@ -1079,15 +1079,15 @@
 
 .reviewTextContent {
   font-size: 0.95rem;
-  font-weight: 700;
-  color: #333;
+  font-weight: 500;
+  color: #444;
   line-height: 1.5;
 }
 
 /* Suggestions Section */
 .suggestionsSection {
   margin-top: 5rem;
-  border-top: 3px solid var(--black);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 3rem;
   max-width: 1400px;
   margin-left: auto;
@@ -1095,8 +1095,8 @@
 }
 
 .suggestionsSection h2 {
-  font-size: 2rem;
-  font-weight: 900;
+  font-size: 1.8rem;
+  font-weight: 800;
   color: var(--black);
   margin-bottom: 2rem;
   letter-spacing: -0.5px;
@@ -1114,8 +1114,8 @@
   flex-shrink: 0;
   width: 220px;
   background: #ffffff;
-  border: 3px solid var(--black);
-  box-shadow: 5px 5px 0px var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
   border-radius: 12px;
   padding: 1.2rem;
   text-decoration: none;
@@ -1123,18 +1123,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  transition: transform 0.15s ease;
+  transition: all 0.25s ease;
 }
 
 .suggestionCard:hover {
   transform: translateY(-5px);
-  box-shadow: 8px 8px 0px var(--black);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
 }
 
 .suggestionImage {
   aspect-ratio: 1.2;
   background: #ffffff;
-  border: 2px solid var(--black);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -1150,8 +1150,8 @@
 }
 
 .suggestionTitle {
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--black);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1168,15 +1168,14 @@
 }
 
 .suggestionPrice {
-  font-size: 16px;
-  color: var(--black);
-  font-weight: 900;
-  background: var(--lavender-veil);
-  border: 2px solid var(--black);
+  font-size: 14px;
+  color: #5b2c6f;
+  font-weight: 700;
+  background: rgba(229, 212, 237, 0.45);
+  border: 1px solid rgba(229, 212, 237, 0.2);
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
   width: fit-content;
-  box-shadow: 2px 2px 0px var(--black);
 }
 
 /* Toast added feedback */
@@ -1184,13 +1183,13 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  background: var(--tea-green);
-  color: var(--black);
-  border: 3px solid var(--black);
-  box-shadow: 5px 5px 0px var(--black);
+  background: #ffffff;
+  color: #1b5e20;
+  border: 1px solid rgba(202, 255, 208, 0.8);
+  box-shadow: 0 10px 30px rgba(202, 255, 208, 0.25);
   padding: 1rem 2rem;
-  border-radius: 12px;
-  font-weight: 900;
+  border-radius: 30px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.8rem;

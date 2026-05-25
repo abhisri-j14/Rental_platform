@@ -27,6 +27,7 @@ function LoginPageContent() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [role, setRole] = useState(''); // 'user' or 'owner'
+  const [referredBy, setReferredBy] = useState('');
 
   // Handle Google OAuth callback & email verification
   useEffect(() => {
@@ -53,6 +54,7 @@ function LoginPageContent() {
     setStep('role');
     setError('');
     setRole('');
+    setReferredBy('');
   };
 
   const goToLogin = () => {
@@ -71,12 +73,12 @@ function LoginPageContent() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+ 
     try {
       const res = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone: `+91${phone}`, role }),
+        body: JSON.stringify({ name, email, password, phone: `+91${phone}`, role, referredBy }),
       });
       const data = await res.json();
 
@@ -335,6 +337,17 @@ function LoginPageContent() {
                         className={styles.input}
                       />
                     </div>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label>Referral Code (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="GZZM-XXXX"
+                      value={referredBy}
+                      onChange={(e) => setReferredBy(e.target.value.toUpperCase())}
+                      className={styles.input}
+                    />
                   </div>
 
                   <button type="submit" className={styles.primaryBtn} disabled={loading}>
