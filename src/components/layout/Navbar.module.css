@@ -293,235 +293,147 @@
 .categoriesToggleBtn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  color: #fff;
-  background-color: #000;
+  justify-content: center;
+  color: #000;
+  background-color: transparent;
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 2rem;
+  transition: opacity 0.2s;
+  padding: 0.5rem;
+  margin-right: 1.5rem;
   flex-shrink: 0;
 }
 
 .categoriesToggleBtn:hover {
-  background-color: #222;
+  opacity: 0.7;
 }
 
-.brandPreview {
-  display: grid;
-  grid-template-columns: 240px 1fr 1.2fr;
-  gap: 2rem;
+/* Categories Sidebar Drawer */
+.sidebarOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-start;
+  animation: fadeIn 0.2s ease;
+}
+
+.categoriesSidebar {
+  width: 320px;
+  max-width: 85vw;
   background: #fff;
-  color: #111;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 1rem;
-  padding: 0;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.06);
-  min-height: 0;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transform: translateY(-5px) scale(0.98);
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.2s ease,
-    transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    padding 0.3s ease,
-    margin-top 0.3s ease;
-  margin-top: 0;
-  max-width: 1100px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  pointer-events: none;
-}
-
-.brandPreviewOpen {
-  max-height: 520px;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  padding: 2.5rem;
-  margin-top: 1.5rem;
-  pointer-events: auto;
-}
-
-.brandPreviewOpen::before {
-  content: '';
-  position: absolute;
-  top: -1.5rem;
-  left: 0;
-  right: 0;
-  height: 1.5rem;
-  background: transparent;
-}
-
-.categorySelectorSide {
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  padding-right: 1.5rem;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  animation: slideInLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
 }
 
-.categorySelectorLinks {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  overflow-y: auto;
-  max-height: 380px;
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-.selectorLinkItem {
+.sidebarHeader {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  background: #fff;
+}
+
+.sidebarHeader h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+}
+
+.sidebarClose {
   background: none;
   border: none;
-  padding: 0.6rem 0.8rem;
-  text-align: left;
-  border-radius: 6px;
   cursor: pointer;
-  width: 100%;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: background 0.2s;
 }
 
-.selectorLinkItem:hover {
-  background: #f4f4f5;
+.sidebarClose:hover {
+  background: #f5f5f5;
+  color: #111;
+}
+
+.sidebarBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebarCategoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebarCategoryHeader {
+  font-size: 1.1rem;
+  font-weight: 800;
   color: #000;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-.selectorLinkActive {
-  background: #000;
-  color: #fff !important;
-  font-weight: 700;
+.sidebarCategoryHeader:hover {
+  color: var(--cornflower-blue);
+}
+
+.sidebarBrandList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding-left: 1.6rem;
+  border-left: 1.5px solid #eaeaea;
+  margin-left: 0.5rem;
+}
+
+.sidebarBrandLink {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.sidebarBrandLink:hover {
+  color: #000;
+  text-decoration: underline;
 }
 
 .categoryEmoji {
   font-size: 1.1rem;
 }
 
-.brandSide {
-  display: flex;
-  flex-direction: column;
-}
-
-.brandSide h3 {
-  font-size: 1.8rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  color: #000;
-}
-
-.brandListLabel {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #666;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.brandLinks {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.brandLinkItem {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #000;
-  text-decoration: none;
-  transition: transform 0.2s ease, color 0.2s ease;
-  display: inline-block;
-  width: fit-content;
-}
-
-.brandLinkItem:hover {
-  color: #333;
-  transform: translateX(5px);
-  text-decoration: underline;
-}
-
-/* Right Column: Product Showcase */
-.productSide {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background: #18181b;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  position: relative;
-}
-
-.bestRatedBadge {
-  position: absolute;
-  top: -12px;
-  right: 1.5rem;
-  background: #fff;
-  color: #000;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.7rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 4px;
-  border: 2px solid #000;
-}
-
-.previewImageWrap {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #fff;
-  border: 3px solid #000;
-  border-radius: 0.3rem;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.previewImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.productSide:hover .previewImage {
-  transform: scale(1.05);
-}
-
-.productMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.productTitle {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #fff;
-  margin: 0;
-}
-
-.reviewText {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #ccc;
-  font-style: italic;
-  margin: 0;
-}
 
 /* ── Cart Drawer ── */
 .drawerOverlay {
@@ -803,10 +715,6 @@
     padding: 0.8rem 1.5rem;
   }
 
-  .brandPreview {
-    grid-template-columns: 200px 1fr 1fr;
-  }
-
   .searchContainer {
     max-width: 400px;
   }
@@ -838,46 +746,7 @@
   }
 
   .categoriesToggleBtn {
-    margin-right: 0.5rem;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.95rem;
-  }
-
-  .brandPreview {
-    grid-template-columns: 1fr;
-    max-height: none;
-    overflow-y: auto;
-  }
-
-  .brandPreviewOpen {
-    max-height: 480px;
-    padding: 1.5rem;
-  }
-
-  .categorySelectorSide {
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    padding-right: 0;
-    padding-bottom: 0.8rem;
-    margin-bottom: 0.8rem;
-  }
-
-  .categorySelectorLinks {
-    flex-direction: row;
-    overflow-x: auto;
-    max-height: none;
-    padding-bottom: 0.4rem;
-    gap: 0.6rem;
-  }
-
-  .selectorLinkItem {
-    width: auto;
-    white-space: nowrap;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-  }
-
-  .previewImageWrap {
-    aspect-ratio: 16 / 9;
+    margin-right: 0.8rem;
+    padding: 0.4rem;
   }
 }

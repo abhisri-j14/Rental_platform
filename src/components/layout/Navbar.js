@@ -116,8 +116,7 @@ export default function Navbar({ onMenuClick }) {
   const { user, loading: authLoading, logout } = useAuth();
   const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeMenu, setActiveMenu] = useState(CATEGORY_MENU[0]);
-  const [categoryHoverOpen, setCategoryHoverOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isComparePage = pathname === '/compare';
@@ -223,10 +222,10 @@ export default function Navbar({ onMenuClick }) {
                 <button
                   type="button"
                   className={styles.categoriesToggleBtn}
-                  onClick={() => setCategoryHoverOpen(!categoryHoverOpen)}
+                  onClick={() => setSidebarOpen(true)}
                   suppressHydrationWarning={true}
                 >
-                  <Menu size={16} /> Categories
+                  <Menu size={20} />
                 </button>
                 <nav className={styles.categories}>
                   {CATEGORY_MENU.map(item => (
@@ -234,69 +233,11 @@ export default function Navbar({ onMenuClick }) {
                       key={item.key}
                       href={item.href}
                       className={styles.categoryLink}
-                      onClick={() => setCategoryHoverOpen(false)}
                     >
                       {item.label}
                     </Link>
                   ))}
                 </nav>
-              </div>
-
-              <div className={`${styles.brandPreview} ${categoryHoverOpen ? styles.brandPreviewOpen : ''}`}>
-                {/* Column 1: Category Selector */}
-                <div className={styles.categorySelectorSide}>
-                  <p className={styles.brandListLabel}>Browse Categories</p>
-                  <div className={styles.categorySelectorLinks}>
-                    {CATEGORY_MENU.map(item => (
-                      <button
-                        key={item.key}
-                        className={`${styles.selectorLinkItem} ${activeMenu.key === item.key ? styles.selectorLinkActive : ''}`}
-                        onMouseEnter={() => setActiveMenu(item)}
-                        onClick={() => {
-                          setActiveMenu(item);
-                          router.push(item.href);
-                          setCategoryHoverOpen(false);
-                        }}
-                      >
-                        <span className={styles.categoryEmoji}>{emojiMap[item.key] || '⭐'}</span> {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Column 2: Available Brands */}
-                <div className={styles.brandSide}>
-                  <h3>{activeMenu.label}</h3>
-                  <p className={styles.brandListLabel}>Available Brands</p>
-                  <div className={styles.brandLinks}>
-                    {activeMenu.brands.map(brand => (
-                      <Link
-                        key={brand}
-                        href={getBrandHref(activeMenu, brand)}
-                        className={styles.brandLinkItem}
-                        onClick={() => setCategoryHoverOpen(false)}
-                      >
-                        {brand}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Column 3: Showcase Preview */}
-                <div className={styles.productSide}>
-                  <div className={styles.bestRatedBadge}>Best Rated in {activeMenu.label}</div>
-                  <div className={styles.previewImageWrap}>
-                    <img src={activeMenu.previewImage} alt={activeMenu.previewTitle} className={styles.previewImage} loading="lazy" />
-                  </div>
-                  <div className={styles.productMeta}>
-                    <h4 className={styles.productTitle}>
-                      {activeMenu.previewTitle}
-                    </h4>
-                    <p className={styles.reviewText}>
-                      "{activeMenu.review}"
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -380,6 +321,49 @@ export default function Navbar({ onMenuClick }) {
                 </Link>
               </div>
             )}
+          </aside>
+        </div>
+      )}
+
+      {/* Categories Sidebar Drawer (Left slide-in, occupies 1/4 of page) */}
+      {sidebarOpen && (
+        <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)}>
+          <aside className={styles.categoriesSidebar} onClick={e => e.stopPropagation()}>
+            <div className={styles.sidebarHeader}>
+              <h2>Shop by Category</h2>
+              <button className={styles.sidebarClose} onClick={() => setSidebarOpen(false)} aria-label="Close menu">
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className={styles.sidebarBody}>
+              <div className={styles.sidebarNav}>
+                {CATEGORY_MENU.map(item => (
+                  <div key={item.key} className={styles.sidebarCategoryGroup}>
+                    <Link
+                      href={item.href}
+                      className={styles.sidebarCategoryHeader}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <span className={styles.categoryEmoji}>{emojiMap[item.key] || '⭐'}</span>
+                      {item.label}
+                    </Link>
+                    <div className={styles.sidebarBrandList}>
+                      {item.brands.map(brand => (
+                        <Link
+                          key={brand}
+                          href={getBrandHref(item, brand)}
+                          className={styles.sidebarBrandLink}
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          {brand}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </aside>
         </div>
       )}
