@@ -485,14 +485,7 @@ export default function ProfilePage() {
             <div className={styles.detailRow}>
               <div className={styles.detailLabel}><ShieldCheck size={16} /> Account Type</div>
               <div className={styles.detailValue}>
-                {user.role === 'owner' ? 'Store Owner' : (
-                  <div className={styles.promoteBox}>
-                    <span>User</span>
-                    <button onClick={handleBecomeOwner} className={styles.promoteBtn} disabled={saving}>
-                      Switch to Store Owner
-                    </button>
-                  </div>
-                )}
+                {user.role === 'owner' ? 'Store Owner' : 'Renter'}
               </div>
             </div>
 

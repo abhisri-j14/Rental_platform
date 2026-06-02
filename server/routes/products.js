@@ -149,6 +149,11 @@ router.get('/my/listings', auth, ownerOnly, async (req, res) => {
 router.post('/', auth, ownerOnly, upload.array('images', 10), async (req, res) => {
   try {
     const { title, brand, description, category, pricePerDay, actualPrice, damageDeposit, specs, manufactureDate } = req.body;
+    const isShopOwner = req.body.isShopOwner === 'true' || req.body.isShopOwner === true;
+    const isShopRegistered = req.body.isShopRegistered === 'true' || req.body.isShopRegistered === true;
+    const shopName = req.body.shopName || '';
+    const shopOpenedYear = req.body.shopOpenedYear || '';
+    const shopLicenseNo = req.body.shopLicenseNo || '';
 
     if (!title || !brand || !category || !pricePerDay || !damageDeposit) {
       return res.status(400).json({ error: 'Title, brand, category, price, and damage deposit are required' });
@@ -203,6 +208,11 @@ router.post('/', auth, ownerOnly, upload.array('images', 10), async (req, res) =
       images: finalImages,
       manufactureDate: manufactureDate || '',
       owner: req.user.id,
+      isShopOwner,
+      shopName,
+      shopOpenedYear,
+      shopLicenseNo,
+      isShopRegistered
     });
 
     // SMS notification to owner

@@ -181,6 +181,26 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  isShopOwner: {
+    type: Boolean,
+    default: false,
+  },
+  shopName: {
+    type: String,
+    default: '',
+  },
+  shopOpenedYear: {
+    type: String,
+    default: '',
+  },
+  shopLicenseNo: {
+    type: String,
+    default: '',
+  },
+  isShopRegistered: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 // Text index for search

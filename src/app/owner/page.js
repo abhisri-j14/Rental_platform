@@ -30,6 +30,11 @@ export default function OwnerPage() {
     damageDeposit: '',
     description: '',
     specs: '',
+    isShopOwner: false,
+    shopName: '',
+    shopOpenedYear: '',
+    shopLicenseNo: '',
+    isShopRegistered: false,
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -164,6 +169,11 @@ export default function OwnerPage() {
     data.append('damageDeposit', formData.damageDeposit);
     data.append('description', formData.description);
     data.append('specs', JSON.stringify(parsedSpecs));
+    data.append('isShopOwner', formData.isShopOwner);
+    data.append('shopName', formData.shopName);
+    data.append('shopOpenedYear', formData.shopOpenedYear);
+    data.append('shopLicenseNo', formData.shopLicenseNo);
+    data.append('isShopRegistered', formData.isShopRegistered);
     
     selectedFiles.forEach(file => {
       data.append('images', file);
@@ -185,7 +195,12 @@ export default function OwnerPage() {
         setFormData({
           title: '', brand: '', category: 'laptops',
           actualPrice: '', pricePerDay: '', damageDeposit: '',
-          description: '', specs: ''
+          description: '', specs: '',
+          isShopOwner: false,
+          shopName: '',
+          shopOpenedYear: '',
+          shopLicenseNo: '',
+          isShopRegistered: false,
         });
         setSelectedFiles([]);
         setPreviews([]);
@@ -212,25 +227,8 @@ export default function OwnerPage() {
         <div className={styles.restrictedView}>
           <Store size={64} color="#fff" />
           <h1>Lister Access Required</h1>
-          <p>Your account is currently set to <strong>Renter</strong>. To list your gear and start earning, you need to upgrade to a <strong>Store Owner</strong> account.</p>
+          <p>Your account is currently set to <strong>Renter</strong>. Renter accounts cannot list devices on Gizzmo. To list your gear and start earning, please register a new account as a <strong>Store Owner</strong>.</p>
           <div className={styles.promoteActions}>
-            <button 
-              onClick={async () => {
-                const token = localStorage.getItem('gadgetgo_token');
-                const res = await fetch(`${API_URL}/api/auth/become-owner`, {
-                  method: 'PUT',
-                  headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                  const data = await res.json();
-                  setUser(data.user);
-                  window.location.reload(); // Hard refresh to ensure all components see the change
-                }
-              }}
-              className={styles.promoteLargeBtn}
-            >
-              UNLOCK LISTER DASHBOARD
-            </button>
             <Link href="/profile" className={styles.backBtn}>Go to Profile</Link>
           </div>
         </div>
@@ -441,6 +439,91 @@ export default function OwnerPage() {
 
         <form onSubmit={handleSubmit} className={`${styles.listingForm} ${isSubscriptionExpired ? styles.formDisabled : ''}`}>
           
+          {/* Lister Shop Verification Section */}
+          <div style={{
+            border: '2px solid #333',
+            background: '#0a0a0a',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+            marginBottom: '1rem'
+          }}>
+            <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 900, margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              👤 Lister Verification
+            </h3>
+            
+            <div className={styles.inputGroup}>
+              <label>Are you a Shop Owner?</label>
+              <select 
+                name="isShopOwner" 
+                value={formData.isShopOwner ? 'true' : 'false'} 
+                onChange={(e) => setFormData(prev => ({ ...prev, isShopOwner: e.target.value === 'true' }))}
+                disabled={isSubscriptionExpired}
+              >
+                <option value="false">No, I am an individual seller</option>
+                <option value="true">Yes, I am a Shop Owner</option>
+              </select>
+            </div>
+
+            {formData.isShopOwner && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', borderTop: '1px solid #222', paddingTop: '1.25rem' }}>
+                <div className={styles.inputGroup}>
+                  <label>Shop Name</label>
+                  <input 
+                    type="text" 
+                    name="shopName" 
+                    value={formData.shopName} 
+                    onChange={handleChange} 
+                    placeholder="e.g. Gizmo Electronics" 
+                    required={formData.isShopOwner}
+                    disabled={isSubscriptionExpired}
+                  />
+                </div>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.inputGroup} style={{ flex: 1 }}>
+                    <label>Year Opened</label>
+                    <input 
+                      type="number" 
+                      name="shopOpenedYear" 
+                      value={formData.shopOpenedYear} 
+                      onChange={handleChange} 
+                      placeholder="e.g. 2018" 
+                      required={formData.isShopOwner}
+                      disabled={isSubscriptionExpired}
+                    />
+                  </div>
+                  <div className={styles.inputGroup} style={{ flex: 1 }}>
+                    <label>Shop License Number</label>
+                    <input 
+                      type="text" 
+                      name="shopLicenseNo" 
+                      value={formData.shopLicenseNo} 
+                      onChange={handleChange} 
+                      placeholder="e.g. LIC-4589201" 
+                      required={formData.isShopOwner}
+                      disabled={isSubscriptionExpired}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label>Official Registration Status</label>
+                  <select 
+                    name="isShopRegistered" 
+                    value={formData.isShopRegistered ? 'true' : 'false'} 
+                    onChange={(e) => setFormData(prev => ({ ...prev, isShopRegistered: e.target.value === 'true' }))}
+                    disabled={isSubscriptionExpired}
+                  >
+                    <option value="false">No, Registration Pending / Unregistered</option>
+                    <option value="true">Yes, Officially Registered Business</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className={styles.inputGroup}>
             <label>Title</label>
             <input 

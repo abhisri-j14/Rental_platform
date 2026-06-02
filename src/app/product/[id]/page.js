@@ -325,11 +325,21 @@ export default function ProductPage({ params }) {
               <span className={styles.metaLabel}>Owned by:</span>
               <div className={styles.ownerDetails}>
                 <Store size={18} className={styles.metaIcon} />
-                <span className={styles.ownerName}>{product.owner?.name || 'Gizzmo Store'}</span>
+                <span className={styles.ownerName}>
+                  {product.isShopOwner && product.shopName ? `${product.shopName} (by ${product.owner?.name})` : (product.owner?.name || 'Gizzmo Store')}
+                </span>
                 {product.owner?.isKycVerified && (
                   <span className={styles.kycPill} title="Aadhaar KYC Verified">KYC Verified</span>
                 )}
+                {product.isShopOwner && product.isShopRegistered && (
+                  <span className={styles.kycPill} style={{ background: '#0284c7', color: '#fff', marginLeft: '5px' }} title="Registered Business">Registered Shop</span>
+                )}
               </div>
+              {product.isShopOwner && (
+                <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                  🏪 Opened: {product.shopOpenedYear} | License: {product.shopLicenseNo}
+                </div>
+              )}
             </div>
 
             <div className={styles.trustBadges}>
