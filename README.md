@@ -1,7 +1,7 @@
-# GadgetGo 🎮📷💻
+# Gizzmo 🎮📷💻
 **The Ultimate Electronics Rental Platform**
 
-GadgetGo is a modern, vibrant, and fully functional electronics rental marketplace. It allows students and creatives to rent high-end tech (laptops, cameras, drones, gaming consoles) at affordable daily rates, while giving store owners a platform to list their devices and earn passive income.
+Gizzmo is a modern, vibrant, and fully functional electronics rental marketplace. It allows students and creatives to rent high-end tech (laptops, cameras, drones, gaming consoles) at affordable daily rates, while giving store owners a platform to list their devices and earn passive income.
 
 ---
 
@@ -97,4 +97,4 @@ node server/seed.js
 4. **Product Comparison**: The `/compare` route fetches category data and allows a side-by-side spec comparison of up to 3 live database items.
 
 ---
-*Built with ❤️ for GadgetGo.*
+*Built with ❤️ for Gizzmo.*
